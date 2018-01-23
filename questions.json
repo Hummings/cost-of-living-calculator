@@ -1,0 +1,366 @@
+[
+  {
+    "title": "Where will you live?",
+    "categories": [
+      {
+        "title": "The \"City\"",
+        "answers": [
+          {
+            "text": "Subsidized housing/roommate situation",
+            "points": 5
+          },
+          {
+            "text": "A rent controlled one bedroom apartment",
+            "points":  10
+          },
+          {
+            "text": "A two bedroom in a pristine high rise ",
+            "points":  25
+          },
+          {
+            "text": "A nice single floor unit in a renovated Victorian ",
+            "points":  35
+          },
+          {
+            "text": "A modest three bedroom house ",
+            "points":  80
+          },
+          {
+            "text": "Your very own iconic brownstone with a view ",
+            "points":  175
+          }
+        ]
+      },
+      {
+        "title": "The \"Outer Boro\"",
+        "answers": [
+          {
+            "text": "A loft",
+            "points":  10
+          },
+          {
+            "text": "An 800-square-foot condo near the Lake ",
+            "points":  15
+          },
+          {
+            "text": "A modest 3 bedroom starter home",
+            "points":  25
+          },
+          {
+            "text": "An artsy, modern 3 level home",
+            "points":  50
+          }
+        ]
+      },
+      {
+        "title": "The \"Suburbs\"",
+        "answers": [
+          {
+            "text": "A townhouse",
+            "points":  20
+          },
+          {
+            "text": "A nice 3 bedroom in a good school district",
+            "points":  40
+          },
+          {
+            "text": "A McMansion ",
+            "points":  75
+          },
+          {
+            "text": "An Estate ",
+            "points":  105
+          }
+        ]
+      },
+      {
+        "title": "Your Weekend Getaway",
+        "answers": [
+          {
+            "text": "Couch surfing",
+            "points":  0
+          },
+          {
+            "text": "Airbnb",
+            "points":  10
+          },
+          {
+            "text": "A rustic barn ",
+            "points":  20
+          },
+          {
+            "text": "A cottage by the ocean or in the mountains ",
+            "points":  35
+          },
+          {
+            "text": "A mansion with guest house ",
+            "points":  150
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Will you have kids?",
+    "answers": [
+      {
+        "text": "Yes",
+        "subquestions": [
+          {
+            "id": "num-kids",
+            "title": "How many?",
+            "answers": [
+              {
+
+                "text": "1",
+                "points": 1
+              },
+              {
+
+                "text": "2",
+                "points": 2
+              },
+              {
+
+                "text": "3",
+                "points": 3
+              },
+              {
+
+                "text": "4+",
+                "points": 4
+              }
+            ]
+          },
+          {
+            "title": "Where will they go to school?",
+            "inputType": "multipleChoice",
+            "scoringStrategy": {
+              "multiplyBy": "num-kids"
+            },
+            "categories": [
+              {
+                "title": "Preschool",
+                "answers": [
+                  {
+                    "text": "Local P.S",
+                    "points":  0
+                  },
+                  {
+                    "text": "Neighborhood centers",
+                    "points": 4
+                  },
+                  {
+                    "text": "YMCA",
+                    "points":	7
+                  },
+                  {
+                    "text": "Montessori",
+                    "points": 12
+                  },
+                  {
+                    "text": "Private tutor",
+                    "points": 15
+                  }
+                ]
+              },
+              {
+                "title":  "Elementary School",
+                "answers": [
+                  {
+                    "text": "Local P.S",
+                    "points":  0
+                  },
+                  {
+                    "text": "[Holy Name] School",
+                    "points":	5
+                  },
+                  {
+                    "text": "Fancy Day School",
+                    "points": 15
+                  }
+                ]
+              },
+              {
+                "title": "High School",
+                "answers": [
+                  {
+                    "text": "Public High School",
+                    "points":  0
+                  },
+                  {
+                    "text": "[Holy Name] School",
+                    "points": 10
+                  },
+                  {
+                    "text": "Fancy Day School",
+                    "points": 15
+                  },
+                  {
+                    "text": "Andover",
+                    "points": 20
+                  },
+                  {
+                    "text": "Swiss boarding school",
+                    "points": 25
+                  }
+                ]
+              },
+              {
+                "title": "College",
+                "answers": [
+                  {
+                    "text": "Local city college",
+                    "points":  6
+                  },
+                  {
+                    "text": "Top State University or Private College with scholarship/work-study",
+                    "points": 12
+                  },
+                  {
+                    "text": "Tufts, USC, Ivy Leagues",
+                    "points": 27
+                  }
+                ]
+              },
+              {
+                "title": "After College",
+                "answers": [
+                  {
+                    "text": "A hug",
+                    "points":  0
+                  },
+                  {
+                    "text": "A new Prius",
+                    "points": 12
+                  },
+                  {
+                    "text": "Rent in the \"City\" + living expenses",
+                    "points": 20
+                  },
+                  {
+                    "text": "Grad school",
+                    "points": 30
+                  },
+                  {
+                    "text": "A fancy wedding",
+                    "points": 40
+                  },
+                  {
+                    "text": "A down payment",
+                    "points": 50
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+          {
+            "text": "No",
+            "points": 0
+          }
+        ]
+      },
+      {
+        "title": "What do you drive?",
+        "scoringStrategy": {
+          "additive": true
+        },
+        "inputType": "multipleChoice",
+        "answers": [
+          {
+            "text": "Nothing.  I rely on public transport and Uber",
+            "points": 1
+          },
+          {
+            "text": "A 7 year old hand-me down",
+            "points": 2
+          },
+          {
+            "text": "A 3 year old Honda",
+            "points": 4
+          },
+          {
+            "text": "A shiny BMW",
+            "points": 6
+          },
+          {
+            "text": "A Tesla",
+            "points": 9
+          },
+          {
+            "text": "A boat",
+            "points": 12
+          },
+          {
+            "text": "Your private plane",
+            "points": 20
+          }
+        ]
+      },
+      {
+        "title": "How are you doing physically?",
+        "answers": [
+          {
+            "text": "Fit as ever",
+            "subquestions": [
+              {
+                "text": "How are you keeping in shape?",
+                "inputType": "multipleChoice",
+                "answers": [
+                  {
+                    "text": "Vitamins and daily run",
+                    "points": 1
+                  },
+                  {
+                    "text": "Personal trainer",
+                    "points": 2
+                  },
+                  {
+                    "text": "Acupuncture and other regular cosmetic medical \"treatments\"",
+                    "points":  3
+                  },
+                  {
+                    "text": "Regular house calls by the private physician",
+                    "points": 5
+                  }
+
+                ]
+              }
+            ]
+          },
+          {
+            "text": "Falling apart",
+            "subquestions": [
+              {
+                "text": "How are you keeping it together?",
+                "inputType": "multipleChoice",
+                "answers": [
+                  {
+                    "text": "Lipitor and Viagra",
+                    "points": 3
+                  },
+                  {
+                    "text": "Regular psychotherapy",
+                    "points": 5
+                  },
+                  {
+                    "text": "Regular liposuction and botex",
+                    "points": 10
+                  },
+                  {
+                    "text": "Regular dialysis",
+                    "points": 15
+                  },
+                  {
+                    "text": "Regular house calls by the private physician",
+                    "points": 18
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
