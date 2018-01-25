@@ -1,28 +1,23 @@
 import Answer from './Answer';
-import Category from './Category';
 import Immutable from 'immutable';
 
 const Question = Immutable.Record({
   title: "",
   answers: new Immutable.List(),
-  categories: new Immutable.List(),
+  subQuestions: new Immutable.List(),
 });
 
 Object.assign(Question.prototype, {
-  getValue() {
 
-
-  },
 });
 
 Question.deserialize = json => {
   json = Object.assign({}, json);
   const hasAnswersSpecified = json.answers && json.answers.length;
-  const hasCategoriesSpecified = json.categories && json.categories.length;
+  const hasSubQuestionsSpecified = json.subQuestions && json.subQuestions.length;
 
-  if ((hasAnswersSpecified && hasCategoriesSpecified)
-     || (!hasAnswersSpecified && !hasCategoriesSpecified)) {
-    throw new Error('Either answers or categories is required but not both');
+  if (hasAnswersSpecified && hasSubQuestionsSpecified) {
+    throw new Error('Either answers or subQuestions is required but not both');
   }
 
 
@@ -31,9 +26,9 @@ Question.deserialize = json => {
       json.answers.map(a => Answer.deserialize(a))
     );
   }
-  if (hasCategoriesSpecified) {
-    json.categories = new Immutable.List(
-      json.categories.map(c => Category.deserialize(c))
+  if (hasSubQuestionsSpecified) {
+    json.subQuestions = new Immutable.List(
+      json.subQuestions.map(c => Question.deserialize(c))
     );
   }
   return new Question(json);

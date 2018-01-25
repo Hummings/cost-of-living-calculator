@@ -1,5 +1,4 @@
 import Answer from '../Answer';
-import Category from '../Category';
 import Immutable from 'immutable';
 import Question from '../Question';
 
@@ -18,9 +17,9 @@ describe('Answer', () => {
       }));
     });
 
-    it('deserializes subquestions', () => {
+    it('deserializes subQuestions', () => {
       const answer = Answer.deserialize({
-        subquestions: [
+        subQuestions: [
           {
             title: 'q1',
             answers: [
@@ -30,7 +29,7 @@ describe('Answer', () => {
           },
           {
             title: 'q2',
-            categories: [
+            subQuestions: [
               {
                 title: 'cats and dogs',
                 answers: [
@@ -49,7 +48,7 @@ describe('Answer', () => {
           },
         ],
       });
-      expect(answer.get('subquestions')).toEqual(new Immutable.List([
+      expect(answer.get('subQuestions')).toEqual(new Immutable.List([
         new Question({
           title: 'q1',
           answers: new Immutable.List([
@@ -59,15 +58,15 @@ describe('Answer', () => {
         }),
         new Question({
           title: 'q2',
-          categories: new Immutable.List([
-            new Category({
+          subQuestions: new Immutable.List([
+            new Question({
               title: 'cats and dogs',
               answers: new Immutable.List([
                 new Answer({ text: 'c1a1', points: 0 }),
                 new Answer({ text: 'c1a2', points: 345 }),
               ]),
             }),
-            new Category({
+            new Question({
               title: 'foobarasdf',
               answers: new Immutable.List([
                 new Answer({ text: 'c2a1', points: 12 }),

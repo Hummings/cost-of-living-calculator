@@ -4,7 +4,7 @@ import Question from './Question';
 const Answer = Immutable.Record({
   text: "",
   points: 0,
-  subquestions: new Immutable.List(),
+  subQuestions: new Immutable.List(),
 });
 
 Object.assign(Answer.prototype, {
@@ -13,8 +13,8 @@ Object.assign(Answer.prototype, {
 
 Answer.deserialize = json => {
   json = Object.assign({}, json);
-  json.subquestions = new Immutable.List(
-    (json.subquestions || []).map(q => Question.deserialize(q))
+  json.subQuestions = new Immutable.List(
+    (json.subQuestions || []).map(q => Question.deserialize(q))
   );
   return new Answer(json);
 }
