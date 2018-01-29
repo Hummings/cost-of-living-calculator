@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Question from '../models/Question';
 
-import { ROMAN_NUMERALS } from '../constants';
+import { LETTERS, ROMAN_NUMERALS } from '../constants';
 
 class QuestionComponent extends React.Component {
 
@@ -12,13 +12,30 @@ class QuestionComponent extends React.Component {
   }
 
   render() {
-    const { question } = this.props;
+    const { question, label, level } = this.props;
     return (
-      <div>
-        <h4>{ this.props.question.title }</h4>
+      <div className={'level' + level}>
+        <h4>{ label && `(${label}) ` }{ this.props.question.title }</h4>
+        { this.renderSubQuestions() }
         { this.renderAnswers() }
       </div>
     );
+  }
+
+  renderSubQuestions() {
+    const level = this.props.level + 1;
+    const subQuestions = this.props.question.get('subQuestions');
+    if (!subQuestions.isEmpty()) {
+      return (
+        <ul className="subQuestions">
+        {subQuestions.map((q, i) => (
+          <li key={q.getId()} className="subQuestion">
+          ))}
+        </ul>
+      );
+    } else {
+      return '';
+    }
   }
 
   renderAnswers() {
@@ -31,7 +48,7 @@ class QuestionComponent extends React.Component {
           key={a.getId()}
           className={ 'answer ' + (this.isDisabled(a) ? 'disabled' : 'enabled') }
           onClick={ this.selectAnswer.bind(this, a) }
-          >({ ROMAN_NUMERALS[i] }) { a.text }</li>
+          >({ LETTERS[i] }) { a.text }</li>
         ))}
         </ul>
       );
@@ -50,8 +67,15 @@ class QuestionComponent extends React.Component {
   }
 }
 
+QuestionComponent.defaultProps = {
+  label: '',
+  level: 0,
+};
+
 QuestionComponent.propTypes = {
-  question: PropTypes.instanceOf(Question),
+  label: PropTypes.string,
+  level: PropTypes.number,
+  question: PropTypes.instanceOf(Question).isRequired,
 };
 
 export default QuestionComponent;

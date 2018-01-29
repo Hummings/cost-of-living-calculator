@@ -1,14 +1,23 @@
 import Answer from './Answer';
 import Immutable from 'immutable';
 
+import { dasherize } from '../utils';
+
 const Question = Immutable.Record({
+  id: '',
   title: '',
   answers: new Immutable.List(),
   subQuestions: new Immutable.List(),
 });
 
 Object.assign(Question.prototype, {
-
+  getId() {
+    if (this.id) {
+      return this.id;
+    } else {
+      return dasherize(this.title);
+    }
+  }
 });
 
 Question.deserialize = json => {

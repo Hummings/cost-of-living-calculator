@@ -4,7 +4,7 @@ import Immutable from 'immutable';
 import Question from '../../models/Question';
 import React from 'react';
 
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
 describe('QuestionComponent', () => {
   let question;
@@ -18,12 +18,17 @@ describe('QuestionComponent', () => {
         new Answer({ text: 'somethin' }),
       ),
     });
-    wrapper = mount(<QuestionComponent question={question} />);
+    wrapper = shallow(<QuestionComponent question={question} />);
   });
 
 
   it('renders the question\'s title', () => {
     expect(wrapper.find('h4').text()).toEqual('what\'s goin\' on?');
+  });
+
+  it('renders the question\'s title with a label', () => {
+    wrapper = shallow(<QuestionComponent question={question} label='I' />);
+    expect(wrapper.find('h4').text()).toEqual('(I) what\'s goin\' on?');
   });
 
   it('renders answers in a list', () => {
@@ -40,8 +45,8 @@ describe('QuestionComponent', () => {
       const enabledAnswers = wrapper.find('li.answer.enabled');
       expect(disabledAnswers.length).toBe(1);
       expect(enabledAnswers.length).toBe(1);
-      expect(disabledAnswers.text()).toEqual('(I) nothin');
-      expect(enabledAnswers.text()).toEqual('(II) somethin');
+      expect(disabledAnswers.text()).toEqual('(a) nothin');
+      expect(enabledAnswers.text()).toEqual('(b) somethin');
     });
 
     it('is not disabled if there is no answer selected', () => {
@@ -58,8 +63,48 @@ describe('QuestionComponent', () => {
       const enabledAnswers = wrapper.find('li.answer.enabled');
       expect(disabledAnswers.length).toBe(1);
       expect(enabledAnswers.length).toBe(1);
-      expect(enabledAnswers.text()).toEqual('(I) nothin');
-      expect(disabledAnswers.text()).toEqual('(II) somethin');
+      expect(enabledAnswers.text()).toEqual('(a) nothin');
+      expect(disabledAnswers.text()).toEqual('(b) somethin');
+    });
+  });
+
+  describe('a subQuestion item', () => {
+    beforeEach(() => {
+      question = new Question({
+        title: 'hello',
+        subQuestions: Immutable.List.of(
+          new Question({
+            title: 'who\'s there?',
+            answers: Immutable.List.of(
+              new Answer({ text: 'Big Bird' }),
+              new Answer({ text: 'Mr. Strawberry' }),
+            ),
+          }),
+          new Question({
+            title: 'what time is it?',
+            answers: Immutable.List.of(
+              new Answer({ text: 'early' }),
+              new Answer({ text: 'late' }),
+            ),
+          }),
+        ),
+      });
+      expect(question.get('subQuestions').size).toBe(2);
+      wrapper = shallow(<QuestionComponent question={question} />);
+    });
+
+    it('is rendered recursively', () => {
+      expect(wrapper.find('div.level0').length).toBe(1);
+      expect(wrapper.find('div.level0 > h4').text()).toEqual('hello');
+
+      expect(wrapper.find('ul.subQuestions').length).toBe(1);
+      expect(wrapper.find('li.subQuestion').length).toBe(2);
+
+      expect(wrapper.find(QuestionComponent).length).toBe(2);
+      expect(wrapper.find(QuestionComponent).get(0).props.label).toEqual('I');
+      expect(wrapper.find(QuestionComponent).get(0).props.level).toEqual(1);
+      expect(wrapper.find(QuestionComponent).get(1).props.label).toEqual('II');
+      expect(wrapper.find(QuestionComponent).get(1).props.level).toEqual(1);
     });
   });
 });

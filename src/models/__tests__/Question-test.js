@@ -3,6 +3,25 @@ import Immutable from 'immutable';
 import Question from '../Question';
 
 describe('Question', () => {
+
+  describe('getId', () => {
+    it('returns explicit ids', () => {
+      const q = new Question({
+        id: 'aksdjf2',
+        title: 'the real question',
+      });
+      expect(q.getId()).toEqual('aksdjf2');
+    });
+
+    it('dasherizes the title if no id was specified', () => {
+      const q = new Question({
+        title: 'the real question',
+      });
+      expect(q.getId()).toEqual('the-real-question');
+    });
+  });
+
+
   describe('deserialize', () => {
     it('deserializes the title and answers', () => {
       const q = Question.deserialize({
