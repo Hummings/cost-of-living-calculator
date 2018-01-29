@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:debug": "node --inspect-brk $(npm bin)/jest --runInBand -- ",
+    "test:debug": "node debug $(npm bin)/jest --runInBand -- ",
     "start": "webpack-dev-server --inline --content-base",
     "build": "webpack"
   },
