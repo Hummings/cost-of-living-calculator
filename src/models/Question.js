@@ -2,7 +2,7 @@ import Answer from './Answer';
 import Immutable from 'immutable';
 
 const Question = Immutable.Record({
-  title: "",
+  title: '',
   answers: new Immutable.List(),
   subQuestions: new Immutable.List(),
 });
