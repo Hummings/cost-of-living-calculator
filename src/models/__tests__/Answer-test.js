@@ -5,6 +5,23 @@ import Question from '../Question';
 
 describe('Answer', () => {
 
+  describe('getId', () => {
+    it('returns explicit ids', () => {
+      const a = new Answer({
+        id: 'aksdjf2',
+        text: 'the real answer',
+      });
+      expect(a.getId()).toEqual('aksdjf2');
+    });
+
+    it('dasherizes the text if no id was specified', () => {
+      const a = new Answer({
+        text: 'the real answer',
+      });
+      expect(a.getId()).toEqual('the-real-answer');
+    });
+  });
+
   describe('deserialize', () => {
     it('deserializes the text and points', () => {
       const answer = Answer.deserialize({

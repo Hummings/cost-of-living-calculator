@@ -62,5 +62,26 @@ describe('Question', () => {
         }),
       ]));
     });
+
+    it('requires either subquestions or answers', () => {
+      expect(() => {
+        Question.deserialize({ title: 'hello', answers: [], subQuestions: [] });
+      }).toThrow();
+    });
+
+    it('does not allow both subQuestions and answers', () => {
+      expect(() => {
+        Question.deserialize({
+          title: 'hello',
+          answers: [
+            { text: 'asafd', points: 3 },
+          ],
+          subQuestions: [
+            { title: 'hqwe', answers: [ { text: '3113jk', points: 193 } ] },
+          ],
+        });
+      }).toThrow();
+    });
+
   });
 });

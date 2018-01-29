@@ -45,6 +45,7 @@
       "json",
       "es6"
     ],
+    "setupTestFrameworkScriptFile": "<rootDir>/src/test-setup.js",
     "roots": [
       "<rootDir>/src/"
     ]
