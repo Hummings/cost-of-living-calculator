@@ -16,21 +16,18 @@ Question.deserialize = json => {
   const hasAnswersSpecified = json.answers && json.answers.length;
   const hasSubQuestionsSpecified = json.subQuestions && json.subQuestions.length;
 
-  if (hasAnswersSpecified && hasSubQuestionsSpecified) {
+  if ((hasAnswersSpecified && hasSubQuestionsSpecified) ||
+     (!hasAnswersSpecified && !hasSubQuestionsSpecified)) {
     throw new Error('Either answers or subQuestions is required but not both');
   }
 
+  json.answers = new Immutable.List(
+    (json.answers || []).map(a => Answer.deserialize(a))
+  );
+  json.subQuestions = new Immutable.List(
+    (json.subQuestions || []).map(c => Question.deserialize(c))
+  );
 
-  if (hasAnswersSpecified) {
-    json.answers = new Immutable.List(
-      json.answers.map(a => Answer.deserialize(a))
-    );
-  }
-  if (hasSubQuestionsSpecified) {
-    json.subQuestions = new Immutable.List(
-      json.subQuestions.map(c => Question.deserialize(c))
-    );
-  }
   return new Question(json);
 }
 
