@@ -66,6 +66,13 @@ describe('QuestionComponent', () => {
       expect(enabledAnswers.text()).toEqual('(a) nothin');
       expect(disabledAnswers.text()).toEqual('(b) somethin');
     });
+
+    it('calls the onAnswer prop on click', () => {
+      const onAnswer = jest.fn();
+      wrapper = shallow(<QuestionComponent question={question} onAnswer={onAnswer} />);
+      wrapper.find('li.answer').first().simulate('click');
+      expect(onAnswer).toHaveBeenCalled();
+    });
   });
 
   describe('a subQuestion item', () => {
@@ -103,8 +110,47 @@ describe('QuestionComponent', () => {
       expect(wrapper.find(QuestionComponent).length).toBe(2);
       expect(wrapper.find(QuestionComponent).get(0).props.label).toEqual('I');
       expect(wrapper.find(QuestionComponent).get(0).props.level).toEqual(1);
+      expect(wrapper.find(QuestionComponent).get(0).props.onAnswer)
+        .toBeInstanceOf(Function);
       expect(wrapper.find(QuestionComponent).get(1).props.label).toEqual('II');
       expect(wrapper.find(QuestionComponent).get(1).props.level).toEqual(1);
+      expect(wrapper.find(QuestionComponent).get(1).props.onAnswer)
+        .toBeInstanceOf(Function);
+    });
+
+    it('indicates if it is the active subQuestion', () => {
+      expect(wrapper.find('li.subQuestion.active').length).toBe(1);
+      expect(wrapper.find('li.subQuestion.not-active').length).toBe(1);
+
+      let active = wrapper.find('li.subQuestion.active');
+      let notActive = wrapper.find('li.subQuestion.not-active');
+
+      expect(active.find(QuestionComponent).get(0).props.question).toBe(
+        question.subQuestions.get(0)
+      );
+      expect(notActive.find(QuestionComponent).get(0).props.question).toBe(
+        question.subQuestions.get(1)
+      );
+
+      wrapper.setState({ activeSubQuestion: 1 });
+
+      active = wrapper.find('li.subQuestion.active');
+      notActive = wrapper.find('li.subQuestion.not-active');
+      expect(active.find(QuestionComponent).get(0).props.question).toBe(
+        question.subQuestions.get(1)
+      );
+      expect(notActive.find(QuestionComponent).get(0).props.question).toBe(
+        question.subQuestions.get(0)
+      );
+    });
+
+    it('increments the active subquestion when answered', () => {
+      expect(wrapper.state('activeSubQuestion')).toBe(0);
+
+      const active = wrapper.find('li.subQuestion.active');
+      active.find(QuestionComponent).get(0).props.onAnswer();
+
+      expect(wrapper.state('activeSubQuestion')).toBe(1);
     });
   });
 });

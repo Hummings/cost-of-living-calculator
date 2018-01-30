@@ -8,7 +8,10 @@ class QuestionComponent extends React.Component {
 
   constructor() {
     super();
-    this.state = { selectedAnswer: null };
+    this.state = {
+      selectedAnswer: null,
+      activeSubQuestion: 0,
+    };
   }
 
   render() {
@@ -29,8 +32,18 @@ class QuestionComponent extends React.Component {
       return (
         <ul className="subQuestions">
         {subQuestions.map((q, i) => (
-          <li key={q.getId()} className="subQuestion">
-          ))}
+          <li
+            key={q.getId()}
+            className={ 'subQuestion ' + (this.isActiveSubQuestion(i) ? 'active' : 'not-active') }
+          >
+          <QuestionComponent
+            question={q}
+            label={ROMAN_NUMERALS[i]}
+            level={level}
+            onAnswer={this.incrementActiveSubQuestion.bind(this)}
+          />
+          </li>
+        ))}
         </ul>
       );
     } else {
@@ -45,9 +58,9 @@ class QuestionComponent extends React.Component {
         <ul className="answers">
         {answers.map((a, i) => (
           <li
-          key={a.getId()}
-          className={ 'answer ' + (this.isDisabled(a) ? 'disabled' : 'enabled') }
-          onClick={ this.selectAnswer.bind(this, a) }
+            key={a.getId()}
+            className={ 'answer ' + (this.isDisabled(a) ? 'disabled' : 'enabled') }
+            onClick={ this.selectAnswer.bind(this, a) }
           >({ LETTERS[i] }) { a.text }</li>
         ))}
         </ul>
@@ -57,8 +70,18 @@ class QuestionComponent extends React.Component {
     }
   }
 
+  isActiveSubQuestion(index) {
+    return this.state.activeSubQuestion === index;
+  }
+
+  incrementActiveSubQuestion() {
+    const { activeSubQuestion } = this.state;
+    this.setState({ activeSubQuestion: activeSubQuestion + 1 });
+  }
+
   selectAnswer(answer) {
     this.setState({ selectedAnswer: answer });
+    this.props.onAnswer();
   }
 
   isDisabled(answer) {
@@ -70,6 +93,7 @@ class QuestionComponent extends React.Component {
 QuestionComponent.defaultProps = {
   label: '',
   level: 0,
+  onAnswer: () => {},
 };
 
 QuestionComponent.propTypes = {
