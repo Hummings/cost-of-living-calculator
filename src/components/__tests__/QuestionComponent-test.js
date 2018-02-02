@@ -4,7 +4,7 @@ import Immutable from 'immutable';
 import Question from '../../models/Question';
 import React from 'react';
 
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 describe('QuestionComponent', () => {
   let question;
@@ -71,7 +71,7 @@ describe('QuestionComponent', () => {
       const onAnswer = jest.fn();
       wrapper = shallow(<QuestionComponent question={question} onAnswer={onAnswer} />);
       wrapper.find('li.answer').first().simulate('click');
-      expect(onAnswer).toHaveBeenCalled();
+      expect(onAnswer).toHaveBeenCalledWith(question, question.answers.get(0));
     });
   });
 
@@ -151,6 +151,16 @@ describe('QuestionComponent', () => {
       active.find(QuestionComponent).get(0).props.onAnswer();
 
       expect(wrapper.state('activeSubQuestion')).toBe(1);
+    });
+
+    it('passes the onAnswer prop down', () => {
+      const onAnswer = jest.fn();
+
+      wrapper = shallow(<QuestionComponent question={ question } onAnswer={ onAnswer } />);
+
+      const active = wrapper.find('li.subQuestion.active');
+      active.find(QuestionComponent).get(0).props.onAnswer();
+      expect(onAnswer).toHaveBeenCalled();
     });
   });
 });

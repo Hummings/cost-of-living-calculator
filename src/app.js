@@ -1,7 +1,10 @@
 import React from 'react'
 
-export default React.createClass({
+class App extends React.Component {
+
   render() {
-    return <div>Hello, world!</div>
+    return '<
   }
-})
+}
+
+export default App;

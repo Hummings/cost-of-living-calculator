@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Question from '../models/Question';
 
+import { callBoth } from '../utils';
 import { LETTERS, ROMAN_NUMERALS } from '../constants';
 
 class QuestionComponent extends React.Component {
@@ -28,6 +29,10 @@ class QuestionComponent extends React.Component {
   renderSubQuestions() {
     const level = this.props.level + 1;
     const subQuestions = this.props.question.get('subQuestions');
+    const onAnswer = callBoth(
+      this.props.onAnswer,
+      this.incrementActiveSubQuestion.bind(this)
+    );
     if (!subQuestions.isEmpty()) {
       return (
         <ul className="subQuestions">
@@ -40,7 +45,7 @@ class QuestionComponent extends React.Component {
             question={q}
             label={ROMAN_NUMERALS[i]}
             level={level}
-            onAnswer={this.incrementActiveSubQuestion.bind(this)}
+            onAnswer={onAnswer}
           />
           </li>
         ))}
@@ -81,7 +86,7 @@ class QuestionComponent extends React.Component {
 
   selectAnswer(answer) {
     this.setState({ selectedAnswer: answer });
-    this.props.onAnswer();
+    this.props.onAnswer(this.props.question, answer);
   }
 
   isDisabled(answer) {
@@ -100,6 +105,7 @@ QuestionComponent.propTypes = {
   label: PropTypes.string,
   level: PropTypes.number,
   question: PropTypes.instanceOf(Question).isRequired,
+  onAnswer: PropTypes.func, //args (question, answer)
 };
 
 export default QuestionComponent;
