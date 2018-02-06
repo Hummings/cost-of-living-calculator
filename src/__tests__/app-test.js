@@ -1,9 +1,9 @@
 import Answer from '../models/Answer';
 import App from '../app';
-import CardList from '../components/CardList';
+import QuizComponent from '../components/QuizComponent';
 import LoadingIndicator from '../components/LoadingIndicator';
 import Immutable from 'immutable';
-import QuestionList from '../models/QuestionList';
+import Quiz from '../models/Quiz';
 import React from 'react';
 
 import { afterAllPromises } from '../test-setup';
@@ -25,19 +25,19 @@ describe('App', () => {
 
   it('shows a loading indicator at first', () => {
     expect(wrapper.find(LoadingIndicator).length).toBe(1);
-    expect(wrapper.find(CardList).length).toBe(0);
+    expect(wrapper.find(QuizComponent).length).toBe(0);
   });
 
   it('renders the result of the question fetch', done => {
-    const questionList = new QuestionList();
-    resolve(questionList);
+    const quiz = new Quiz();
+    resolve(quiz);
     expect.assertions(3);
 
     afterAllPromises(() => {
       wrapper.update();
       expect(wrapper.find(LoadingIndicator).length).toBe(0);
-      expect(wrapper.find(CardList).length).toBe(1);
-      expect(wrapper.find(CardList).get(0).props.questionList).toBe(questionList);
+      expect(wrapper.find(QuizComponent).length).toBe(1);
+      expect(wrapper.find(QuizComponent).get(0).props.quiz).toBe(quiz);
       done();
     });
   });

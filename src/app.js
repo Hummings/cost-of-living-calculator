@@ -2,26 +2,26 @@ import PropTypes from 'prop-types';
 import React from 'react'
 
 import { fetchQuestions } from './api';
-import CardList from './components/CardList';
+import QuizComponent from './components/QuizComponent';
 import LoadingIndicator from './components/LoadingIndicator';
 
 class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      questionList: null,
+      quiz: null,
     };
   }
 
   componentWillMount() {
-    this.props.fetchQuestions().then(questionList => {
-      this.setState({ questionList: questionList });;
+    this.props.fetchQuestions().then(quiz => {
+      this.setState({ quiz: quiz });;
     });
   }
 
   render() {
     if (this.state.questionList) {
-      return <CardList questionList={ this.state.questionList } />;
+      return <QuizComponent quiz={ this.state.quiz } />;
     } else {
       return <LoadingIndicator />;
     }

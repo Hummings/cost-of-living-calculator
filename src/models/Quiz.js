@@ -1,17 +1,17 @@
 import Immutable from 'immutable';
 import Question from './Question';
 
-const QuestionList = Immutable.Record({
+const Quiz = Immutable.Record({
   version: 'v1',
   questions: new Immutable.List(),
 });
 
-QuestionList.deserialize = json => {
+Quiz.deserialize = json => {
   json = Object.assign({ questions: [] }, json);
   json.questions = new Immutable.List(
     json.questions.map(Question.deserialize)
   );
-  return new QuestionList(json);
+  return new Quiz(json);
 };
 
-export default QuestionList;
+export default Quiz;

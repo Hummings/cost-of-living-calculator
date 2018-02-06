@@ -1,13 +1,13 @@
 import Answer from '../Answer';
 import Immutable from 'immutable';
 import Question from '../Question';
-import QuestionList from '../QuestionList';
+import Quiz from '../Quiz';
 
-describe('QuestionList', () => {
+describe('Quiz', () => {
 
   describe('deserialize', () => {
     it('deserializes version and questions', () => {
-      const ql = QuestionList.deserialize({
+      const ql = Quiz.deserialize({
         version: 'v2',
         questions: [
           {

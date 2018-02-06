@@ -1,36 +1,36 @@
-import Card from './Card';
+import QuestionCard from './QuestionCard';
 import Immutable from 'immutable';
 import PropTypes from 'prop-types';
 import QuestionComponent from './QuestionComponent';
-import QuestionList from '../models/QuestionList';
+import Quiz from '../models/Quiz';
 import React from 'react';
 
 import { callBoth } from '../utils';
 
-class CardList extends React.Component {
+class QuizComponent extends React.Component {
   constructor() {
     super();
     this.state = {
-      activeCard: 0,
+      activeQuestionCard: 0,
       answers: new Immutable.Map(),
     };
   }
 
   render() {
-    const { activeCard } = this.state;
-    const { questionList } = this.props;
+    const { activeQuestionCard } = this.state;
+    const { quiz } = this.props;
     const onAnswer = callBoth(
       this.storeAnswer.bind(this),
-      this.incrementActiveCard.bind(this)
+      this.incrementActiveQuestionCard.bind(this)
     );
 
     return (
       <div>
-        {questionList.questions.map((q, i) => (
-          <Card
+        {quiz.questions.map((q, i) => (
+          <QuestionCard
             key={q.getId()}
             question={q}
-            isActive={ i === activeCard }
+            isActive={ i === activeQuestionCard }
             onAnswer={onAnswer}
             />
         ))}
@@ -42,13 +42,13 @@ class CardList extends React.Component {
     this.setState({ answers: this.state.answers.set(question, answer) });
   }
 
-  incrementActiveCard() {
-    this.setState({ activeCard: this.state.activeCard + 1 });
+  incrementActiveQuestionCard() {
+    this.setState({ activeQuestionCard: this.state.activeQuestionCard + 1 });
   }
 }
 
-CardList.propTypes = {
-  questionList: PropTypes.instanceOf(QuestionList).isRequired,
+QuizComponent.propTypes = {
+  quiz: PropTypes.instanceOf(Quiz).isRequired,
 }
 
-export default CardList;
+export default QuizComponent;

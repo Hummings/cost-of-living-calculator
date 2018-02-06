@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter'
-import QuestionList from '../models/QuestionList';
+import Quiz from '../models/Quiz';
 
 import { fetchQuestions } from '../api';
 
@@ -43,11 +43,11 @@ describe('api', () => {
           },
         ],
       };
-      mock.onGet('/questions.json').reply(200, data);
+      mock.onGet('/quiz.json').reply(200, data);
       expect.assertions(1);
 
       fetchQuestions().then(questionList => {
-        expect(questionList).toEqual(QuestionList.deserialize(data));
+        expect(questionList).toEqual(Quiz.deserialize(data));
         done();
       });
     });

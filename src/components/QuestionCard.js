@@ -3,7 +3,7 @@ import QuestionComponent from './QuestionComponent';
 import Question from '../models/Question';
 import React from 'react';
 
-class Card extends React.Component {
+class QuestionCard extends React.Component {
 
   render() {
     return (
@@ -17,15 +17,15 @@ class Card extends React.Component {
   }
 }
 
-Card.defaultProps = {
+QuestionCard.defaultProps = {
   isActive: true,
   onAnswer: () => {},
 };
 
-Card.propTypes = {
+QuestionCard.propTypes = {
   question: PropTypes.instanceOf(Question).isRequired,
   isActive: PropTypes.bool,
   onAnswer: PropTypes.func, // args (question, answer)
 };
 
-export default Card;
+export default QuestionCard;
