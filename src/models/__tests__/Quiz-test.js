@@ -2,6 +2,10 @@ import Answer from '../Answer';
 import Immutable from 'immutable';
 import Question from '../Question';
 import Quiz from '../Quiz';
+import Result from '../Result';
+import ScoreRange from '../ScoreRange';
+import Summary from '../Summary';
+
 
 describe('Quiz', () => {
 
@@ -37,6 +41,24 @@ describe('Quiz', () => {
             ],
           },
         ],
+        summary: {
+          results: [
+            {
+              scoreRange: {
+                minScore: 1,
+                maxScore: 100,
+              },
+              requiredIncome: 100000,
+            },
+            {
+              scoreRange: {
+                minScore: 101,
+                maxScore: 500,
+              },
+              requiredIncome: 550000,
+            },
+          ],
+        },
       });
       expect(ql.version).toEqual('v2');
       expect(ql.questions).toEqual(Immutable.List.of(
@@ -67,6 +89,24 @@ describe('Quiz', () => {
           ),
         }),
       ));
+      expect(ql.summary).toEqual(new Summary({
+        results: Immutable.List.of(
+          new Result({
+            scoreRange: new ScoreRange({
+              minScore: 1,
+              maxScore: 100,
+            }),
+            requiredIncome: 100000,
+          }),
+          new Result({
+            scoreRange: new ScoreRange({
+              minScore: 101,
+              maxScore: 500,
+            }),
+            requiredIncome: 550000,
+          }),
+        ),
+      }));
     });
   });
 });
