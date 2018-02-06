@@ -4,7 +4,6 @@ import QuestionComponent from './QuestionComponent';
 import Quiz from '../models/Quiz';
 import React from 'react';
 
-import { callBoth } from '../utils';
 
 class QuizComponent extends React.Component {
   constructor(props) {
@@ -17,10 +16,6 @@ class QuizComponent extends React.Component {
 
   render() {
     const { activeQuestionCard, quiz } = this.state;
-    const onAnswer = callBoth(
-      this.storeAnswer.bind(this),
-      this.incrementActiveQuestionCard.bind(this)
-    );
 
     return (
       <div>
@@ -29,7 +24,8 @@ class QuizComponent extends React.Component {
             key={q.getId()}
             question={q}
             isActive={ i === activeQuestionCard }
-            onAnswer={onAnswer}
+            onAnswer={this.storeAnswer.bind(this)}
+            onComplete={this.incrementActiveQuestionCard.bind(this)}
             />
         ))}
       </div>

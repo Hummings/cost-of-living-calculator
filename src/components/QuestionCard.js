@@ -10,7 +10,8 @@ class QuestionCard extends React.Component {
       <div className={ this.props.isActive ? 'active' : 'not-active' } >
         <QuestionComponent
           question={this.props.question}
-          onAnswer={ this.props.onAnswer}
+          onAnswer={this.props.onAnswer}
+          onComplete={this.props.onComplete}
           />
       </div>
     );
@@ -19,13 +20,15 @@ class QuestionCard extends React.Component {
 
 QuestionCard.defaultProps = {
   isActive: true,
-  onAnswer: () => {},
+  onAnswer: (question, answer) => {},
+  onComplete: () => {},
 };
 
 QuestionCard.propTypes = {
   question: PropTypes.instanceOf(Question).isRequired,
   isActive: PropTypes.bool,
   onAnswer: PropTypes.func, // args (question, answer)
+  conComplete: PropTypes.func,
 };
 
 export default QuestionCard;

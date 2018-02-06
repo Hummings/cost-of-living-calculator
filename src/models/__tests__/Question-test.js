@@ -101,6 +101,22 @@ describe('Question', () => {
         });
       }).toThrow();
     });
+  });
 
+  describe('hasSubQuestions', () => {
+    it('is false if there are no subquestions', () => {
+      const question = new Question();
+      expect(question.hasSubQuestions()).toBe(false);
+    });
+
+    it('is true if there are subquestions', () => {
+      const question = new Question({
+        subQuestions: Immutable.List.of(
+          new Question(),
+          new Question()
+        ),
+      });
+      expect(question.hasSubQuestions()).toBe(true);
+    });
   });
 });

@@ -17,7 +17,11 @@ Object.assign(Question.prototype, {
     } else {
       return dasherize(this.title);
     }
-  }
+  },
+
+  hasSubQuestions() {
+    return !!this.subQuestions.size;
+  },
 });
 
 Question.deserialize = json => {

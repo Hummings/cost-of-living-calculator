@@ -81,12 +81,20 @@ class QuestionComponent extends React.Component {
 
   incrementActiveSubQuestion() {
     const { activeSubQuestion } = this.state;
-    this.setState({ activeSubQuestion: activeSubQuestion + 1 });
+    const numSubQuestions = this.props.question.subQuestions.size;
+    const wasLastSubQuestion = activeSubQuestion === (numSubQuestions - 1);
+
+    if (wasLastSubQuestion) {
+      this.props.onComplete();
+    } else {
+      this.setState({ activeSubQuestion: activeSubQuestion + 1 });
+    }
   }
 
   selectAnswer(answer) {
     this.setState({ selectedAnswer: answer });
     this.props.onAnswer(this.props.question, answer);
+    this.props.onComplete();
   }
 
   isDisabled(answer) {
@@ -98,7 +106,8 @@ class QuestionComponent extends React.Component {
 QuestionComponent.defaultProps = {
   label: '',
   level: 0,
-  onAnswer: () => {},
+  onAnswer: (question, answer) => {},
+  onComplete: () => {},
 };
 
 QuestionComponent.propTypes = {
@@ -106,6 +115,7 @@ QuestionComponent.propTypes = {
   level: PropTypes.number,
   question: PropTypes.instanceOf(Question).isRequired,
   onAnswer: PropTypes.func, //args (question, answer)
+  onComplete: PropTypes.func,
 };
 
 export default QuestionComponent;

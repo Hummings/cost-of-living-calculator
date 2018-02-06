@@ -44,6 +44,12 @@ describe('QuestionCard', () => {
     wrapper = shallow(<QuestionCard question={ question } onAnswer={ onAnswer } />);
     expect(wrapper.find(QuestionComponent).get(0).props.onAnswer).toBe(onAnswer);
   });
+
+  it('passes the onComplete prop down to the QuestionComponent', () => {
+    const onComplete = jest.fn();
+    wrapper = shallow(<QuestionCard question={ question } onComplete={ onComplete } />);
+    expect(wrapper.find(QuestionComponent).get(0).props.onComplete).toBe(onComplete);
+  });
 });
 
 

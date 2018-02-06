@@ -73,6 +73,13 @@ describe('QuestionComponent', () => {
       wrapper.find('li.answer').first().simulate('click');
       expect(onAnswer).toHaveBeenCalledWith(question, question.answers.get(0));
     });
+
+    it('calls the onComplete prop on click', () => {
+      const onComplete = jest.fn();
+      wrapper = shallow(<QuestionComponent question={question} onComplete={onComplete} />);
+      wrapper.find('li.answer').first().simulate('click');
+      expect(onComplete).toHaveBeenCalled();
+    });
   });
 
   describe('a subQuestion item', () => {
@@ -161,6 +168,26 @@ describe('QuestionComponent', () => {
       const active = wrapper.find('li.subQuestion.active');
       active.find(QuestionComponent).get(0).props.onAnswer();
       expect(onAnswer).toHaveBeenCalled();
+    });
+
+    it('does not pass the onComplete prop down', () => {
+      const onComplete = jest.fn();
+
+      wrapper = shallow(<QuestionComponent question={ question } onComplete={ onComplete } />);
+
+      const active = wrapper.find('li.subQuestion.active');
+      active.find(QuestionComponent).get(0).props.onComplete();
+      expect(onComplete).not.toHaveBeenCalled();
+    });
+
+    it('calls onComplete when all the subQuestions have been answered', () => {
+      const onComplete = jest.fn();
+      wrapper = shallow(<QuestionComponent question={ question } onComplete={ onComplete } />);
+
+      wrapper.find(QuestionComponent).get(0).props.onAnswer();
+      expect(onComplete).not.toHaveBeenCalled();
+      wrapper.find(QuestionComponent).get(1).props.onAnswer();
+      expect(onComplete).toHaveBeenCalled();
     });
   });
 });

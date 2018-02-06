@@ -66,16 +66,13 @@ describe('QuizComponent', () => {
     expect(getQuestionCard(1).props.isActive).toBe(true);
   });
 
-  it('increments active card on answer via prop function', () => {
-    const onAnswer = getQuestionCard(0).props.onAnswer
+  it('increments active card on answer via onComplete prop function', () => {
+    const onComplete = getQuestionCard(0).props.onComplete;
     expect(wrapper.state('activeQuestionCard')).toBe(0);
 
-    expect(onAnswer).toBeInstanceOf(Function);
+    expect(onComplete).toBeInstanceOf(Function);
 
-    onAnswer(
-      quiz.questions.get(0),
-      quiz.questions.get(0).answers.get(0)
-    );
+    onComplete();
 
     expect(wrapper.state('activeQuestionCard')).toBe(1);
   });
@@ -96,6 +93,7 @@ describe('QuizComponent', () => {
     expect(wrapper.state('quiz').answeredQuestions.get(question2))
     .toBe(question2.answers.get(0));
 
+    expect(wrapper.state('activeQuestionCard')).toBe(0);
   });
 
   const getQuestionCard = (index) => {
