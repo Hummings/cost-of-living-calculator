@@ -365,5 +365,79 @@
         }
       ]
     }
-  ]
+  ],
+  "summary": {
+    "results": [
+      {
+        "scoreRange": {
+          "minScore": 10,
+          "maxScore": 20
+        },
+        "requiredIncome": 50000
+      },
+      {
+        "scoreRange": {
+          "minScore": 21,
+          "maxScore": 30
+        },
+        "requiredIncome": 100000
+      },
+      {
+        "scoreRange": {
+          "minScore": 31,
+          "maxScore": 45
+        },
+        "requiredIncome": 150000
+      },
+      {
+        "scoreRange": {
+          "minScore": 46,
+          "maxScore": 60
+        },
+        "requiredIncome": 225000
+      },
+      {
+        "scoreRange": {
+          "minScore": 61,
+          "maxScore": 90
+        },
+        "requiredIncome": 325000
+      },
+      {
+        "scoreRange": {
+          "minScore": 91,
+          "maxScore": 120
+        },
+        "requiredIncome": 500000
+      },
+      {
+        "scoreRange": {
+          "minScore": 121,
+          "maxScore": 180
+        },
+        "requiredIncome": 700000
+      },
+      {
+        "scoreRange": {
+          "minScore": 181,
+          "maxScore": 250
+        },
+        "requiredIncome": 1000000
+      },
+      {
+        "scoreRange": {
+          "minScore": 25,
+          "maxScore": 350
+        },
+        "requiredIncome": 1500000
+      },
+      {
+        "scoreRange": {
+          "minScore": 351,
+          "maxScore": 500
+        },
+        "requiredIncome": 2000000
+      }
+    ]
+  }
 }
