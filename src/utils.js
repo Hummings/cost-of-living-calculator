@@ -8,10 +8,12 @@ export const dasherize = str => {
     .replace(/[^-a-z]/g, '')
 };
 
-export const callBoth = (fn1, fn2) => {
-  return (...args) => {
-    fn1(...args);
-    fn2(...args);
-  };
-};
 
+export const combine = (...fns) => (...args) => (
+  fns.forEach(fn => fn(...args))
+);
+
+export default {
+  dasherize: dasherize,
+  combine: combine,
+};

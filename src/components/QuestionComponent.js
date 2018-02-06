@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import Question from '../models/Question';
 
-import { callBoth } from '../utils';
+import utils from '../utils';
 import { LETTERS, ROMAN_NUMERALS } from '../constants';
 
 class QuestionComponent extends React.Component {
@@ -29,7 +29,7 @@ class QuestionComponent extends React.Component {
   renderSubQuestions() {
     const level = this.props.level + 1;
     const subQuestions = this.props.question.get('subQuestions');
-    const onAnswer = callBoth(
+    const onAnswer = utils.combine(
       this.props.onAnswer,
       this.incrementActiveSubQuestion.bind(this)
     );
