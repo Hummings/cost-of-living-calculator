@@ -6,6 +6,7 @@ const Quiz = Immutable.Record({
   version: 'v1',
   questions: new Immutable.List(),
   summary: new Summary(),
+  answeredQuestions: new Immutable.Map(),
 });
 
 Quiz.deserialize = json => {
@@ -15,5 +16,16 @@ Quiz.deserialize = json => {
     summary: Summary.deserialize(json.summary || {}),
   });
 };
+
+Object.assign(Quiz.prototype, {
+  withAnswerSelected(question, answer) {
+    return new Quiz({
+      version: this.version,
+      questions: this.questions,
+      summary: this.summary,
+      answeredQuestions: this.answeredQuestions.set(question, answer),
+    });
+  },
+});
 
 export default Quiz;

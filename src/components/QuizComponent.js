@@ -1,5 +1,4 @@
 import QuestionCard from './QuestionCard';
-import Immutable from 'immutable';
 import PropTypes from 'prop-types';
 import QuestionComponent from './QuestionComponent';
 import Quiz from '../models/Quiz';
@@ -8,17 +7,16 @@ import React from 'react';
 import { callBoth } from '../utils';
 
 class QuizComponent extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       activeQuestionCard: 0,
-      answers: new Immutable.Map(),
+      quiz: props.initialQuiz,
     };
   }
 
   render() {
-    const { activeQuestionCard } = this.state;
-    const { quiz } = this.props;
+    const { activeQuestionCard, quiz } = this.state;
     const onAnswer = callBoth(
       this.storeAnswer.bind(this),
       this.incrementActiveQuestionCard.bind(this)
@@ -39,7 +37,7 @@ class QuizComponent extends React.Component {
   }
 
   storeAnswer(question, answer) {
-    this.setState({ answers: this.state.answers.set(question, answer) });
+    this.setState({ quiz: this.state.quiz.withAnswerSelected(question, answer) });
   }
 
   incrementActiveQuestionCard() {
@@ -48,7 +46,7 @@ class QuizComponent extends React.Component {
 }
 
 QuizComponent.propTypes = {
-  quiz: PropTypes.instanceOf(Quiz).isRequired,
+  initialQuiz: PropTypes.instanceOf(Quiz).isRequired,
 }
 
 export default QuizComponent;

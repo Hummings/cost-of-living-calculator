@@ -20,8 +20,8 @@ class App extends React.Component {
   }
 
   render() {
-    if (this.state.questionList) {
-      return <QuizComponent quiz={ this.state.quiz } />;
+    if (this.state.quiz) {
+      return <QuizComponent initialQuiz={ this.state.quiz } />;
     } else {
       return <LoadingIndicator />;
     }

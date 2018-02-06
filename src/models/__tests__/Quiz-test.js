@@ -109,4 +109,20 @@ describe('Quiz', () => {
       }));
     });
   });
+
+  describe('withAnswerSelected', () => {
+    it('returns a new quiz with the answer selected', () => {
+      const a1 = new Answer({ text: 'asdf', points: 3 });
+      const q1 = new Question({
+        title: 'wtf',
+        answers: [a1]
+      });
+      const quiz = new Quiz({ questions: Immutable.List.of(q1) });
+      expect(quiz.answeredQuestions).toEqual(new Immutable.Map());
+      const answered = quiz.withAnswerSelected(q1, a1);
+      expect(answered.answeredQuestions).toEqual(new Immutable.Map([
+        [q1, a1],
+      ]));
+    });
+  });
 });

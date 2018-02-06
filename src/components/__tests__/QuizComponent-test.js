@@ -44,7 +44,7 @@ describe('QuizComponent', () => {
       ),
     });
 
-    wrapper = shallow(<QuizComponent quiz={ quiz } />);
+    wrapper = shallow(<QuizComponent initialQuiz={ quiz } />);
   });
 
   it('renders all the questions', () => {
@@ -91,9 +91,9 @@ describe('QuizComponent', () => {
     onAnswer1(question1, question1.answers.get(1));
     onAnswer2(question2, question2.answers.get(0));
 
-    expect(wrapper.state('answers').get(question1))
+    expect(wrapper.state('quiz').answeredQuestions.get(question1))
     .toBe(question1.answers.get(1));
-    expect(wrapper.state('answers').get(question2))
+    expect(wrapper.state('quiz').answeredQuestions.get(question2))
     .toBe(question2.answers.get(0));
 
   });
