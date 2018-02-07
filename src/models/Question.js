@@ -31,7 +31,8 @@ Question.deserialize = json => {
 
   if ((hasAnswersSpecified && hasSubQuestionsSpecified) ||
      (!hasAnswersSpecified && !hasSubQuestionsSpecified)) {
-    throw new Error('Either answers or subQuestions is required but not both');
+    throw new Error(
+      'Either answers or subQuestions is required but not both: ' + JSON.stringify(json));
   }
 
   json.answers = new Immutable.List(
