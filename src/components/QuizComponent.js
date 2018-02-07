@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import QuestionComponent from './QuestionComponent';
 import Quiz from '../models/Quiz';
 import React from 'react';
+import ResultCard from './ResultCard';
 
 
 class QuizComponent extends React.Component {
@@ -11,14 +12,17 @@ class QuizComponent extends React.Component {
     this.state = {
       activeQuestionCard: 0,
       quiz: props.initialQuiz,
+      onResults: false,
     };
   }
 
   render() {
-    const { activeQuestionCard, quiz } = this.state;
-
-    return (
-      <div>
+    const { activeQuestionCard, quiz, onResults } = this.state;
+    if (onResults) {
+      return <ResultCard result={ quiz.getResult() } />;
+    } else {
+      return (
+        <div>
         {quiz.questions.map((q, i) => (
           <QuestionCard
             key={q.getId()}
@@ -26,10 +30,11 @@ class QuizComponent extends React.Component {
             isActive={ i === activeQuestionCard }
             onAnswer={this.storeAnswer.bind(this)}
             onComplete={this.incrementActiveQuestionCard.bind(this)}
-            />
+          />
         ))}
-      </div>
-    );
+        </div>
+      );
+    }
   }
 
   storeAnswer(question, answer) {
@@ -37,7 +42,14 @@ class QuizComponent extends React.Component {
   }
 
   incrementActiveQuestionCard() {
-    this.setState({ activeQuestionCard: this.state.activeQuestionCard + 1 });
+    const { activeQuestionCard, quiz } = this.state;
+    const numQuestions = quiz.questions.size;
+    const wasLastQuestion = activeQuestionCard === (numQuestions - 1);
+    if (wasLastQuestion) {
+      this.setState({ onResults: true });
+    } else {
+      this.setState({ activeQuestionCard: this.state.activeQuestionCard + 1 });
+    }
   }
 }
 

@@ -6,6 +6,12 @@ const Summary = Immutable.Record({
   results: new Immutable.List(),
 });
 
+Object.assign(Summary.prototype, {
+  getResultForScore(score) {
+    return this.results.find(r => r.scoreRange.contains(score));
+  }
+});
+
 
 Summary.deserialize = json => {
   return new Summary({

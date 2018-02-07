@@ -6,6 +6,13 @@ const ScoreRange = Immutable.Record({
   maxScore: 1,
 });
 
+Object.assign(ScoreRange.prototype, {
+  contains(score) {
+    return (this.minScore <= score) && (score <= this.maxScore);
+
+  }
+});
+
 ScoreRange.deserialize = json => {
   return new ScoreRange(Object.assign({}, json));
 };

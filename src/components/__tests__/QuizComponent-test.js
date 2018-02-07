@@ -5,6 +5,11 @@ import Immutable from 'immutable';
 import Question from '../../models/Question';
 import Quiz from '../../models/Quiz';
 import React from 'react';
+import Result from '../../models/Result';
+import ResultCard from '../ResultCard';
+import ScoreRange from '../../models/ScoreRange';
+import Summary from '../../models/Summary';
+
 
 import { shallow } from 'enzyme';
 
@@ -42,6 +47,24 @@ describe('QuizComponent', () => {
           ),
         }),
       ),
+      summary: new Summary({
+        results: Immutable.List.of(
+          new Result({
+            scoreRange: new ScoreRange({
+              minScore: 0,
+              maxScore: 2,
+            }),
+            requiredIncome: 100000,
+          }),
+          new Result({
+            scoreRange: new ScoreRange({
+              minScore: 3,
+              maxScore: 7,
+            }),
+            requiredIncome: 550000,
+          })
+        ),
+      }),
     });
 
     wrapper = shallow(<QuizComponent initialQuiz={ quiz } />);
@@ -54,6 +77,7 @@ describe('QuizComponent', () => {
 
     expect(card1.props.question).toBe(quiz.questions.get(0));
     expect(card2.props.question).toBe(quiz.questions.get(1));
+    expect(wrapper.find(ResultCard).length).toBe(0);
   });
 
   it('indicates which question is active', () => {
@@ -67,14 +91,34 @@ describe('QuizComponent', () => {
   });
 
   it('increments active card on answer via onComplete prop function', () => {
+    const getActiveProps = () => (
+      [0, 1].map(i => wrapper.find(QuestionCard).get(i).props.isActive)
+    );
     const onComplete = getQuestionCard(0).props.onComplete;
-    expect(wrapper.state('activeQuestionCard')).toBe(0);
+
+    expect(getActiveProps()).toEqual([true, false]);
 
     expect(onComplete).toBeInstanceOf(Function);
 
     onComplete();
+    wrapper.update();
 
-    expect(wrapper.state('activeQuestionCard')).toBe(1);
+    expect(getActiveProps()).toEqual([false, true]);
+  });
+
+  it('displays a result card when all the questions have been answered', () => {
+    expect(wrapper.find(QuestionCard).length).toBe(2);
+    expect(wrapper.find(ResultCard).length).toBe(0);
+
+    getQuestionCard(0).props.onComplete();
+    wrapper.update();
+    expect(wrapper.find(QuestionCard).length).toBe(2);
+    expect(wrapper.find(ResultCard).length).toBe(0);
+
+    getQuestionCard(1).props.onComplete();
+    wrapper.update();
+    expect(wrapper.find(QuestionCard).length).toBe(0);
+    expect(wrapper.find(ResultCard).length).toBe(1);
   });
 
   it('keeps track of the selected answers via prop function', () => {

@@ -19,6 +19,12 @@ Quiz.deserialize = json => {
 
 Object.assign(Quiz.prototype, {
   withAnswerSelected(question, answer) {
+    if (!question) {
+      throw new Error('question is required');
+    }
+    if (!answer) {
+      throw new Error('answer is required');
+    }
     return new Quiz({
       version: this.version,
       questions: this.questions,
@@ -26,6 +32,14 @@ Object.assign(Quiz.prototype, {
       answeredQuestions: this.answeredQuestions.set(question, answer),
     });
   },
+
+  getResult() {
+    const score = this.answeredQuestions
+      .valueSeq()
+      .map(a => a.points)
+      .reduce((a, b) => a + b, 0);
+    return this.summary.getResultForScore(score);
+  }
 });
 
 export default Quiz;

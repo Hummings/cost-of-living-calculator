@@ -125,4 +125,66 @@ describe('Quiz', () => {
       ]));
     });
   });
+
+  describe('getResult', () => {
+    it('returns the result matching the total number of points', () => {
+      const q1 = new Question({
+        title: 'hello',
+        answers: Immutable.List.of(
+          new Answer({
+            text: 'hi',
+            points: 2,
+          }),
+          new Answer({
+            text: 'yo',
+            points: 3,
+          }),
+        ),
+      });
+      const q2 = new Question({
+        title: 'what\'s up doc',
+        answers: Immutable.List.of(
+          new Answer({
+            text: 'nothin',
+            points: 1,
+          }),
+          new Answer({
+            text: 'somethin',
+            points: 2,
+          }),
+        ),
+      });
+      const r1 = new Result({
+        scoreRange: new ScoreRange({
+          minScore: 1,
+          maxScore: 4,
+        }),
+        requiredIncome: 100000,
+      });
+      const r2 = new Result({
+        scoreRange: new ScoreRange({
+          minScore: 5,
+          maxScore: 10,
+        }),
+        requiredIncome: 550000,
+      });
+
+      const quiz = new Quiz({
+        questions: Immutable.List.of(q1, q2),
+        summary: new Summary({ results: Immutable.List.of(r1, r2) }),
+      });
+
+      expect(quiz
+        .withAnswerSelected(q1, q1.answers.get(1))
+        .withAnswerSelected(q2, q2.answers.get(0))
+        .getResult()
+      ).toBe(r1);
+
+      expect(quiz
+        .withAnswerSelected(q1, q1.answers.get(1))
+        .withAnswerSelected(q2, q2.answers.get(1))
+        .getResult()
+      ).toBe(r2);
+    });
+  });
 });

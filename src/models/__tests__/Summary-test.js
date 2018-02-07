@@ -45,4 +45,26 @@ describe('Summary', () => {
       }));
     });
   });
+
+  describe('getResultForScore', () => {
+    it('returns the matching result for the given score', () => {
+      const r1 = new Result({
+        scoreRange: new ScoreRange({
+          minScore: 0,
+          maxScore: 100,
+        }),
+        requiredIncome: 100000,
+      });
+      const r2 = new Result({
+        scoreRange: new ScoreRange({
+          minScore: 101,
+          maxScore: 500,
+        }),
+        requiredIncome: 550000,
+      });
+      const summary = new Summary({ results: Immutable.List.of(r1, r2) });
+      expect(summary.getResultForScore(50)).toBe(r1);
+      expect(summary.getResultForScore(250)).toBe(r2);
+    });
+  });
 });
