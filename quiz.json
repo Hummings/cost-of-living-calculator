@@ -6,7 +6,7 @@
       "subQuestions": [
         {
           "title": "The \"City\"",
-          "subQuestions": [
+          "answers": [
             {
               "text": "Subsidized housing/roommate situation",
               "points": 5
@@ -35,7 +35,7 @@
         },
         {
           "title": "The \"Outer Boro\"",
-          "subQuestions": [
+          "answers": [
             {
               "text": "A loft",
               "points":  10
@@ -56,7 +56,7 @@
         },
         {
           "title": "The \"Suburbs\"",
-          "subQuestions": [
+          "answers": [
             {
               "text": "A townhouse",
               "points":  20
@@ -77,7 +77,7 @@
         },
         {
           "title": "Your Weekend Getaway",
-          "subQuestions": [
+          "answers": [
             {
               "text": "Couch surfing",
               "points":  0
@@ -104,14 +104,14 @@
     },
     {
       "title": "Will you have kids?",
-      "subQuestions": [
+      "answers": [
         {
           "text": "Yes",
           "subQuestions": [
             {
               "id": "num-kids",
               "title": "How many?",
-              "subQuestions": [
+              "answers": [
                 {
 
                   "text": "1",
@@ -143,7 +143,7 @@
               "subQuestions": [
                 {
                   "title": "Preschool",
-                  "subQuestions": [
+                  "answers": [
                     {
                       "text": "Local P.S",
                       "points":  0
@@ -168,7 +168,7 @@
                 },
                 {
                   "title":  "Elementary School",
-                  "subQuestions": [
+                  "answers": [
                     {
                       "text": "Local P.S",
                       "points":  0
@@ -185,7 +185,7 @@
                 },
                 {
                   "title": "High School",
-                  "subQuestions": [
+                  "answers": [
                     {
                       "text": "Public High School",
                       "points":  0
@@ -210,7 +210,7 @@
                 },
                 {
                   "title": "College",
-                  "subQuestions": [
+                  "answers": [
                     {
                       "text": "Local city college",
                       "points":  6
@@ -227,7 +227,7 @@
                 },
                 {
                   "title": "After College",
-                  "subQuestions": [
+                  "answers": [
                     {
                       "text": "A hug",
                       "points":  0
@@ -270,7 +270,7 @@
         "additive": true
       },
       "inputType": "multipleChoice",
-      "subQuestions": [
+      "answers": [
         {
           "text": "Nothing.  I rely on public transport and Uber",
           "points": 1
@@ -303,14 +303,14 @@
     },
     {
       "title": "How are you doing physically?",
-      "subQuestions": [
+      "answers": [
         {
           "text": "Fit as ever",
           "subQuestions": [
             {
               "text": "How are you keeping in shape?",
               "inputType": "multipleChoice",
-              "subQuestions": [
+              "answers": [
                 {
                   "text": "Vitamins and daily run",
                   "points": 1
@@ -338,7 +338,7 @@
             {
               "text": "How are you keeping it together?",
               "inputType": "multipleChoice",
-              "subQuestions": [
+              "answers": [
                 {
                   "text": "Lipitor and Viagra",
                   "points": 3
