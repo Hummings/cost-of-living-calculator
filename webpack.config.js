@@ -6,6 +6,8 @@ module.exports = {
     publicPath: ''
   },
 
+  devtool: 'source-map',
+
   module: {
     loaders: [
       {
