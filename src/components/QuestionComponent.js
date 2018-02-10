@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import Question from '../models/Question';
 import React from 'react';
 import ScoreCalculation from '../core/ScoreCalculation';
+import SubQuestionListComponent from './SubQuestionListComponent';
 
 
 import utils from '../utils';
@@ -13,49 +14,25 @@ class QuestionComponent extends React.Component {
     super();
     this.state = {
       selectedAnswer: null,
-      activeSubQuestion: 0,
     };
   }
 
   render() {
-    const { question, label, level } = this.props;
+    const { question, label, level, scoreCalculation } = this.props;
     return (
       <div className={'level' + level}>
         <h4>{ label && `(${label}) ` }{ this.props.question.title }</h4>
-        { this.renderSubQuestions() }
+        {
+          question.hasSubQuestions() &&
+            <SubQuestionListComponent
+              subQuestions={ question.subQuestions }
+              scoreCalculation={ scoreCalculation }
+              level={ level + 1 }
+            />
+        }
         { this.renderAnswers() }
       </div>
     );
-  }
-
-  renderSubQuestions() {
-    const level = this.props.level + 1;
-    const subQuestions = this.props.question.get('subQuestions');
-    const scoreCalculation = this.props.scoreCalculation.onAnswer(() => {
-      this.incrementActiveSubQuestion();
-    });
-
-    if (!subQuestions.isEmpty()) {
-      return (
-        <ul className="subQuestions">
-        {subQuestions.map((q, i) => (
-          <li
-            key={q.getId()}
-            className={ 'subQuestion ' + (this.isActiveSubQuestion(i) ? 'active' : 'not-active') }
-          >
-          <QuestionComponent
-            question={q}
-            label={ROMAN_NUMERALS[i]}
-            level={level}
-            scoreCalculation={scoreCalculation}
-          />
-          </li>
-        ))}
-        </ul>
-      );
-    } else {
-      return '';
-    }
   }
 
   renderAnswers() {
@@ -75,15 +52,6 @@ class QuestionComponent extends React.Component {
     } else {
       return '';
     }
-  }
-
-  isActiveSubQuestion(index) {
-    return this.state.activeSubQuestion === index;
-  }
-
-  incrementActiveSubQuestion() {
-    const { activeSubQuestion } = this.state;
-    this.setState({ activeSubQuestion: activeSubQuestion + 1 });
   }
 
   selectAnswer(answer) {

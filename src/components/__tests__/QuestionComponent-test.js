@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 import Question from '../../models/Question';
 import React from 'react';
 import ScoreCalculation from '../../core/ScoreCalculation';
+import SubQuestionListComponent from '../SubQuestionListComponent';
 
 import { shallow } from 'enzyme';
 
@@ -39,6 +40,39 @@ describe('QuestionComponent', () => {
   it('renders answers in a list', () => {
     const list = wrapper.find('ul.answers');
     expect(list.find('li.answer').length).toBe(2);
+  });
+
+  it('does not render a subquestion list if there are no subquestions', () => {
+    expect(wrapper.find(SubQuestionListComponent).length).toBe(0);
+  });
+
+  it('renders subquestions as a child component', () => {
+    question = new Question({
+      title: 'hello',
+      subQuestions: Immutable.List.of(
+        new Question({
+          title: 'who\'s there?',
+          answers: Immutable.List.of(
+            new Answer({ text: 'Big Bird' }),
+            new Answer({ text: 'Mr. Strawberry' }),
+          ),
+        }),
+        new Question({
+          title: 'what time is it?',
+          answers: Immutable.List.of(
+            new Answer({ text: 'early' }),
+            new Answer({ text: 'late' }),
+          ),
+        }),
+      ),
+    });
+    expect(question.get('subQuestions').size).toBe(2);
+    wrapper = shallow(<QuestionComponent question={question} scoreCalculation={scoreCalculation} />);
+    expect(wrapper.find(SubQuestionListComponent).length).toBe(1);
+    const subQuestionList = wrapper.find(SubQuestionListComponent).get(0);
+    expect(subQuestionList.props.subQuestions).toBe(question.subQuestions);
+    expect(subQuestionList.props.scoreCalculation).toBe(scoreCalculation);
+    expect(subQuestionList.props.level).toBe(1);
   });
 
   describe('an answer item', () => {
@@ -78,97 +112,6 @@ describe('QuestionComponent', () => {
       expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(
         question, question.answers.get(0)
       );
-    });
-  });
-
-  describe('a subQuestion item', () => {
-    beforeEach(() => {
-      scoreCalculation = new ScoreCalculation();
-      question = new Question({
-        title: 'hello',
-        subQuestions: Immutable.List.of(
-          new Question({
-            title: 'who\'s there?',
-            answers: Immutable.List.of(
-              new Answer({ text: 'Big Bird' }),
-              new Answer({ text: 'Mr. Strawberry' }),
-            ),
-          }),
-          new Question({
-            title: 'what time is it?',
-            answers: Immutable.List.of(
-              new Answer({ text: 'early' }),
-              new Answer({ text: 'late' }),
-            ),
-          }),
-        ),
-      });
-      expect(question.get('subQuestions').size).toBe(2);
-      wrapper = shallow(<QuestionComponent question={question} scoreCalculation={scoreCalculation} />);
-    });
-
-    it('is rendered recursively', () => {
-      expect(wrapper.find('div.level0').length).toBe(1);
-      expect(wrapper.find('div.level0 > h4').text()).toEqual('hello');
-
-      expect(wrapper.find('ul.subQuestions').length).toBe(1);
-      expect(wrapper.find('li.subQuestion').length).toBe(2);
-
-      expect(wrapper.find(QuestionComponent).length).toBe(2);
-      expect(wrapper.find(QuestionComponent).get(0).props.label).toEqual('I');
-      expect(wrapper.find(QuestionComponent).get(0).props.level).toEqual(1);
-      expect(wrapper.find(QuestionComponent).get(0).props.scoreCalculation).toBe(scoreCalculation);
-      expect(wrapper.find(QuestionComponent).get(1).props.label).toEqual('II');
-      expect(wrapper.find(QuestionComponent).get(1).props.level).toEqual(1);
-      expect(wrapper.find(QuestionComponent).get(1).props.scoreCalculation).toBe(scoreCalculation);
-
-      expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
-    });
-
-    it('indicates if it is the active subQuestion', () => {
-      expect(wrapper.find('li.subQuestion.active').length).toBe(1);
-      expect(wrapper.find('li.subQuestion.not-active').length).toBe(1);
-
-      let active = wrapper.find('li.subQuestion.active');
-      let notActive = wrapper.find('li.subQuestion.not-active');
-
-      expect(active.find(QuestionComponent).get(0).props.question).toBe(
-        question.subQuestions.get(0)
-      );
-      expect(notActive.find(QuestionComponent).get(0).props.question).toBe(
-        question.subQuestions.get(1)
-      );
-
-      wrapper.instance().incrementActiveSubQuestion();
-      wrapper.update();
-
-      active = wrapper.find('li.subQuestion.active');
-      notActive = wrapper.find('li.subQuestion.not-active');
-
-      expect(active.find(QuestionComponent).get(0).props.question).toBe(
-        question.subQuestions.get(1)
-      );
-      expect(notActive.find(QuestionComponent).get(0).props.question).toBe(
-        question.subQuestions.get(0)
-      );
-    });
-
-    it('increments the active subquestion with scoreCalculation.onAnswer', () => {
-      const getActiveSubQuestion = () => {
-        return wrapper
-          .find('li.subQuestion.active')
-          .find(QuestionComponent)
-          .get(0)
-          .props
-          .question;
-      };
-
-      expect(getActiveSubQuestion()).toBe(question.subQuestions.get(0));
-      const onAnswer = scoreCalculation.onAnswer.mock.calls[0][0];
-
-      onAnswer();
-      wrapper.update();
-      expect(getActiveSubQuestion()).toBe(question.subQuestions.get(1));
     });
   });
 });
