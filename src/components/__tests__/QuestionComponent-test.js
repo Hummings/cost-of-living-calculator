@@ -3,14 +3,19 @@ import QuestionComponent from '../QuestionComponent';
 import Immutable from 'immutable';
 import Question from '../../models/Question';
 import React from 'react';
+import ScoreCalculation from '../../core/ScoreCalculation';
 
 import { shallow } from 'enzyme';
+
+jest.mock('../../core/ScoreCalculation');
 
 describe('QuestionComponent', () => {
   let question;
   let wrapper;
+  let scoreCalculation;
 
   beforeEach(() => {
+    scoreCalculation = new ScoreCalculation();
     question = new Question({
       title: 'what\'s goin\' on?',
       answers: Immutable.List.of(
@@ -18,7 +23,7 @@ describe('QuestionComponent', () => {
         new Answer({ text: 'somethin' }),
       ),
     });
-    wrapper = shallow(<QuestionComponent question={question} />);
+    wrapper = shallow(<QuestionComponent question={question} scoreCalculation={scoreCalculation} />);
   });
 
 
@@ -27,7 +32,7 @@ describe('QuestionComponent', () => {
   });
 
   it('renders the question\'s title with a label', () => {
-    wrapper = shallow(<QuestionComponent question={question} label='I' />);
+    wrapper = shallow(<QuestionComponent question={question} label='I' scoreCalculation={scoreCalculation} />);
     expect(wrapper.find('h4').text()).toEqual('(I) what\'s goin\' on?');
   });
 
@@ -67,23 +72,18 @@ describe('QuestionComponent', () => {
       expect(disabledAnswers.text()).toEqual('(b) somethin');
     });
 
-    it('calls the onAnswer prop on click', () => {
-      const onAnswer = jest.fn();
-      wrapper = shallow(<QuestionComponent question={question} onAnswer={onAnswer} />);
+    it('calls scoreCalculation.recordAnswer on click', () => {
+      expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
       wrapper.find('li.answer').first().simulate('click');
-      expect(onAnswer).toHaveBeenCalledWith(question, question.answers.get(0));
-    });
-
-    it('calls the onComplete prop on click', () => {
-      const onComplete = jest.fn();
-      wrapper = shallow(<QuestionComponent question={question} onComplete={onComplete} />);
-      wrapper.find('li.answer').first().simulate('click');
-      expect(onComplete).toHaveBeenCalled();
+      expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(
+        question, question.answers.get(0)
+      );
     });
   });
 
   describe('a subQuestion item', () => {
     beforeEach(() => {
+      scoreCalculation = new ScoreCalculation();
       question = new Question({
         title: 'hello',
         subQuestions: Immutable.List.of(
@@ -104,7 +104,7 @@ describe('QuestionComponent', () => {
         ),
       });
       expect(question.get('subQuestions').size).toBe(2);
-      wrapper = shallow(<QuestionComponent question={question} />);
+      wrapper = shallow(<QuestionComponent question={question} scoreCalculation={scoreCalculation} />);
     });
 
     it('is rendered recursively', () => {
@@ -117,12 +117,12 @@ describe('QuestionComponent', () => {
       expect(wrapper.find(QuestionComponent).length).toBe(2);
       expect(wrapper.find(QuestionComponent).get(0).props.label).toEqual('I');
       expect(wrapper.find(QuestionComponent).get(0).props.level).toEqual(1);
-      expect(wrapper.find(QuestionComponent).get(0).props.onAnswer)
-        .toBeInstanceOf(Function);
+      expect(wrapper.find(QuestionComponent).get(0).props.scoreCalculation).toBe(scoreCalculation);
       expect(wrapper.find(QuestionComponent).get(1).props.label).toEqual('II');
       expect(wrapper.find(QuestionComponent).get(1).props.level).toEqual(1);
-      expect(wrapper.find(QuestionComponent).get(1).props.onAnswer)
-        .toBeInstanceOf(Function);
+      expect(wrapper.find(QuestionComponent).get(1).props.scoreCalculation).toBe(scoreCalculation);
+
+      expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(expect.any(Function));
     });
 
     it('indicates if it is the active subQuestion', () => {
@@ -139,10 +139,12 @@ describe('QuestionComponent', () => {
         question.subQuestions.get(1)
       );
 
-      wrapper.setState({ activeSubQuestion: 1 });
+      wrapper.instance().incrementActiveSubQuestion();
+      wrapper.update();
 
       active = wrapper.find('li.subQuestion.active');
       notActive = wrapper.find('li.subQuestion.not-active');
+
       expect(active.find(QuestionComponent).get(0).props.question).toBe(
         question.subQuestions.get(1)
       );
@@ -151,43 +153,22 @@ describe('QuestionComponent', () => {
       );
     });
 
-    it('increments the active subquestion when answered', () => {
-      expect(wrapper.state('activeSubQuestion')).toBe(0);
+    it('increments the active subquestion with scoreCalculation.onQuestionCompleted', () => {
+      const getActiveSubQuestion = () => {
+        return wrapper
+          .find('li.subQuestion.active')
+          .find(QuestionComponent)
+          .get(0)
+          .props
+          .question;
+      };
 
-      const active = wrapper.find('li.subQuestion.active');
-      active.find(QuestionComponent).get(0).props.onAnswer();
+      expect(getActiveSubQuestion()).toBe(question.subQuestions.get(0));
+      const onQuestionCompleted = scoreCalculation.onQuestionCompleted.mock.calls[0][0];
 
-      expect(wrapper.state('activeSubQuestion')).toBe(1);
-    });
-
-    it('passes the onAnswer prop down', () => {
-      const onAnswer = jest.fn();
-
-      wrapper = shallow(<QuestionComponent question={ question } onAnswer={ onAnswer } />);
-
-      const active = wrapper.find('li.subQuestion.active');
-      active.find(QuestionComponent).get(0).props.onAnswer();
-      expect(onAnswer).toHaveBeenCalled();
-    });
-
-    it('does not pass the onComplete prop down', () => {
-      const onComplete = jest.fn();
-
-      wrapper = shallow(<QuestionComponent question={ question } onComplete={ onComplete } />);
-
-      const active = wrapper.find('li.subQuestion.active');
-      active.find(QuestionComponent).get(0).props.onComplete();
-      expect(onComplete).not.toHaveBeenCalled();
-    });
-
-    it('calls onComplete when all the subQuestions have been answered', () => {
-      const onComplete = jest.fn();
-      wrapper = shallow(<QuestionComponent question={ question } onComplete={ onComplete } />);
-
-      wrapper.find(QuestionComponent).get(0).props.onAnswer();
-      expect(onComplete).not.toHaveBeenCalled();
-      wrapper.find(QuestionComponent).get(1).props.onAnswer();
-      expect(onComplete).toHaveBeenCalled();
+      onQuestionCompleted();
+      wrapper.update();
+      expect(getActiveSubQuestion()).toBe(question.subQuestions.get(1));
     });
   });
 });

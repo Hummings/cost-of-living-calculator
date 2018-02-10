@@ -119,4 +119,83 @@ describe('Question', () => {
       expect(question.hasSubQuestions()).toBe(true);
     });
   });
+
+  describe('isCompleted', () => {
+    it('is true if the question has been answered and has no subquestions', () => {
+      const q = new Question({ title: 'hello' });
+      expect(q.isCompleted(Immutable.Map())).toBe(false);
+      expect(q.isCompleted(Immutable.Map([[q, new Answer()]]))).toBe(true);
+    });
+
+    it('is true if all the subquestions have been answered', () => {
+      const q1 = new Question({ title: 'q1' });
+      const q2 = new Question({ title: 'q2' });
+      const question = new Question({
+        title: 'queestion',
+        subQuestions: Immutable.List.of(q1, q2),
+      });
+      expect(question.isCompleted(Immutable.Map([ [question, new Answer()] ]))).toBe(false);
+      expect(question.isCompleted(Immutable.Map([ [q1, new Answer()] ]))).toBe(false);
+      expect(question.isCompleted(Immutable.Map([ [q1, new Answer()], [q2, new Answer()] ]))).toBe(true);
+    });
+  });
+
+  describe('computeScore', () => {
+    const noSubQuestions = new Question({
+      title: 'wassup',
+      answers: Immutable.List.of(
+        new Answer({ text: 'nothin', points: 1 }),
+        new Answer({ text: 'somethin', points: 2 }),
+      ),
+    });
+    const withSubQuestions = new Question({
+      title: 'who dat?',
+      subQuestions: Immutable.List.of(
+        new Question({
+          title: 'yo momma?',
+          answers: Immutable.List.of(
+            new Answer({ text: 'yes', points: 2 }),
+            new Answer({ text: 'no', points: 1 }),
+          ),
+        }),
+        new Question({
+          title: 'yo daddy?',
+          answers: Immutable.List.of(
+            new Answer({ text: 'yes', points: 2 }),
+            new Answer({ text: 'no', points: 1 }),
+          ),
+        }),
+      ),
+    });
+    const sub1 = withSubQuestions.subQuestions.get(0);
+    const sub2 = withSubQuestions.subQuestions.get(1);
+
+    it('returns 0 if the question is not completed', () => {
+      const selectedAnswers = Immutable.Map([
+        [ sub1, sub1.answers.get(0) ]
+      ]);
+      expect(noSubQuestions.computeScore(selectedAnswers)).toBe(0);
+      expect(withSubQuestions.computeScore(selectedAnswers)).toBe(0);
+    });
+
+    it('returns the selected answer\'s points if there are no subquestions', () => {
+      const answer = noSubQuestions.answers.get(1);
+      const selectedAnswers = Immutable.Map([
+        [ noSubQuestions, answer ]
+      ]);
+      expect(noSubQuestions.computeScore(selectedAnswers)).toBe(answer.points);
+    });
+
+    it('sums the subquestions\' points', () => {
+      const a1 = sub1.answers.get(0);
+      const a2 = sub1.answers.get(1);
+      const selectedAnswers = Immutable.Map([
+        [ sub1, a1 ],
+        [ sub2, a2 ],
+      ]);
+      expect(withSubQuestions.computeScore(selectedAnswers)).toBe(
+        a1.points + a2.points
+      );
+    });
+  });
 });

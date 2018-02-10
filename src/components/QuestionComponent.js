@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
-import React from 'react';
 import Question from '../models/Question';
+import React from 'react';
+import ScoreCalculation from '../core/ScoreCalculation';
+
 
 import utils from '../utils';
 import { LETTERS, ROMAN_NUMERALS } from '../constants';
@@ -29,10 +31,10 @@ class QuestionComponent extends React.Component {
   renderSubQuestions() {
     const level = this.props.level + 1;
     const subQuestions = this.props.question.get('subQuestions');
-    const onAnswer = utils.combine(
-      this.props.onAnswer,
-      this.incrementActiveSubQuestion.bind(this)
-    );
+    const scoreCalculation = this.props.scoreCalculation.onQuestionCompleted(() => {
+      this.incrementActiveSubQuestion();
+    });
+
     if (!subQuestions.isEmpty()) {
       return (
         <ul className="subQuestions">
@@ -45,7 +47,7 @@ class QuestionComponent extends React.Component {
             question={q}
             label={ROMAN_NUMERALS[i]}
             level={level}
-            onAnswer={onAnswer}
+            scoreCalculation={scoreCalculation}
           />
           </li>
         ))}
@@ -81,20 +83,15 @@ class QuestionComponent extends React.Component {
 
   incrementActiveSubQuestion() {
     const { activeSubQuestion } = this.state;
-    const numSubQuestions = this.props.question.subQuestions.size;
-    const wasLastSubQuestion = activeSubQuestion === (numSubQuestions - 1);
-
-    if (wasLastSubQuestion) {
-      this.props.onComplete();
-    } else {
-      this.setState({ activeSubQuestion: activeSubQuestion + 1 });
-    }
+    this.setState({ activeSubQuestion: activeSubQuestion + 1 });
   }
 
   selectAnswer(answer) {
     this.setState({ selectedAnswer: answer });
-    this.props.onAnswer(this.props.question, answer);
-    this.props.onComplete();
+    this.props.scoreCalculation.recordAnswer(
+      this.props.question,
+      answer
+    );
   }
 
   isDisabled(answer) {
@@ -106,16 +103,13 @@ class QuestionComponent extends React.Component {
 QuestionComponent.defaultProps = {
   label: '',
   level: 0,
-  onAnswer: (question, answer) => {},
-  onComplete: () => {},
 };
 
 QuestionComponent.propTypes = {
   label: PropTypes.string,
   level: PropTypes.number,
   question: PropTypes.instanceOf(Question).isRequired,
-  onAnswer: PropTypes.func, //args (question, answer)
-  onComplete: PropTypes.func,
+  scoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
 };
 
 export default QuestionComponent;

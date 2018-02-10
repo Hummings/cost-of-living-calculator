@@ -7,17 +7,21 @@ import Quiz from '../../models/Quiz';
 import React from 'react';
 import Result from '../../models/Result';
 import ResultCard from '../ResultCard';
+import ScoreCalculation from '../../core/ScoreCalculation';
 import ScoreRange from '../../models/ScoreRange';
 import Summary from '../../models/Summary';
 
-
 import { shallow } from 'enzyme';
+
+jest.mock('../../core/ScoreCalculation');
 
 describe('QuizComponent', () => {
   let quiz;
   let wrapper;
+  let scoreCalculation;
 
   beforeEach(() => {
+    scoreCalculation = new ScoreCalculation();
     quiz = new Quiz({
       questions: Immutable.List.of(
         new Question({
@@ -66,8 +70,7 @@ describe('QuizComponent', () => {
         ),
       }),
     });
-
-    wrapper = shallow(<QuizComponent initialQuiz={ quiz } />);
+    wrapper = shallow(<QuizComponent quiz={ quiz } initialScoreCalculation={ scoreCalculation } />);
   });
 
   it('renders all the questions', () => {
@@ -76,8 +79,15 @@ describe('QuizComponent', () => {
     const card2 = getQuestionCard(1);
 
     expect(card1.props.question).toBe(quiz.questions.get(0));
+    expect(card1.props.scoreCalculation).toBe(scoreCalculation);
+
     expect(card2.props.question).toBe(quiz.questions.get(1));
+    expect(card2.props.scoreCalculation).toBe(scoreCalculation);
+
     expect(wrapper.find(ResultCard).length).toBe(0);
+
+    expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
+    expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(expect.any(Function));
   });
 
   it('indicates which question is active', () => {
@@ -90,11 +100,11 @@ describe('QuizComponent', () => {
     expect(getQuestionCard(1).props.isActive).toBe(true);
   });
 
-  it('increments active card on answer via onComplete prop function', () => {
+  it('increments active card via calculation onComplete callback', () => {
     const getActiveProps = () => (
       [0, 1].map(i => wrapper.find(QuestionCard).get(i).props.isActive)
     );
-    const onComplete = getQuestionCard(0).props.onComplete;
+    const onComplete = scoreCalculation.onQuestionCompleted.mock.calls[0][0];
 
     expect(getActiveProps()).toEqual([true, false]);
 
@@ -106,38 +116,41 @@ describe('QuizComponent', () => {
     expect(getActiveProps()).toEqual([false, true]);
   });
 
+  it('stores the new calculation on answer', () => {
+    expect(getQuestionCard(0).props.scoreCalculation).toBe(scoreCalculation);
+    expect(getQuestionCard(1).props.scoreCalculation).toBe(scoreCalculation);
+
+    const onAnswer = scoreCalculation.onAnswer.mock.calls[0][0];
+    expect(onAnswer).toBeInstanceOf(Function);
+
+    const newCalculation = new ScoreCalculation();
+
+    onAnswer(newCalculation);
+    wrapper.update();
+
+    expect(getQuestionCard(0).props.scoreCalculation).toBe(newCalculation);
+    expect(getQuestionCard(1).props.scoreCalculation).toBe(newCalculation);
+
+  });
+
   it('displays a result card when all the questions have been answered', () => {
+    scoreCalculation.computeScore.mockReturnValue(5);
+    const expectedResult = quiz.summary.getResultForScore(5);
+
     expect(wrapper.find(QuestionCard).length).toBe(2);
     expect(wrapper.find(ResultCard).length).toBe(0);
 
-    getQuestionCard(0).props.onComplete();
+    const onComplete = scoreCalculation.onQuestionCompleted.mock.calls[0][0];
+    onComplete();
     wrapper.update();
     expect(wrapper.find(QuestionCard).length).toBe(2);
     expect(wrapper.find(ResultCard).length).toBe(0);
 
-    getQuestionCard(1).props.onComplete();
+    onComplete();
     wrapper.update();
     expect(wrapper.find(QuestionCard).length).toBe(0);
     expect(wrapper.find(ResultCard).length).toBe(1);
-  });
-
-  it('keeps track of the selected answers via prop function', () => {
-    const onAnswer1 = getQuestionCard(0).props.onAnswer
-    const onAnswer2 = getQuestionCard(1).props.onAnswer
-    const question1 = quiz.questions.get(0)
-    const question2 = quiz.questions.get(1)
-    expect(onAnswer1).toBeInstanceOf(Function);
-    expect(onAnswer2).toBeInstanceOf(Function);
-
-    onAnswer1(question1, question1.answers.get(1));
-    onAnswer2(question2, question2.answers.get(0));
-
-    expect(wrapper.state('quiz').answeredQuestions.get(question1))
-    .toBe(question1.answers.get(1));
-    expect(wrapper.state('quiz').answeredQuestions.get(question2))
-    .toBe(question2.answers.get(0));
-
-    expect(wrapper.state('activeQuestionCard')).toBe(0);
+    expect(wrapper.find(ResultCard).get(0).props.result).toBe(expectedResult);
   });
 
   const getQuestionCard = (index) => {

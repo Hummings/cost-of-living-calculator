@@ -5,6 +5,7 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import Immutable from 'immutable';
 import Quiz from '../models/Quiz';
 import React from 'react';
+import ScoreCalculation from '../core/ScoreCalculation';
 
 import { afterAllPromises } from '../test-setup';
 import { shallow } from 'enzyme';
@@ -31,13 +32,14 @@ describe('App', () => {
   it('renders the result of the question fetch', done => {
     const quiz = new Quiz();
     resolve(quiz);
-    expect.assertions(3);
+    expect.assertions(4);
 
     afterAllPromises(() => {
       wrapper.update();
       expect(wrapper.find(LoadingIndicator).length).toBe(0);
       expect(wrapper.find(QuizComponent).length).toBe(1);
-      expect(wrapper.find(QuizComponent).get(0).props.initialQuiz).toBe(quiz);
+      expect(wrapper.find(QuizComponent).get(0).props.quiz).toBe(quiz);
+      expect(wrapper.find(QuizComponent).get(0).props.initialScoreCalculation).toEqual(new ScoreCalculation(quiz));
       done();
     });
   });

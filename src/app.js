@@ -4,6 +4,7 @@ import React from 'react'
 import { fetchQuestions } from './api';
 import QuizComponent from './components/QuizComponent';
 import LoadingIndicator from './components/LoadingIndicator';
+import ScoreCalculation from './core/ScoreCalculation';
 
 class App extends React.Component {
   constructor() {
@@ -20,8 +21,9 @@ class App extends React.Component {
   }
 
   render() {
-    if (this.state.quiz) {
-      return <QuizComponent initialQuiz={ this.state.quiz } />;
+    const { quiz } = this.state;
+    if (quiz) {
+      return <QuizComponent quiz={ quiz } initialScoreCalculation={ new ScoreCalculation(quiz) } />;
     } else {
       return <LoadingIndicator />;
     }

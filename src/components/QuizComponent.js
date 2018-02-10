@@ -4,6 +4,7 @@ import QuestionComponent from './QuestionComponent';
 import Quiz from '../models/Quiz';
 import React from 'react';
 import ResultCard from './ResultCard';
+import ScoreCalculation from '../core/ScoreCalculation';
 
 
 class QuizComponent extends React.Component {
@@ -11,15 +12,23 @@ class QuizComponent extends React.Component {
     super(props);
     this.state = {
       activeQuestionCard: 0,
-      quiz: props.initialQuiz,
       onResults: false,
+      scoreCalculation: props.initialScoreCalculation,
     };
   }
 
   render() {
-    const { activeQuestionCard, quiz, onResults } = this.state;
+    const { quiz } = this.props;
+    const { activeQuestionCard, onResults } = this.state;
+
+    const scoreCalculation = this.state.scoreCalculation
+      .onAnswer(newCalculation => this.setState({ scoreCalculation: newCalculation }))
+      .onQuestionCompleted(() => this.incrementActiveQuestionCard());
+
     if (onResults) {
-      return <ResultCard result={ quiz.getResult() } />;
+      const score = scoreCalculation.computeScore()
+      const result = quiz.summary.getResultForScore(score);
+      return <ResultCard result={ result } />;
     } else {
       return (
         <div>
@@ -28,8 +37,7 @@ class QuizComponent extends React.Component {
             key={q.getId()}
             question={q}
             isActive={ i === activeQuestionCard }
-            onAnswer={this.storeAnswer.bind(this)}
-            onComplete={this.incrementActiveQuestionCard.bind(this)}
+            scoreCalculation={ scoreCalculation }
           />
         ))}
         </div>
@@ -37,12 +45,9 @@ class QuizComponent extends React.Component {
     }
   }
 
-  storeAnswer(question, answer) {
-    this.setState({ quiz: this.state.quiz.withAnswerSelected(question, answer) });
-  }
-
   incrementActiveQuestionCard() {
-    const { activeQuestionCard, quiz } = this.state;
+    const { quiz } = this.props;
+    const { activeQuestionCard } = this.state;
     const numQuestions = quiz.questions.size;
     const wasLastQuestion = activeQuestionCard === (numQuestions - 1);
     if (wasLastQuestion) {
@@ -54,7 +59,8 @@ class QuizComponent extends React.Component {
 }
 
 QuizComponent.propTypes = {
-  initialQuiz: PropTypes.instanceOf(Quiz).isRequired,
+  quiz: PropTypes.instanceOf(Quiz).isRequired,
+  initialScoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
 }
 
 export default QuizComponent;

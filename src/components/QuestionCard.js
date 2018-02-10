@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import QuestionComponent from './QuestionComponent';
 import Question from '../models/Question';
 import React from 'react';
+import ScoreCalculation from '../core/ScoreCalculation';
 
 class QuestionCard extends React.Component {
 
@@ -10,8 +11,7 @@ class QuestionCard extends React.Component {
       <div className={ this.props.isActive ? 'active' : 'not-active' } >
         <QuestionComponent
           question={this.props.question}
-          onAnswer={this.props.onAnswer}
-          onComplete={this.props.onComplete}
+          scoreCalculation={this.props.scoreCalculation}
           />
       </div>
     );
@@ -25,10 +25,9 @@ QuestionCard.defaultProps = {
 };
 
 QuestionCard.propTypes = {
-  question: PropTypes.instanceOf(Question).isRequired,
   isActive: PropTypes.bool,
-  onAnswer: PropTypes.func, // args (question, answer)
-  conComplete: PropTypes.func,
+  question: PropTypes.instanceOf(Question).isRequired,
+  scoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
 };
 
 export default QuestionCard;

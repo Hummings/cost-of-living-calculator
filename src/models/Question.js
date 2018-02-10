@@ -22,6 +22,31 @@ Object.assign(Question.prototype, {
   hasSubQuestions() {
     return !!this.subQuestions.size;
   },
+
+  isCompleted(selectedAnswers) {
+    selectedAnswers = selectedAnswers || Immutable.Map();
+    if (this.hasSubQuestions()) {
+      return this.subQuestions.every(q => q.isCompleted(selectedAnswers));
+    } else {
+      return selectedAnswers.has(this);
+    }
+  },
+
+  computeScore(selectedAnswers) {
+    selectedAnswers = selectedAnswers || Immutable.Map();
+    if (!this.isCompleted(selectedAnswers)) {
+      return 0;
+    }
+
+    if (this.hasSubQuestions()) {
+      return this.subQuestions
+        .map(q => q.computeScore(selectedAnswers))
+        .reduce((a, b) => a + b, 0);
+    } else {
+      const answer = selectedAnswers.get(this);
+      return answer ? answer.points : 0;
+    }
+  },
 });
 
 Question.deserialize = json => {
