@@ -122,7 +122,7 @@ describe('QuestionComponent', () => {
       expect(wrapper.find(QuestionComponent).get(1).props.level).toEqual(1);
       expect(wrapper.find(QuestionComponent).get(1).props.scoreCalculation).toBe(scoreCalculation);
 
-      expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(expect.any(Function));
+      expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
     });
 
     it('indicates if it is the active subQuestion', () => {
@@ -153,7 +153,7 @@ describe('QuestionComponent', () => {
       );
     });
 
-    it('increments the active subquestion with scoreCalculation.onQuestionCompleted', () => {
+    it('increments the active subquestion with scoreCalculation.onAnswer', () => {
       const getActiveSubQuestion = () => {
         return wrapper
           .find('li.subQuestion.active')
@@ -164,9 +164,9 @@ describe('QuestionComponent', () => {
       };
 
       expect(getActiveSubQuestion()).toBe(question.subQuestions.get(0));
-      const onQuestionCompleted = scoreCalculation.onQuestionCompleted.mock.calls[0][0];
+      const onAnswer = scoreCalculation.onAnswer.mock.calls[0][0];
 
-      onQuestionCompleted();
+      onAnswer();
       wrapper.update();
       expect(getActiveSubQuestion()).toBe(question.subQuestions.get(1));
     });

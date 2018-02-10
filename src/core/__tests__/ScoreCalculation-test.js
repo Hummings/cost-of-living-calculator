@@ -124,6 +124,4 @@ describe('ScoreCalculation', () => {
       expect(score).toEqual(expectedScore);
     });
   });
-
-
 });

@@ -16,4 +16,5 @@ export const combine = (...fns) => (...args) => (
 export default {
   dasherize: dasherize,
   combine: combine,
+  NO_OP: () => {},
 };

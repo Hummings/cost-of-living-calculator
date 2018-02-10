@@ -31,7 +31,7 @@ class QuestionComponent extends React.Component {
   renderSubQuestions() {
     const level = this.props.level + 1;
     const subQuestions = this.props.question.get('subQuestions');
-    const scoreCalculation = this.props.scoreCalculation.onQuestionCompleted(() => {
+    const scoreCalculation = this.props.scoreCalculation.onAnswer(() => {
       this.incrementActiveSubQuestion();
     });
 

@@ -29,5 +29,20 @@ describe('utils', () => {
       expect(fn2).toHaveBeenCalledWith(1, 2);
       expect(fn3).toHaveBeenCalledWith(1, 2);
     });
+
+    it('can be nested', () => {
+      const fn1 = jest.fn();
+      const fn2 = jest.fn();
+      const fn3 = jest.fn();
+
+      const combined = utils.combine(fn1, utils.combine(fn2, fn3));
+      combined();
+
+      combined(1, 2);
+
+      expect(fn1).toHaveBeenCalledWith(1, 2);
+      expect(fn2).toHaveBeenCalledWith(1, 2);
+      expect(fn3).toHaveBeenCalledWith(1, 2);
+    });
   });
 });
