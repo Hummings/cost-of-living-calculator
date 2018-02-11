@@ -3,6 +3,7 @@
   "questions": [
     {
       "title": "Where will you live?",
+      "subQuestionMode": "ANSWER_ONE",
       "subQuestions": [
         {
           "title": "The \"City\"",

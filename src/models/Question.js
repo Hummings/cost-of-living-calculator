@@ -3,11 +3,17 @@ import Immutable from 'immutable';
 
 import { dasherize } from '../utils';
 
+const SubQuestionModes = {
+  ANSWER_ALL: Symbol(),
+  ANSWER_ONE: Symbol(),
+};
+
 const Question = Immutable.Record({
   id: '',
   title: '',
   answers: new Immutable.List(),
   subQuestions: new Immutable.List(),
+  subQuestionMode: SubQuestionModes.ANSWER_ALL,
 });
 
 Object.assign(Question.prototype, {
@@ -25,8 +31,10 @@ Object.assign(Question.prototype, {
 
   isCompleted(selectedAnswers) {
     selectedAnswers = selectedAnswers || Immutable.Map();
-    if (this.hasSubQuestions()) {
+    if (this.hasSubQuestions() && this.subQuestionMode === SubQuestionModes.ANSWER_ALL) {
       return this.subQuestions.every(q => q.isCompleted(selectedAnswers));
+    } else if (this.hasSubQuestions() && this.subQuestionMode === SubQuestionModes.ANSWER_ONE) {
+      return this.subQuestions.some(q => q.isCompleted(selectedAnswers));
     } else {
       return selectedAnswers.has(this);
     }
@@ -67,7 +75,16 @@ Question.deserialize = json => {
     (json.subQuestions || []).map(c => Question.deserialize(c))
   );
 
+  if (json.subQuestionMode) {
+    if (!SubQuestionModes[json.subQuestionMode]) {
+      throw new Error('invalid subquestion mode ' + json.subQuestionMode);
+    }
+    json.subQuestionMode = SubQuestionModes[json.subQuestionMode];
+  }
+
   return new Question(json);
 }
+
+Question.SubQuestionModes = SubQuestionModes;
 
 export default Question;

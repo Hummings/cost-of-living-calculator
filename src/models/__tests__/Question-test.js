@@ -101,6 +101,21 @@ describe('Question', () => {
         });
       }).toThrow();
     });
+
+    it('defaults subQuestionMode to ANSWER_ALL', () => {
+      const q = Question.deserialize({
+        answers: [{ text: 'a', points: 2}],
+      });
+      expect(q.subQuestionMode).toBe(Question.SubQuestionModes.ANSWER_ALL);
+    });
+
+    it('deserializes the subquestion mode string', () => {
+      const q = Question.deserialize({
+        subQuestionMode: 'ANSWER_ONE',
+        answers: [{ text: 'a', points: 2}],
+      });
+      expect(q.subQuestionMode).toBe(Question.SubQuestionModes.ANSWER_ONE);
+    });
   });
 
   describe('hasSubQuestions', () => {
@@ -137,6 +152,34 @@ describe('Question', () => {
       expect(question.isCompleted(Immutable.Map([ [question, new Answer()] ]))).toBe(false);
       expect(question.isCompleted(Immutable.Map([ [q1, new Answer()] ]))).toBe(false);
       expect(question.isCompleted(Immutable.Map([ [q1, new Answer()], [q2, new Answer()] ]))).toBe(true);
+    });
+
+    it('is true if one subquestion has been answered and the subQuestionMode is ANSWER_ONE', () => {
+      const q = new Question({
+        title: 'hello',
+        subQuestionMode: Question.SubQuestionModes.ANSWER_ONE,
+        subQuestions: Immutable.List.of(
+          new Question({
+            title: 'sub1',
+            answers: Immutable.List.of(
+              new Answer({ text: 'asdf', points: 1 }),
+              new Answer({ text: 'hijk', points: 1 }),
+            ),
+          }),
+          new Question({
+            title: 'sub2',
+            answers: Immutable.List.of(
+              new Answer({ text: '123j', points: 1 }),
+              new Answer({ text: '345', points: 1 }),
+            ),
+          }),
+        ),
+      });
+      expect(q.isCompleted(Immutable.Map())).toBe(false);
+      const selectedAnswers = Immutable.Map([
+        [ q.subQuestions.get(0), q.subQuestions.get(0).answers.get(1) ],
+      ]);
+      expect(q.isCompleted(selectedAnswers)).toBe(true);
     });
   });
 
