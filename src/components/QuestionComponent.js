@@ -3,8 +3,7 @@ import PropTypes from 'prop-types';
 import Question from '../models/Question';
 import React from 'react';
 import ScoreCalculation from '../core/ScoreCalculation';
-import SubQuestionChoiceComponent from './SubQuestionChoiceComponent';
-import SubQuestionListComponent from './SubQuestionListComponent';
+import SubQuestionComponent from './SubQuestionComponent';
 
 
 import utils from '../utils';
@@ -15,7 +14,15 @@ class QuestionComponent extends React.Component {
     return (
       <div className={'level' + level}>
         <h4>{ label && `(${label}) ` }{ question.title }</h4>
-        { this.renderSubQuestions() }
+        {
+          question.hasSubQuestions() &&
+          <SubQuestionComponent
+            subQuestions={ question.subQuestions }
+            scoreCalculation={ scoreCalculation }
+            subQuestionMode={ question.subQuestionMode }
+            level={ level }
+          />
+        }
         { this.renderAnswers() }
       </div>
     );
@@ -38,29 +45,6 @@ class QuestionComponent extends React.Component {
           </li>
         ))}
         </ul>
-      );
-    } else {
-      return '';
-    }
-  }
-
-  renderSubQuestions() {
-    const { question, level, scoreCalculation } = this.props;
-    if (question.hasSubQuestions() && question.subQuestionMode === Question.SubQuestionModes.ANSWER_ALL) {
-      return (
-        <SubQuestionListComponent
-          subQuestions={ question.subQuestions }
-          scoreCalculation={ scoreCalculation }
-          level={ level + 1 }
-        />
-      );
-    } else if (question.hasSubQuestions() && question.subQuestionMode === Question.SubQuestionModes.ANSWER_ONE) {
-      return (
-        <SubQuestionChoiceComponent
-          subQuestions={ question.subQuestions }
-          scoreCalculation={ scoreCalculation }
-          level={ level + 1 }
-        />
       );
     } else {
       return '';
