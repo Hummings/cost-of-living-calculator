@@ -3,16 +3,39 @@ import PropTypes from 'prop-types';
 import Question from '../models/Question';
 import React from 'react';
 import ScoreCalculation from '../core/ScoreCalculation';
+import SubQuestionComponent from './SubQuestionComponent';
 
 import { LETTERS } from '../constants';
 
 class AnswerComponent extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      isSelected: false,
+    };
+  }
+
   render() {
-    const { question, answer, scoreCalculation } = this.props;
+    const { question, answer, scoreCalculation, level } = this.props;
     const label = LETTERS[question.answers.indexOf(answer)];
     return (
-      <p onClick={ () => this.recordAnswer() }>({ label }) { answer.text }</p>
+      <div className="answer" onClick={ () => this.recordAnswer() }>
+      ({ label }) { answer.text }
+      {
+        this.shouldRenderSubQuestions() &&
+          <SubQuestionComponent
+            subQuestions={ answer.subQuestions }
+            subQuestionMode={ answer.subQuestionMode }
+            level={ level }
+            scoreCalculation={ scoreCalculation }
+          />
+      }
+      </div>
     )
+  }
+
+  shouldRenderSubQuestions() {
+    return this.state.isSelected && this.props.answer.hasSubQuestions();
   }
 
   recordAnswer() {
@@ -20,13 +43,19 @@ class AnswerComponent extends React.Component {
       this.props.question,
       this.props.answer
     );
+    this.setState({ isSelected: true });
   }
 }
+
+AnswerComponent.defaultProps = {
+  level: 0,
+};
 
 AnswerComponent.propTypes = {
   answer: PropTypes.instanceOf(Answer).isRequired,
   question: PropTypes.instanceOf(Question).isRequired,
   scoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
+  level: PropTypes.number,
 };
 
 export default AnswerComponent;

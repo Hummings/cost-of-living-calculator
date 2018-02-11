@@ -48,10 +48,12 @@ describe('QuestionComponent', () => {
     expect(a1.props.answer).toBe(question.answers.get(0));
     expect(a1.props.question).toBe(question);
     expect(a1.props.scoreCalculation).toBe(scoreCalculation);
+    expect(a1.props.level).toBe(0);
 
     expect(a2.props.answer).toBe(question.answers.get(1));
     expect(a2.props.question).toBe(question);
     expect(a2.props.scoreCalculation).toBe(scoreCalculation);
+    expect(a2.props.level).toBe(0);
   });
 
   it('does not render a subquestion component if there are no subquestions', () => {

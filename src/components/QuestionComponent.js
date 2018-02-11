@@ -29,7 +29,7 @@ class QuestionComponent extends React.Component {
   }
 
   renderAnswers() {
-    const { question, scoreCalculation } = this.props;
+    const { question, scoreCalculation, level } = this.props;
     const answers = question.answers;
 
     if (!answers.isEmpty()) {
@@ -41,6 +41,7 @@ class QuestionComponent extends React.Component {
               answer={ a }
               question={ question }
               scoreCalculation={ scoreCalculation }
+              level={ level }
             />
           </li>
         ))}

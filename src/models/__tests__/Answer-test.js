@@ -1,6 +1,7 @@
 import Answer from '../Answer';
 import Immutable from 'immutable';
 import Question from '../Question';
+import SubQuestionModes from '../SubQuestionModes';
 
 
 describe('Answer', () => {
@@ -94,6 +95,37 @@ describe('Answer', () => {
         }),
       ]));
     });
+
+    it('defaults subQuestionMode to ANSWER_ALL', () => {
+      const answer = Answer.deserialize({
+        text: 'hello',
+        points: 5,
+      });
+      expect(answer.subQuestionMode).toBe(SubQuestionModes.ANSWER_ALL);
+    });
+
+    it('deserializes the subQuestionMode string', () => {
+      const answer = Answer.deserialize({
+        text: 'hello',
+        points: 5,
+        subQuestionMode: 'ANSWER_ONE',
+      });
+      expect(answer.subQuestionMode).toBe(SubQuestionModes.ANSWER_ONE);
+    });
   });
 
+  describe('hasSubQuestions', () => {
+    it('is false if the answer has no sub questions', () => {
+      expect(new Answer().hasSubQuestions()).toBe(false);
+    });
+
+    it('is true if the answer has sub questions', () => {
+      const answer = new Answer({
+        subQuestions: Immutable.List.of(
+          new Question(),
+        )
+      });
+      expect(answer.hasSubQuestions()).toBe(true);
+    });
+  });
 });

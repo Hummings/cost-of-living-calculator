@@ -182,6 +182,48 @@ describe('Question', () => {
       ]);
       expect(q.isCompleted(selectedAnswers)).toBe(true);
     });
+
+    it('checks if the answer\'s subquestions have been answered', () => {
+      const basicAnswer = new Answer({ text: 'hi', points: 3 });
+      const answerWithSubQuestions = new Answer({
+        subQuestionMode: SubQuestionModes.ANSWER_ALL,
+        subQuestions: Immutable.List.of(
+          new Question({
+            title: 'sub1',
+            answers: Immutable.List.of(
+              new Answer({ text: 'asdf', points: 1 }),
+              new Answer({ text: 'hijk', points: 1 }),
+            ),
+          }),
+          new Question({
+            title: 'sub2',
+            answers: Immutable.List.of(
+              new Answer({ text: '123j', points: 1 }),
+              new Answer({ text: '345', points: 1 }),
+            ),
+          }),
+        ),
+      });
+      const question = new Question({
+        title: 'hello',
+        answers: Immutable.List.of(
+          basicAnswer,
+          answerWithSubQuestions,
+        ),
+      });
+
+      expect(question.isCompleted(Immutable.Map([[ question, basicAnswer ]]))).toBe(true);
+      expect(question.isCompleted(Immutable.Map([[ question, answerWithSubQuestions ]]))).toBe(false);
+      expect(question.isCompleted(Immutable.Map([
+        [ question, answerWithSubQuestions ],
+        [ answerWithSubQuestions.subQuestions.get(0), answerWithSubQuestions.subQuestions.get(0).answers.get(0) ],
+      ]))).toBe(false);
+      expect(question.isCompleted(Immutable.Map([
+        [ question, answerWithSubQuestions ],
+        [ answerWithSubQuestions.subQuestions.get(0), answerWithSubQuestions.subQuestions.get(0).answers.get(0) ],
+        [ answerWithSubQuestions.subQuestions.get(1), answerWithSubQuestions.subQuestions.get(1).answers.get(0) ],
+      ]))).toBe(true);
+    });
   });
 
   describe('computeScore', () => {

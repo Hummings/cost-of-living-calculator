@@ -27,12 +27,16 @@ Object.assign(Question.prototype, {
 
   isCompleted(selectedAnswers) {
     selectedAnswers = selectedAnswers || Immutable.Map();
-    if (this.hasSubQuestions() && this.subQuestionMode === SubQuestionModes.ANSWER_ALL) {
-      return this.subQuestions.every(q => q.isCompleted(selectedAnswers));
-    } else if (this.hasSubQuestions() && this.subQuestionMode === SubQuestionModes.ANSWER_ONE) {
-      return this.subQuestions.some(q => q.isCompleted(selectedAnswers));
+
+    if (this.hasSubQuestions()) {
+      return this._areAllSubQuestionsAnswered(this.subQuestions, this.subQuestionMode, selectedAnswers);
     } else {
-      return selectedAnswers.has(this);
+      const answer = selectedAnswers.get(this);
+      if (answer && answer.hasSubQuestions()) {
+        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode, selectedAnswers);
+      } else {
+        return !!answer;
+      }
     }
   },
 
@@ -49,6 +53,17 @@ Object.assign(Question.prototype, {
     } else {
       const answer = selectedAnswers.get(this);
       return answer ? answer.points : 0;
+    }
+  },
+
+  _areAllSubQuestionsAnswered(subQuestions, subQuestionMode, selectedAnswers) {
+    switch(subQuestionMode) {
+      case SubQuestionModes.ANSWER_ALL:
+        return subQuestions.every(q => q.isCompleted(selectedAnswers));
+      case SubQuestionModes.ANSWER_ONE:
+        return subQuestions.some(q => q.isCompleted(selectedAnswers));
+      default:
+        throw new Error('unknown subquestion mode ' + this.subQuestionMode);
     }
   },
 });

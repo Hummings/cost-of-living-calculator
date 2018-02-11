@@ -4,6 +4,7 @@ import Immutable from 'immutable';
 import Question from '../../models/Question';
 import React from 'react';
 import ScoreCalculation from '../../core/ScoreCalculation';
+import SubQuestionComponent from '../SubQuestionComponent';
 
 import { shallow } from 'enzyme';
 
@@ -36,11 +37,42 @@ describe('AnswerComponent', () => {
 
   it('renders the answer text with a label', () => {
     expect(wrapper.text()).toEqual('(a) True');
+    expect(wrapper.find(SubQuestionComponent).length).toBe(0);
   });
 
   it('records the answer on click', () => {
     expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
-    wrapper.find('p').simulate('click');
+    wrapper.find('div.answer').simulate('click');
     expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(question, answer);
+  });
+
+  it('renders the answer subquestions when selected', () => {
+    answer = new Answer({
+      subQuestions: Immutable.List.of(
+        new Question({ title: 'sub1' }),
+        new Question({ title: 'sub2' }),
+      ),
+    });
+
+    wrapper = shallow(
+      <AnswerComponent
+        question={question}
+        answer={answer}
+        scoreCalculation={scoreCalculation}
+        level={ 3 }
+        />
+    );
+    expect(wrapper.find(SubQuestionComponent).length).toBe(0);
+
+    wrapper.find('div.answer').simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find(SubQuestionComponent).length).toBe(1);
+
+    const subComponent = wrapper.find(SubQuestionComponent).get(0);
+    expect(subComponent.props.subQuestions).toBe(answer.subQuestions);
+    expect(subComponent.props.subQuestionMode).toBe(answer.subQuestionMode);
+    expect(subComponent.props.level).toBe(3);
+    expect(subComponent.props.scoreCalculation).toBe(scoreCalculation)
   });
 });
