@@ -7,6 +7,7 @@ import ScoreCalculation from '../../core/ScoreCalculation';
 import SubQuestionComponent from '../SubQuestionComponent';
 import SubQuestionListComponent from '../SubQuestionListComponent';
 import SubQuestionChoiceComponent from '../SubQuestionChoiceComponent';
+import SubQuestionModes from '../../models/SubQuestionModes';
 
 import { shallow } from 'enzyme';
 
@@ -43,7 +44,7 @@ describe('SubQuestionComponent', () => {
         subQuestions={subQuestions}
         scoreCalculation={scoreCalculation}
         level={ 1 }
-        subQuestionMode={ Question.SubQuestionModes.ANSWER_ALL }
+        subQuestionMode={ SubQuestionModes.ANSWER_ALL }
         />
     );
     expect(wrapper.find(SubQuestionListComponent).length).toBe(1);
@@ -60,7 +61,7 @@ describe('SubQuestionComponent', () => {
         subQuestions={subQuestions}
         scoreCalculation={scoreCalculation}
         level={ 1 }
-        subQuestionMode={ Question.SubQuestionModes.ANSWER_ONE }
+        subQuestionMode={ SubQuestionModes.ANSWER_ONE }
         />
     );
     expect(wrapper.find(SubQuestionListComponent).length).toBe(0);

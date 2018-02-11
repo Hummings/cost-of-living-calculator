@@ -1,12 +1,8 @@
 import Answer from './Answer';
 import Immutable from 'immutable';
+import SubQuestionModes from './SubQuestionModes';
 
 import { dasherize } from '../utils';
-
-const SubQuestionModes = {
-  ANSWER_ALL: Symbol(),
-  ANSWER_ONE: Symbol(),
-};
 
 const Question = Immutable.Record({
   id: '',
@@ -75,16 +71,8 @@ Question.deserialize = json => {
     (json.subQuestions || []).map(c => Question.deserialize(c))
   );
 
-  if (json.subQuestionMode) {
-    if (!SubQuestionModes[json.subQuestionMode]) {
-      throw new Error('invalid subquestion mode ' + json.subQuestionMode);
-    }
-    json.subQuestionMode = SubQuestionModes[json.subQuestionMode];
-  }
-
+  json.subQuestionMode = SubQuestionModes.deserialize(json.subQuestionMode);
   return new Question(json);
 }
-
-Question.SubQuestionModes = SubQuestionModes;
 
 export default Question;

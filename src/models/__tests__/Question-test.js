@@ -1,6 +1,7 @@
 import Answer from '../Answer';
 import Immutable from 'immutable';
 import Question from '../Question';
+import SubQuestionModes from '../SubQuestionModes';
 
 describe('Question', () => {
 
@@ -106,7 +107,7 @@ describe('Question', () => {
       const q = Question.deserialize({
         answers: [{ text: 'a', points: 2}],
       });
-      expect(q.subQuestionMode).toBe(Question.SubQuestionModes.ANSWER_ALL);
+      expect(q.subQuestionMode).toBe(SubQuestionModes.ANSWER_ALL);
     });
 
     it('deserializes the subquestion mode string', () => {
@@ -114,7 +115,7 @@ describe('Question', () => {
         subQuestionMode: 'ANSWER_ONE',
         answers: [{ text: 'a', points: 2}],
       });
-      expect(q.subQuestionMode).toBe(Question.SubQuestionModes.ANSWER_ONE);
+      expect(q.subQuestionMode).toBe(SubQuestionModes.ANSWER_ONE);
     });
   });
 
@@ -157,7 +158,7 @@ describe('Question', () => {
     it('is true if one subquestion has been answered and the subQuestionMode is ANSWER_ONE', () => {
       const q = new Question({
         title: 'hello',
-        subQuestionMode: Question.SubQuestionModes.ANSWER_ONE,
+        subQuestionMode: SubQuestionModes.ANSWER_ONE,
         subQuestions: Immutable.List.of(
           new Question({
             title: 'sub1',
