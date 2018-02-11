@@ -1,3 +1,4 @@
+import AnswerComponent from './AnswerComponent';
 import PropTypes from 'prop-types';
 import Question from '../models/Question';
 import React from 'react';
@@ -7,7 +8,6 @@ import SubQuestionListComponent from './SubQuestionListComponent';
 
 
 import utils from '../utils';
-import { LETTERS, ROMAN_NUMERALS } from '../constants';
 
 class QuestionComponent extends React.Component {
   render() {
@@ -22,16 +22,20 @@ class QuestionComponent extends React.Component {
   }
 
   renderAnswers() {
-    const answers = this.props.question.get('answers');
+    const { question, scoreCalculation } = this.props;
+    const answers = question.answers;
+
     if (!answers.isEmpty()) {
       return (
         <ul className="answers">
-        {answers.map((a, i) => (
-          <li
-            key={a.getId()}
-            className="answer"
-            onClick={ this.selectAnswer.bind(this, a) }
-          >({ LETTERS[i] }) { a.text }</li>
+        {answers.map(a => (
+          <li key={a.getId()} className="answer">
+            <AnswerComponent
+              answer={ a }
+              question={ question }
+              scoreCalculation={ scoreCalculation }
+            />
+          </li>
         ))}
         </ul>
       );
@@ -61,13 +65,6 @@ class QuestionComponent extends React.Component {
     } else {
       return '';
     }
-  }
-
-  selectAnswer(answer) {
-    this.props.scoreCalculation.recordAnswer(
-      this.props.question,
-      answer
-    );
   }
 }
 

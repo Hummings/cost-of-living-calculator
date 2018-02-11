@@ -1,4 +1,5 @@
 import Answer from '../../models/Answer';
+import AnswerComponent from '../AnswerComponent';
 import QuestionComponent from '../QuestionComponent';
 import Immutable from 'immutable';
 import Question from '../../models/Question';
@@ -41,6 +42,17 @@ describe('QuestionComponent', () => {
   it('renders answers in a list', () => {
     const list = wrapper.find('ul.answers');
     expect(list.find('li.answer').length).toBe(2);
+    expect(list.find(AnswerComponent).length).toBe(2);
+    const a1 = list.find(AnswerComponent).get(0);
+    const a2 = list.find(AnswerComponent).get(1);
+
+    expect(a1.props.answer).toBe(question.answers.get(0));
+    expect(a1.props.question).toBe(question);
+    expect(a1.props.scoreCalculation).toBe(scoreCalculation);
+
+    expect(a2.props.answer).toBe(question.answers.get(1));
+    expect(a2.props.question).toBe(question);
+    expect(a2.props.scoreCalculation).toBe(scoreCalculation);
   });
 
   it('does not render a subquestion list if there are no subquestions', () => {
@@ -106,15 +118,5 @@ describe('QuestionComponent', () => {
     expect(subQuestionChoice.props.subQuestions).toBe(question.subQuestions);
     expect(subQuestionChoice.props.scoreCalculation).toBe(scoreCalculation);
     expect(subQuestionChoice.props.level).toBe(1);
-  });
-
-  describe('an answer item', () => {
-    it('calls scoreCalculation.recordAnswer on click', () => {
-      expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
-      wrapper.find('li.answer').first().simulate('click');
-      expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(
-        question, question.answers.get(0)
-      );
-    });
   });
 });
