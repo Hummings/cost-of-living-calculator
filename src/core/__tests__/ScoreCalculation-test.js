@@ -71,34 +71,42 @@ describe('ScoreCalculation', () => {
   });
 
   describe('onQuestionCompleted', () => {
-    it('calls the callback when a question is completed', () => {
-      const callback = jest.fn();
-      const withCallback = calculation.onQuestionCompleted(callback);
+    it('calls the callback when the question is completed', () => {
+      const callback1 = jest.fn();
+      const callback2 = jest.fn();
+      const withCallback = calculation
+        .onQuestionCompleted(noSubQuestions, callback1)
+        .onQuestionCompleted(hasSubQuestions, callback2);
 
-      expect(callback).not.toHaveBeenCalled();
+      expect(callback1).not.toHaveBeenCalled();
+      expect(callback2).not.toHaveBeenCalled();
 
       withCallback.recordAnswer(noSubQuestions, noSubQuestions.answers.get(0));
 
-      expect(callback).toHaveBeenCalled();
+      expect(callback1).toHaveBeenCalled();
+      expect(callback2).not.toHaveBeenCalled();
 
-      callback.mockReset();
+      callback1.mockReset();
 
       withCallback.recordAnswer(sub1, sub1.answers.get(0));
-      expect(callback).not.toHaveBeenCalled();
+      expect(callback1).not.toHaveBeenCalled();
+      expect(callback2).not.toHaveBeenCalled();
 
       withCallback
         .recordAnswer(sub1, sub1.answers.get(0))
         .recordAnswer(sub2, sub2.answers.get(1));
-      expect(callback).toHaveBeenCalled();
+
+      expect(callback1).not.toHaveBeenCalled();
+      expect(callback2).toHaveBeenCalled();
     });
 
-    it('chains callbacks', () => {
+    it('chains callbacks on the same question', () => {
       const callback1 = jest.fn();
       const callback2 = jest.fn();
 
       calculation
-        .onQuestionCompleted(callback1)
-        .onQuestionCompleted(callback2)
+        .onQuestionCompleted(hasSubQuestions, callback1)
+        .onQuestionCompleted(hasSubQuestions, callback2)
         .recordAnswer(sub1, sub1.answers.get(0))
         .recordAnswer(sub2, sub2.answers.get(1));
 

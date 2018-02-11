@@ -87,33 +87,37 @@ describe('QuizComponent', () => {
     expect(wrapper.find(ResultCard).length).toBe(0);
 
     expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
-    expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(expect.any(Function));
+    quiz.questions.forEach(question => {
+      expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(question, expect.any(Function));
+    });
   });
 
   it('indicates which question is active', () => {
     expect(getQuestionCard(0).props.isActive).toBe(true);
     expect(getQuestionCard(1).props.isActive).toBe(false);
 
-    wrapper.setState({ activeQuestionCard: 1 });
+    wrapper.instance().incrementActiveQuestionCard();
+    wrapper.update();
 
     expect(getQuestionCard(0).props.isActive).toBe(false);
     expect(getQuestionCard(1).props.isActive).toBe(true);
   });
 
-  it('increments active card via calculation onComplete callback', () => {
+  it('increments active card via calculation onQuestionCompleted callback', () => {
     const getActiveProps = () => (
       [0, 1].map(i => wrapper.find(QuestionCard).get(i).props.isActive)
     );
-    const onComplete = scoreCalculation.onQuestionCompleted.mock.calls[0][0];
+    const onComplete = getQuestionCompletedCallback(
+      quiz.questions.get(0)
+    );
 
     expect(getActiveProps()).toEqual([true, false]);
-
-    expect(onComplete).toBeInstanceOf(Function);
 
     onComplete();
     wrapper.update();
 
     expect(getActiveProps()).toEqual([false, true]);
+    expect(wrapper.find(ResultCard).length).toBe(0);
   });
 
   it('stores the new calculation on answer', () => {
@@ -140,12 +144,17 @@ describe('QuizComponent', () => {
     expect(wrapper.find(QuestionCard).length).toBe(2);
     expect(wrapper.find(ResultCard).length).toBe(0);
 
-    const onComplete = scoreCalculation.onQuestionCompleted.mock.calls[0][0];
+    let onComplete = getQuestionCompletedCallback(
+      quiz.questions.get(0)
+    );
     onComplete();
     wrapper.update();
     expect(wrapper.find(QuestionCard).length).toBe(2);
     expect(wrapper.find(ResultCard).length).toBe(0);
 
+    onComplete = getQuestionCompletedCallback(
+      quiz.questions.get(1)
+    );
     onComplete();
     wrapper.update();
     expect(wrapper.find(QuestionCard).length).toBe(0);
@@ -155,5 +164,12 @@ describe('QuizComponent', () => {
 
   const getQuestionCard = (index) => {
     return wrapper.find(QuestionCard).get(index);
-  }
+  };
+
+  const getQuestionCompletedCallback = (question) => {
+    const call = scoreCalculation.onQuestionCompleted.mock.calls.find(
+      call => call[0] === question
+    );
+    return call[1];
+  };
 });

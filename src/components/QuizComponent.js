@@ -11,7 +11,7 @@ class QuizComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeQuestionCard: 0,
+      activeQuestionCardIndex: 0,
       onResults: false,
       scoreCalculation: props.initialScoreCalculation,
     };
@@ -19,14 +19,11 @@ class QuizComponent extends React.Component {
 
   render() {
     const { quiz } = this.props;
-    const { activeQuestionCard, onResults } = this.state;
+    const { activeQuestionCardIndex, onResults } = this.state;
 
     const scoreCalculation = this.state.scoreCalculation
       .onAnswer(newCalculation => {
         this.setState({ scoreCalculation: newCalculation });
-      })
-      .onQuestionCompleted(() => {
-        this.incrementActiveQuestionCard()
       });
 
     if (onResults) {
@@ -40,8 +37,13 @@ class QuizComponent extends React.Component {
           <QuestionCard
             key={q.getId()}
             question={q}
-            isActive={ i === activeQuestionCard }
-            scoreCalculation={ scoreCalculation }
+            isActive={ i === activeQuestionCardIndex }
+            scoreCalculation={
+              scoreCalculation.onQuestionCompleted(
+                q,
+                this.incrementActiveQuestionCard.bind(this)
+              )
+            }
           />
         ))}
         </div>
@@ -51,13 +53,13 @@ class QuizComponent extends React.Component {
 
   incrementActiveQuestionCard() {
     const { quiz } = this.props;
-    const { activeQuestionCard } = this.state;
+    const { activeQuestionCardIndex } = this.state;
     const numQuestions = quiz.questions.size;
-    const wasLastQuestion = activeQuestionCard === (numQuestions - 1);
+    const wasLastQuestion = activeQuestionCardIndex === (numQuestions - 1);
     if (wasLastQuestion) {
       this.setState({ onResults: true });
     } else {
-      this.setState({ activeQuestionCard: this.state.activeQuestionCard + 1 });
+      this.setState({ activeQuestionCardIndex: activeQuestionCardIndex + 1 });
     }
   }
 }
