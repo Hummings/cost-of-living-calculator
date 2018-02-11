@@ -10,14 +10,6 @@ import utils from '../utils';
 import { LETTERS, ROMAN_NUMERALS } from '../constants';
 
 class QuestionComponent extends React.Component {
-
-  constructor() {
-    super();
-    this.state = {
-      selectedAnswer: null,
-    };
-  }
-
   render() {
     const { question, label, level, scoreCalculation } = this.props;
     return (
@@ -37,7 +29,7 @@ class QuestionComponent extends React.Component {
         {answers.map((a, i) => (
           <li
             key={a.getId()}
-            className={ 'answer ' + (this.isDisabled(a) ? 'disabled' : 'enabled') }
+            className="answer"
             onClick={ this.selectAnswer.bind(this, a) }
           >({ LETTERS[i] }) { a.text }</li>
         ))}
@@ -72,16 +64,10 @@ class QuestionComponent extends React.Component {
   }
 
   selectAnswer(answer) {
-    this.setState({ selectedAnswer: answer });
     this.props.scoreCalculation.recordAnswer(
       this.props.question,
       answer
     );
-  }
-
-  isDisabled(answer) {
-    const { selectedAnswer } = this.state;
-    return selectedAnswer && selectedAnswer !== answer;
   }
 }
 

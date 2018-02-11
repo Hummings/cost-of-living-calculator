@@ -109,36 +109,6 @@ describe('QuestionComponent', () => {
   });
 
   describe('an answer item', () => {
-    it('is disabled if there is another selected answer', () => {
-      wrapper.setState(
-        { selectedAnswer: question.answers.get(1) },
-      );
-      const disabledAnswers = wrapper.find('li.answer.disabled');
-      const enabledAnswers = wrapper.find('li.answer.enabled');
-      expect(disabledAnswers.length).toBe(1);
-      expect(enabledAnswers.length).toBe(1);
-      expect(disabledAnswers.text()).toEqual('(a) nothin');
-      expect(enabledAnswers.text()).toEqual('(b) somethin');
-    });
-
-    it('is not disabled if there is no answer selected', () => {
-      const disabledAnswers = wrapper.find('li.answer.disabled');
-      const enabledAnswers = wrapper.find('li.answer.enabled');
-      expect(disabledAnswers.length).toBe(0);
-      expect(enabledAnswers.length).toBe(2);
-    });
-
-    it('selects itself on click', () => {
-      wrapper.find('li.answer').first().simulate('click');
-
-      const disabledAnswers = wrapper.find('li.answer.disabled');
-      const enabledAnswers = wrapper.find('li.answer.enabled');
-      expect(disabledAnswers.length).toBe(1);
-      expect(enabledAnswers.length).toBe(1);
-      expect(enabledAnswers.text()).toEqual('(a) nothin');
-      expect(disabledAnswers.text()).toEqual('(b) somethin');
-    });
-
     it('calls scoreCalculation.recordAnswer on click', () => {
       expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
       wrapper.find('li.answer').first().simulate('click');
