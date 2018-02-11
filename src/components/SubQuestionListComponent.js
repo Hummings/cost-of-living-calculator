@@ -18,10 +18,7 @@ class SubQuestionListComponent extends React.Component {
   }
 
   render() {
-    const { level, subQuestions } = this.props;
-    const scoreCalculation = this.props.scoreCalculation.onAnswer(() => {
-      this.incrementActiveSubQuestion();
-    });
+    const { level, subQuestions, scoreCalculation } = this.props;
     return (
       <ul className="subQuestions">
       {subQuestions.map((q, i) => (
@@ -33,7 +30,12 @@ class SubQuestionListComponent extends React.Component {
           question={q}
           label={ROMAN_NUMERALS[i]}
           level={level}
-          scoreCalculation={scoreCalculation}
+          scoreCalculation={
+            scoreCalculation.onQuestionCompleted(
+              q,
+              this.incrementActiveSubQuestion.bind(this)
+            )
+          }
         />
         </li>
       ))}

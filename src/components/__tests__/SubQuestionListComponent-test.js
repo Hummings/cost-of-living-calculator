@@ -53,7 +53,9 @@ describe('SubQuestionListComponent', () => {
     expect(wrapper.find(QuestionComponent).get(1).props.level).toEqual(level);
     expect(wrapper.find(QuestionComponent).get(1).props.scoreCalculation).toBe(scoreCalculation);
 
-    expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
+    subQuestions.forEach(q => {
+      expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(q, expect.any(Function));
+    });
   });
 
   it('labels the active sub question with a class ', () => {
@@ -84,7 +86,7 @@ describe('SubQuestionListComponent', () => {
     );
   });
 
-  it('increments the active subquestion with scoreCalculation.onAnswer', () => {
+  it('increments the active subquestion with scoreCalculation.onQuestionCompleted', () => {
     const getActiveSubQuestion = () => {
       return wrapper
         .find('li.subQuestion.active')
@@ -95,9 +97,9 @@ describe('SubQuestionListComponent', () => {
     };
 
     expect(getActiveSubQuestion()).toBe(subQuestions.get(0));
-    const onAnswer = scoreCalculation.onAnswer.mock.calls[0][0];
+    const onCompleted = scoreCalculation.onQuestionCompleted.mock.calls[0][1];
 
-    onAnswer();
+    onCompleted();
     wrapper.update();
     expect(getActiveSubQuestion()).toBe(subQuestions.get(1));
   });
