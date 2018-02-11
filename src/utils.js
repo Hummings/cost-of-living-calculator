@@ -5,7 +5,7 @@ export const dasherize = str => {
     .replace(/[-_\s]+/g, '-')
     .toLowerCase()
     .replace(/^-/, '')
-    .replace(/[^-a-z]/g, '')
+    .replace(/[^-a-z0-9]/g, '')
 };
 
 

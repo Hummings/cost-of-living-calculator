@@ -9,6 +9,11 @@ describe('utils', () => {
       expect(utils.dasherize('what\'s the best food?')).toEqual('whats-the-best-food');
       expect(utils.dasherize('multiple   spaces')).toEqual('multiple-spaces');
     });
+
+    it('works with numeric input', () => {
+      expect(utils.dasherize('4')).toEqual('4');
+      expect(utils.dasherize('4+')).toEqual('4');
+    });
   });
 
   describe('combine', () => {
