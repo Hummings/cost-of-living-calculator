@@ -132,4 +132,20 @@ describe('ScoreCalculation', () => {
       expect(score).toEqual(expectedScore);
     });
   });
+
+  describe('clearCallbacks', () => {
+    it('clears the callbacks', () => {
+      const answerCallback = jest.fn();
+      const questionCallback = jest.fn();
+
+      calculation
+        .onAnswer(answerCallback)
+        .onQuestionCompleted(noSubQuestions, questionCallback)
+        .clearCallbacks()
+        .recordAnswer(noSubQuestions, noSubQuestions.answers.get(0));
+
+      expect(answerCallback).not.toHaveBeenCalled();
+      expect(questionCallback).not.toHaveBeenCalled();
+    });
+  });
 });

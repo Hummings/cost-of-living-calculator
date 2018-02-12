@@ -62,6 +62,12 @@ class ScoreCalculation {
 
   }
 
+  clearCallbacks() {
+    return new ScoreCalculation(this.quiz, {
+      selectedAnswers: this.selectedAnswers,
+    });
+  }
+
 }
 
 

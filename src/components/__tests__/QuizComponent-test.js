@@ -86,6 +86,7 @@ describe('QuizComponent', () => {
 
     expect(wrapper.find(ResultCard).length).toBe(0);
 
+    expect(scoreCalculation.clearCallbacks).toHaveBeenCalled();
     expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
     quiz.questions.forEach(question => {
       expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(question, expect.any(Function));

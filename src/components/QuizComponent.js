@@ -22,6 +22,7 @@ class QuizComponent extends React.Component {
     const { activeQuestionCardIndex, onResults } = this.state;
 
     const scoreCalculation = this.state.scoreCalculation
+      .clearCallbacks()
       .onAnswer(newCalculation => {
         this.setState({ scoreCalculation: newCalculation });
       });
