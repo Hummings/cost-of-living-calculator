@@ -32,14 +32,15 @@ describe('App', () => {
   it('renders the result of the question fetch', done => {
     const quiz = new Quiz();
     resolve(quiz);
-    expect.assertions(4);
+    expect.assertions(5);
 
     afterAllPromises(() => {
       wrapper.update();
       expect(wrapper.find(LoadingIndicator).length).toBe(0);
       expect(wrapper.find(QuizComponent).length).toBe(1);
       expect(wrapper.find(QuizComponent).get(0).props.quiz).toBe(quiz);
-      expect(wrapper.find(QuizComponent).get(0).props.initialScoreCalculation).toEqual(new ScoreCalculation(quiz));
+      expect(wrapper.find(QuizComponent).get(0).props.initialScoreCalculation).toBeInstanceOf(ScoreCalculation);
+      expect(wrapper.find(QuizComponent).get(0).props.initialScoreCalculation.quiz).toBe(quiz);
       done();
     });
   });

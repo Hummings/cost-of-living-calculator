@@ -1,6 +1,7 @@
 import Immutable from 'immutable';
 import utils from '../utils';
 
+let id = 0;
 
 class ScoreCalculation {
   constructor(quiz, _props) {
@@ -8,6 +9,7 @@ class ScoreCalculation {
       throw new Error('quiz is required');
     }
     this.quiz = quiz;
+    this.id = (++id);
     Object.assign(this, {
       selectedAnswers: Immutable.Map(),
       answerCallback: utils.NO_OP,
