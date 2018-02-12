@@ -43,7 +43,7 @@ describe('api', () => {
           },
         ],
       };
-      mock.onGet('/quiz.json').reply(200, data);
+      mock.onGet('./quiz.json').reply(200, data);
       expect.assertions(1);
 
       fetchQuestions().then(questionList => {
