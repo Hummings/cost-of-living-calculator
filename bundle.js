@@ -22139,7 +22139,7 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var fetchQuestions = exports.fetchQuestions = function fetchQuestions() {
-	  return _axios2.default.get('/quiz.json').then(function (r) {
+	  return _axios2.default.get('./quiz.json').then(function (r) {
 	    return _Quiz2.default.deserialize(r.data);
 	  });
 	};
