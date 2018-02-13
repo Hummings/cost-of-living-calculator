@@ -1,4 +1,4 @@
-import AnswerComponent from './AnswerComponent';
+import AnswerListComponent from './AnswerListComponent';
 import PropTypes from 'prop-types';
 import Question from '../models/Question';
 import React from 'react';
@@ -23,33 +23,16 @@ class QuestionComponent extends React.Component {
             level={ level }
           />
         }
-        { this.renderAnswers() }
+        {
+          question.hasAnswers() &&
+          <AnswerListComponent
+            question={ question }
+            scoreCalculation={ scoreCalculation }
+            level={ level }
+          />
+        }
       </div>
     );
-  }
-
-  renderAnswers() {
-    const { question, scoreCalculation, level } = this.props;
-    const answers = question.answers;
-
-    if (!answers.isEmpty()) {
-      return (
-        <ul className="answers">
-        {answers.map(a => (
-          <li key={a.getId()} className="answer">
-            <AnswerComponent
-              answer={ a }
-              question={ question }
-              scoreCalculation={ scoreCalculation }
-              level={ level }
-            />
-          </li>
-        ))}
-        </ul>
-      );
-    } else {
-      return '';
-    }
   }
 }
 

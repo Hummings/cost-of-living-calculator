@@ -25,6 +25,10 @@ Object.assign(Question.prototype, {
     return !!this.subQuestions.size;
   },
 
+  hasAnswers() {
+    return !!this.answers.size;
+  },
+
   isCompleted(selectedAnswers) {
     selectedAnswers = selectedAnswers || Immutable.Map();
 

@@ -136,6 +136,24 @@ describe('Question', () => {
     });
   });
 
+  describe('hasAnswers', () => {
+    it('is false if there are no answers', () => {
+      const question = new Question();
+      expect(question.hasAnswers()).toBe(false);
+    });
+
+    it('is true if there are answers', () => {
+      const question = new Question({
+        answers: Immutable.List.of(
+          new Answer(),
+          new Answer()
+        ),
+      });
+      expect(question.hasAnswers()).toBe(true);
+    });
+  });
+
+
   describe('isCompleted', () => {
     it('is true if the question has been answered and has no subquestions', () => {
       const q = new Question({ title: 'hello' });

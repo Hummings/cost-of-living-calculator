@@ -1,4 +1,5 @@
 import Answer from '../../models/Answer';
+import AnswerListComponent from '../AnswerListComponent';
 import AnswerComponent from '../AnswerComponent';
 import QuestionComponent from '../QuestionComponent';
 import Immutable from 'immutable';
@@ -38,23 +39,13 @@ describe('QuestionComponent', () => {
     expect(wrapper.find('h4').text()).toEqual('(I) what\'s goin\' on?');
   });
 
-  it('renders answers in a list', () => {
-    const list = wrapper.find('ul.answers');
-    expect(list.find('li.answer').length).toBe(2);
-    expect(list.find(AnswerComponent).length).toBe(2);
-    const a1 = list.find(AnswerComponent).get(0);
-    const a2 = list.find(AnswerComponent).get(1);
-
-    expect(a1.props.answer).toBe(question.answers.get(0));
-    expect(a1.props.question).toBe(question);
-    expect(a1.props.scoreCalculation).toBe(scoreCalculation);
-    expect(a1.props.level).toBe(0);
-
-    expect(a2.props.answer).toBe(question.answers.get(1));
-    expect(a2.props.question).toBe(question);
-    expect(a2.props.scoreCalculation).toBe(scoreCalculation);
-    expect(a2.props.level).toBe(0);
-  });
+  it('renders an answer list component', () => {
+    expect(wrapper.find(AnswerListComponent).length).toBe(1);
+    const answerComponent = wrapper.find(AnswerListComponent).get(0);
+    expect(answerComponent.props.question).toBe(question);
+    expect(answerComponent.props.level).toBe(0);
+    expect(answerComponent.props.scoreCalculation).toBe(scoreCalculation);
+ });
 
   it('does not render a subquestion component if there are no subquestions', () => {
     expect(wrapper.find(SubQuestionComponent).length).toBe(0);
@@ -83,6 +74,7 @@ describe('QuestionComponent', () => {
     expect(question.get('subQuestions').size).toBe(2);
     wrapper = shallow(<QuestionComponent question={question} scoreCalculation={scoreCalculation} />);
     expect(wrapper.find(SubQuestionComponent).length).toBe(1);
+    expect(wrapper.find(AnswerListComponent).length).toBe(0);
     const subComponent = wrapper.find(SubQuestionComponent).get(0);
     expect(subComponent.props.subQuestions).toBe(question.subQuestions);
     expect(subComponent.props.scoreCalculation).toBe(scoreCalculation);
