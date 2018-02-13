@@ -31,11 +31,12 @@ class AnswerComponent extends React.Component {
   }
 
   recordAnswer() {
-    this.props.scoreCalculation.recordAnswer(
-      this.props.question,
-      this.props.answer
-    );
-    this.setState({ isSelected: true });
+    if (!this.props.isSelected) {
+      this.props.scoreCalculation.recordAnswer(
+        this.props.question,
+        this.props.answer
+      );
+    }
   }
 }
 

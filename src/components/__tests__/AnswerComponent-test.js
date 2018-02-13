@@ -46,6 +46,20 @@ describe('AnswerComponent', () => {
     expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(question, answer);
   });
 
+  it('does not record the answer if already selected', () => {
+    wrapper = shallow(
+      <AnswerComponent
+        question={question}
+        answer={answer}
+        scoreCalculation={scoreCalculation}
+        isSelected={ true }
+      />
+    );
+    expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
+    wrapper.find('.selectable').simulate('click');
+    expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
+  });
+
   it('renders the answer subquestions when selected', () => {
     answer = new Answer({
       subQuestions: Immutable.List.of(
