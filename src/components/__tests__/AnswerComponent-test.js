@@ -42,7 +42,7 @@ describe('AnswerComponent', () => {
 
   it('records the answer on click', () => {
     expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
-    wrapper.find('div.answer').simulate('click');
+    wrapper.find('.selectable').simulate('click');
     expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(question, answer);
   });
 
@@ -64,7 +64,7 @@ describe('AnswerComponent', () => {
     );
     expect(wrapper.find(SubQuestionComponent).length).toBe(0);
 
-    wrapper.find('div.answer').simulate('click');
+    wrapper.find('.selectable').simulate('click');
     wrapper.update();
 
     expect(wrapper.find(SubQuestionComponent).length).toBe(1);

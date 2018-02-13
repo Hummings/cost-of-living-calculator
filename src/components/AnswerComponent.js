@@ -19,17 +19,19 @@ class AnswerComponent extends React.Component {
     const { question, answer, scoreCalculation, level } = this.props;
     const label = LETTERS[question.answers.indexOf(answer)];
     return (
-      <div className="answer" onClick={ () => this.recordAnswer() }>
-      ({ label }) { answer.text }
-      {
-        this.shouldRenderSubQuestions() &&
-          <SubQuestionComponent
-            subQuestions={ answer.subQuestions }
-            subQuestionMode={ answer.subQuestionMode }
-            level={ level }
-            scoreCalculation={ scoreCalculation }
-          />
-      }
+      <div className="answer">
+        <p className="selectable"  onClick={ () => this.recordAnswer() } >
+          ({ label }) { answer.text }
+        </p>
+        {
+          this.shouldRenderSubQuestions() &&
+            <SubQuestionComponent
+              subQuestions={ answer.subQuestions }
+              subQuestionMode={ answer.subQuestionMode }
+              level={ level }
+              scoreCalculation={ scoreCalculation }
+            />
+        }
       </div>
     )
   }
