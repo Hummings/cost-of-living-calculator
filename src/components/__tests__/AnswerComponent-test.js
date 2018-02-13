@@ -60,12 +60,20 @@ describe('AnswerComponent', () => {
         answer={answer}
         scoreCalculation={scoreCalculation}
         level={ 3 }
+        isSelected={ false }
         />
     );
     expect(wrapper.find(SubQuestionComponent).length).toBe(0);
 
-    wrapper.find('.selectable').simulate('click');
-    wrapper.update();
+    wrapper = shallow(
+      <AnswerComponent
+        question={question}
+        answer={answer}
+        scoreCalculation={scoreCalculation}
+        level={ 3 }
+        isSelected={ true }
+        />
+    );
 
     expect(wrapper.find(SubQuestionComponent).length).toBe(1);
 
