@@ -21949,15 +21949,15 @@
 	
 	var _api = __webpack_require__(187);
 	
-	var _QuizComponent = __webpack_require__(222);
+	var _QuizComponent = __webpack_require__(223);
 	
 	var _QuizComponent2 = _interopRequireDefault(_QuizComponent);
 	
-	var _LoadingIndicator = __webpack_require__(231);
+	var _LoadingIndicator = __webpack_require__(235);
 	
 	var _LoadingIndicator2 = _interopRequireDefault(_LoadingIndicator);
 	
-	var _ScoreCalculation = __webpack_require__(225);
+	var _ScoreCalculation = __webpack_require__(228);
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
@@ -23707,7 +23707,7 @@
 	
 	var _Question2 = _interopRequireDefault(_Question);
 	
-	var _Summary = __webpack_require__(219);
+	var _Summary = __webpack_require__(220);
 	
 	var _Summary2 = _interopRequireDefault(_Summary);
 	
@@ -28729,21 +28729,20 @@
 	
 	var _immutable2 = _interopRequireDefault(_immutable);
 	
-	var _utils = __webpack_require__(218);
+	var _SubQuestionModes = __webpack_require__(218);
+	
+	var _SubQuestionModes2 = _interopRequireDefault(_SubQuestionModes);
+	
+	var _utils = __webpack_require__(219);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var SubQuestionModes = {
-	  ANSWER_ALL: Symbol(),
-	  ANSWER_ONE: Symbol()
-	};
 	
 	var Question = _immutable2.default.Record({
 	  id: '',
 	  title: '',
 	  answers: new _immutable2.default.List(),
 	  subQuestions: new _immutable2.default.List(),
-	  subQuestionMode: SubQuestionModes.ANSWER_ALL
+	  subQuestionMode: _SubQuestionModes2.default.ANSWER_ALL
 	});
 	
 	Object.assign(Question.prototype, {
@@ -28757,18 +28756,21 @@
 	  hasSubQuestions: function hasSubQuestions() {
 	    return !!this.subQuestions.size;
 	  },
+	  hasAnswers: function hasAnswers() {
+	    return !!this.answers.size;
+	  },
 	  isCompleted: function isCompleted(selectedAnswers) {
 	    selectedAnswers = selectedAnswers || _immutable2.default.Map();
-	    if (this.hasSubQuestions() && this.subQuestionMode === SubQuestionModes.ANSWER_ALL) {
-	      return this.subQuestions.every(function (q) {
-	        return q.isCompleted(selectedAnswers);
-	      });
-	    } else if (this.hasSubQuestions() && this.subQuestionMode === SubQuestionModes.ANSWER_ONE) {
-	      return this.subQuestions.some(function (q) {
-	        return q.isCompleted(selectedAnswers);
-	      });
+	
+	    if (this.hasSubQuestions()) {
+	      return this._areAllSubQuestionsAnswered(this.subQuestions, this.subQuestionMode, selectedAnswers);
 	    } else {
-	      return selectedAnswers.has(this);
+	      var answer = selectedAnswers.get(this);
+	      if (answer && answer.hasSubQuestions()) {
+	        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode, selectedAnswers);
+	      } else {
+	        return !!answer;
+	      }
 	    }
 	  },
 	  computeScore: function computeScore(selectedAnswers) {
@@ -28786,6 +28788,20 @@
 	    } else {
 	      var answer = selectedAnswers.get(this);
 	      return answer ? answer.points : 0;
+	    }
+	  },
+	  _areAllSubQuestionsAnswered: function _areAllSubQuestionsAnswered(subQuestions, subQuestionMode, selectedAnswers) {
+	    switch (subQuestionMode) {
+	      case _SubQuestionModes2.default.ANSWER_ALL:
+	        return subQuestions.every(function (q) {
+	          return q.isCompleted(selectedAnswers);
+	        });
+	      case _SubQuestionModes2.default.ANSWER_ONE:
+	        return subQuestions.some(function (q) {
+	          return q.isCompleted(selectedAnswers);
+	        });
+	      default:
+	        throw new Error('unknown subquestion mode ' + this.subQuestionMode);
 	    }
 	  }
 	});
@@ -28806,17 +28822,9 @@
 	    return Question.deserialize(c);
 	  }));
 	
-	  if (json.subQuestionMode) {
-	    if (!SubQuestionModes[json.subQuestionMode]) {
-	      throw new Error('invalid subquestion mode ' + json.subQuestionMode);
-	    }
-	    json.subQuestionMode = SubQuestionModes[json.subQuestionMode];
-	  }
-	
+	  json.subQuestionMode = _SubQuestionModes2.default.deserialize(json.subQuestionMode);
 	  return new Question(json);
 	};
-	
-	Question.SubQuestionModes = SubQuestionModes;
 	
 	exports.default = Question;
 
@@ -28838,7 +28846,11 @@
 	
 	var _Question2 = _interopRequireDefault(_Question);
 	
-	var _utils = __webpack_require__(218);
+	var _SubQuestionModes = __webpack_require__(218);
+	
+	var _SubQuestionModes2 = _interopRequireDefault(_SubQuestionModes);
+	
+	var _utils = __webpack_require__(219);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -28846,7 +28858,8 @@
 	  id: "",
 	  text: "",
 	  points: 0,
-	  subQuestions: new _immutable2.default.List()
+	  subQuestions: new _immutable2.default.List(),
+	  subQuestionMode: _SubQuestionModes2.default.ANSWER_ALL
 	});
 	
 	Object.assign(Answer.prototype, {
@@ -28856,6 +28869,9 @@
 	    } else {
 	      return (0, _utils.dasherize)(this.text);
 	    }
+	  },
+	  hasSubQuestions: function hasSubQuestions() {
+	    return !!this.subQuestions.size;
 	  }
 	});
 	
@@ -28864,6 +28880,9 @@
 	  json.subQuestions = new _immutable2.default.List((json.subQuestions || []).map(function (q) {
 	    return _Question2.default.deserialize(q);
 	  }));
+	
+	  json.subQuestionMode = _SubQuestionModes2.default.deserialize(json.subQuestionMode);
+	
 	  return new Answer(json);
 	};
 	
@@ -28878,8 +28897,34 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	var SubQuestionModes = {
+	  ANSWER_ALL: Symbol(),
+	  ANSWER_ONE: Symbol()
+	};
+	
+	SubQuestionModes.deserialize = function (value) {
+	  if (!value) {
+	    return SubQuestionModes.ANSWER_ALL;
+	  }
+	  if (!SubQuestionModes[value]) {
+	    throw new Error('invalid subquestion mode ' + value);
+	  }
+	  return SubQuestionModes[value];
+	};
+	
+	exports.default = SubQuestionModes;
+
+/***/ }),
+/* 219 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	var dasherize = exports.dasherize = function dasherize(str) {
-	  return (str || '').trim().replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase().replace(/^-/, '').replace(/[^-a-z]/g, '');
+	  return (str || '').trim().replace(/([A-Z])/g, '-$1').replace(/[-_\s]+/g, '-').toLowerCase().replace(/^-/, '').replace(/[^-a-z0-9]/g, '');
 	};
 	
 	var combine = exports.combine = function combine() {
@@ -28905,7 +28950,7 @@
 	};
 
 /***/ }),
-/* 219 */
+/* 220 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28918,7 +28963,7 @@
 	
 	var _immutable2 = _interopRequireDefault(_immutable);
 	
-	var _Result = __webpack_require__(220);
+	var _Result = __webpack_require__(221);
 	
 	var _Result2 = _interopRequireDefault(_Result);
 	
@@ -28947,7 +28992,7 @@
 	exports.default = Summary;
 
 /***/ }),
-/* 220 */
+/* 221 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28960,7 +29005,7 @@
 	
 	var _immutable2 = _interopRequireDefault(_immutable);
 	
-	var _ScoreRange = __webpack_require__(221);
+	var _ScoreRange = __webpack_require__(222);
 	
 	var _ScoreRange2 = _interopRequireDefault(_ScoreRange);
 	
@@ -28982,7 +29027,7 @@
 	exports.default = Result;
 
 /***/ }),
-/* 221 */
+/* 222 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29015,7 +29060,7 @@
 	exports.default = ScoreRange;
 
 /***/ }),
-/* 222 */
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29026,7 +29071,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _QuestionCard = __webpack_require__(223);
+	var _QuestionCard = __webpack_require__(224);
 	
 	var _QuestionCard2 = _interopRequireDefault(_QuestionCard);
 	
@@ -29034,7 +29079,7 @@
 	
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 	
-	var _QuestionComponent = __webpack_require__(224);
+	var _QuestionComponent = __webpack_require__(225);
 	
 	var _QuestionComponent2 = _interopRequireDefault(_QuestionComponent);
 	
@@ -29046,11 +29091,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ResultCard = __webpack_require__(230);
+	var _ResultCard = __webpack_require__(234);
 	
 	var _ResultCard2 = _interopRequireDefault(_ResultCard);
 	
-	var _ScoreCalculation = __webpack_require__(225);
+	var _ScoreCalculation = __webpack_require__(228);
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
@@ -29071,7 +29116,7 @@
 	    var _this = _possibleConstructorReturn(this, (QuizComponent.__proto__ || Object.getPrototypeOf(QuizComponent)).call(this, props));
 	
 	    _this.state = {
-	      activeQuestionCard: 0,
+	      activeQuestionCardIndex: 0,
 	      onResults: false,
 	      scoreCalculation: props.initialScoreCalculation
 	    };
@@ -29085,14 +29130,12 @@
 	
 	      var quiz = this.props.quiz;
 	      var _state = this.state,
-	          activeQuestionCard = _state.activeQuestionCard,
+	          activeQuestionCardIndex = _state.activeQuestionCardIndex,
 	          onResults = _state.onResults;
 	
 	
-	      var scoreCalculation = this.state.scoreCalculation.onAnswer(function (newCalculation) {
+	      var scoreCalculation = this.state.scoreCalculation.clearCallbacks().onAnswer(function (newCalculation) {
 	        _this2.setState({ scoreCalculation: newCalculation });
-	      }).onQuestionCompleted(function () {
-	        _this2.incrementActiveQuestionCard();
 	      });
 	
 	      if (onResults) {
@@ -29107,8 +29150,8 @@
 	            return _react2.default.createElement(_QuestionCard2.default, {
 	              key: q.getId(),
 	              question: q,
-	              isActive: i === activeQuestionCard,
-	              scoreCalculation: scoreCalculation
+	              isActive: i === activeQuestionCardIndex,
+	              scoreCalculation: scoreCalculation.onQuestionCompleted(q, _this2.incrementActiveQuestionCard.bind(_this2))
 	            });
 	          })
 	        );
@@ -29118,14 +29161,14 @@
 	    key: 'incrementActiveQuestionCard',
 	    value: function incrementActiveQuestionCard() {
 	      var quiz = this.props.quiz;
-	      var activeQuestionCard = this.state.activeQuestionCard;
+	      var activeQuestionCardIndex = this.state.activeQuestionCardIndex;
 	
 	      var numQuestions = quiz.questions.size;
-	      var wasLastQuestion = activeQuestionCard === numQuestions - 1;
+	      var wasLastQuestion = activeQuestionCardIndex === numQuestions - 1;
 	      if (wasLastQuestion) {
 	        this.setState({ onResults: true });
 	      } else {
-	        this.setState({ activeQuestionCard: this.state.activeQuestionCard + 1 });
+	        this.setState({ activeQuestionCardIndex: activeQuestionCardIndex + 1 });
 	      }
 	    }
 	  }]);
@@ -29141,7 +29184,7 @@
 	exports.default = QuizComponent;
 
 /***/ }),
-/* 223 */
+/* 224 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29156,7 +29199,7 @@
 	
 	var _propTypes2 = _interopRequireDefault(_propTypes);
 	
-	var _QuestionComponent = __webpack_require__(224);
+	var _QuestionComponent = __webpack_require__(225);
 	
 	var _QuestionComponent2 = _interopRequireDefault(_QuestionComponent);
 	
@@ -29168,7 +29211,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ScoreCalculation = __webpack_require__(225);
+	var _ScoreCalculation = __webpack_require__(228);
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
@@ -29221,7 +29264,7 @@
 	exports.default = QuestionCard;
 
 /***/ }),
-/* 224 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29231,6 +29274,10 @@
 	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _AnswerListComponent = __webpack_require__(226);
+	
+	var _AnswerListComponent2 = _interopRequireDefault(_AnswerListComponent);
 	
 	var _propTypes = __webpack_require__(185);
 	
@@ -29244,23 +29291,17 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ScoreCalculation = __webpack_require__(225);
+	var _ScoreCalculation = __webpack_require__(228);
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _SubQuestionChoiceComponent = __webpack_require__(226);
+	var _SubQuestionComponent = __webpack_require__(229);
 	
-	var _SubQuestionChoiceComponent2 = _interopRequireDefault(_SubQuestionChoiceComponent);
+	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
 	
-	var _SubQuestionListComponent = __webpack_require__(229);
-	
-	var _SubQuestionListComponent2 = _interopRequireDefault(_SubQuestionListComponent);
-	
-	var _utils = __webpack_require__(218);
+	var _utils = __webpack_require__(219);
 	
 	var _utils2 = _interopRequireDefault(_utils);
-	
-	var _constants = __webpack_require__(228);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -29276,12 +29317,7 @@
 	  function QuestionComponent() {
 	    _classCallCheck(this, QuestionComponent);
 	
-	    var _this = _possibleConstructorReturn(this, (QuestionComponent.__proto__ || Object.getPrototypeOf(QuestionComponent)).call(this));
-	
-	    _this.state = {
-	      selectedAnswer: null
-	    };
-	    return _this;
+	    return _possibleConstructorReturn(this, (QuestionComponent.__proto__ || Object.getPrototypeOf(QuestionComponent)).apply(this, arguments));
 	  }
 	
 	  _createClass(QuestionComponent, [{
@@ -29302,75 +29338,18 @@
 	          label && '(' + label + ') ',
 	          question.title
 	        ),
-	        this.renderSubQuestions(),
-	        this.renderAnswers()
+	        question.hasSubQuestions() && _react2.default.createElement(_SubQuestionComponent2.default, {
+	          subQuestions: question.subQuestions,
+	          scoreCalculation: scoreCalculation,
+	          subQuestionMode: question.subQuestionMode,
+	          level: level
+	        }),
+	        question.hasAnswers() && _react2.default.createElement(_AnswerListComponent2.default, {
+	          question: question,
+	          scoreCalculation: scoreCalculation,
+	          level: level
+	        })
 	      );
-	    }
-	  }, {
-	    key: 'renderAnswers',
-	    value: function renderAnswers() {
-	      var _this2 = this;
-	
-	      var answers = this.props.question.get('answers');
-	      if (!answers.isEmpty()) {
-	        return _react2.default.createElement(
-	          'ul',
-	          { className: 'answers' },
-	          answers.map(function (a, i) {
-	            return _react2.default.createElement(
-	              'li',
-	              {
-	                key: a.getId(),
-	                className: 'answer ' + (_this2.isDisabled(a) ? 'disabled' : 'enabled'),
-	                onClick: _this2.selectAnswer.bind(_this2, a)
-	              },
-	              '(',
-	              _constants.LETTERS[i],
-	              ') ',
-	              a.text
-	            );
-	          })
-	        );
-	      } else {
-	        return '';
-	      }
-	    }
-	  }, {
-	    key: 'renderSubQuestions',
-	    value: function renderSubQuestions() {
-	      var _props2 = this.props,
-	          question = _props2.question,
-	          level = _props2.level,
-	          scoreCalculation = _props2.scoreCalculation;
-	
-	      if (question.hasSubQuestions() && question.subQuestionMode === _Question2.default.SubQuestionModes.ANSWER_ALL) {
-	        return _react2.default.createElement(_SubQuestionListComponent2.default, {
-	          subQuestions: question.subQuestions,
-	          scoreCalculation: scoreCalculation,
-	          level: level + 1
-	        });
-	      } else if (question.hasSubQuestions() && question.subQuestionMode === _Question2.default.SubQuestionModes.ANSWER_ONE) {
-	        return _react2.default.createElement(_SubQuestionChoiceComponent2.default, {
-	          subQuestions: question.subQuestions,
-	          scoreCalculation: scoreCalculation,
-	          level: level + 1
-	        });
-	      } else {
-	        return '';
-	      }
-	    }
-	  }, {
-	    key: 'selectAnswer',
-	    value: function selectAnswer(answer) {
-	      this.setState({ selectedAnswer: answer });
-	      this.props.scoreCalculation.recordAnswer(this.props.question, answer);
-	    }
-	  }, {
-	    key: 'isDisabled',
-	    value: function isDisabled(answer) {
-	      var selectedAnswer = this.state.selectedAnswer;
-	
-	      return selectedAnswer && selectedAnswer !== answer;
 	    }
 	  }]);
 	
@@ -29392,7 +29371,252 @@
 	exports.default = QuestionComponent;
 
 /***/ }),
-/* 225 */
+/* 226 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Answer = __webpack_require__(217);
+	
+	var _Answer2 = _interopRequireDefault(_Answer);
+	
+	var _AnswerComponent = __webpack_require__(227);
+	
+	var _AnswerComponent2 = _interopRequireDefault(_AnswerComponent);
+	
+	var _propTypes = __webpack_require__(185);
+	
+	var _propTypes2 = _interopRequireDefault(_propTypes);
+	
+	var _Question = __webpack_require__(216);
+	
+	var _Question2 = _interopRequireDefault(_Question);
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ScoreCalculation = __webpack_require__(228);
+	
+	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
+	
+	var _SubQuestionComponent = __webpack_require__(229);
+	
+	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
+	
+	var _constants = __webpack_require__(232);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var AnswerListComponent = function (_React$Component) {
+	  _inherits(AnswerListComponent, _React$Component);
+	
+	  function AnswerListComponent() {
+	    _classCallCheck(this, AnswerListComponent);
+	
+	    var _this = _possibleConstructorReturn(this, (AnswerListComponent.__proto__ || Object.getPrototypeOf(AnswerListComponent)).call(this));
+	
+	    _this.state = {
+	      selectedAnswer: null
+	    };
+	    return _this;
+	  }
+	
+	  _createClass(AnswerListComponent, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+	
+	      var _props = this.props,
+	          question = _props.question,
+	          scoreCalculation = _props.scoreCalculation,
+	          level = _props.level;
+	      var selectedAnswer = this.state.selectedAnswer;
+	
+	      return _react2.default.createElement(
+	        'ul',
+	        { className: 'answers' },
+	        question.answers.map(function (a) {
+	          return _react2.default.createElement(
+	            'li',
+	            {
+	              key: a.getId(),
+	              className: 'answer ' + (_this2.isInactive(a) ? 'not-active' : 'active'),
+	              onClick: _this2.selectAnswer.bind(_this2, a)
+	            },
+	            _react2.default.createElement(_AnswerComponent2.default, {
+	              answer: a,
+	              question: question,
+	              scoreCalculation: scoreCalculation,
+	              level: level,
+	              isSelected: a === selectedAnswer
+	            })
+	          );
+	        })
+	      );
+	    }
+	  }, {
+	    key: 'selectAnswer',
+	    value: function selectAnswer(answer) {
+	      this.setState({ selectedAnswer: answer });
+	    }
+	  }, {
+	    key: 'isInactive',
+	    value: function isInactive(answer) {
+	      var selectedAnswer = this.state.selectedAnswer;
+	
+	      return !!(selectedAnswer && selectedAnswer !== answer);
+	    }
+	  }]);
+	
+	  return AnswerListComponent;
+	}(_react2.default.Component);
+	
+	AnswerListComponent.defaultProps = {
+	  level: 0
+	};
+	
+	AnswerListComponent.propTypes = {
+	  level: _propTypes2.default.number,
+	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired
+	};
+	
+	exports.default = AnswerListComponent;
+
+/***/ }),
+/* 227 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Answer = __webpack_require__(217);
+	
+	var _Answer2 = _interopRequireDefault(_Answer);
+	
+	var _propTypes = __webpack_require__(185);
+	
+	var _propTypes2 = _interopRequireDefault(_propTypes);
+	
+	var _Question = __webpack_require__(216);
+	
+	var _Question2 = _interopRequireDefault(_Question);
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ScoreCalculation = __webpack_require__(228);
+	
+	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
+	
+	var _SubQuestionComponent = __webpack_require__(229);
+	
+	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
+	
+	var _utils = __webpack_require__(219);
+	
+	var _utils2 = _interopRequireDefault(_utils);
+	
+	var _constants = __webpack_require__(232);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var AnswerComponent = function (_React$Component) {
+	  _inherits(AnswerComponent, _React$Component);
+	
+	  function AnswerComponent() {
+	    _classCallCheck(this, AnswerComponent);
+	
+	    return _possibleConstructorReturn(this, (AnswerComponent.__proto__ || Object.getPrototypeOf(AnswerComponent)).apply(this, arguments));
+	  }
+	
+	  _createClass(AnswerComponent, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+	
+	      var _props = this.props,
+	          question = _props.question,
+	          answer = _props.answer,
+	          scoreCalculation = _props.scoreCalculation,
+	          level = _props.level,
+	          isSelected = _props.isSelected;
+	
+	      var label = _constants.LETTERS[question.answers.indexOf(answer)];
+	      return _react2.default.createElement(
+	        'div',
+	        { className: 'answer' },
+	        _react2.default.createElement(
+	          'p',
+	          { className: 'selectable', onClick: function onClick() {
+	              return _this2.recordAnswer();
+	            } },
+	          '(',
+	          label,
+	          ') ',
+	          answer.text
+	        ),
+	        isSelected && answer.hasSubQuestions() && _react2.default.createElement(_SubQuestionComponent2.default, {
+	          subQuestions: answer.subQuestions,
+	          subQuestionMode: answer.subQuestionMode,
+	          level: level,
+	          scoreCalculation: scoreCalculation
+	        })
+	      );
+	    }
+	  }, {
+	    key: 'recordAnswer',
+	    value: function recordAnswer() {
+	      if (!this.props.isSelected) {
+	        this.props.scoreCalculation.recordAnswer(this.props.question, this.props.answer);
+	      }
+	    }
+	  }]);
+	
+	  return AnswerComponent;
+	}(_react2.default.Component);
+	
+	AnswerComponent.defaultProps = {
+	  level: 0,
+	  isSelected: false
+	};
+	
+	AnswerComponent.propTypes = {
+	  answer: _propTypes2.default.instanceOf(_Answer2.default).isRequired,
+	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired,
+	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired,
+	  level: _propTypes2.default.number,
+	  isSelected: _propTypes2.default.bool
+	};
+	
+	exports.default = AnswerComponent;
+
+/***/ }),
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29407,13 +29631,15 @@
 	
 	var _immutable2 = _interopRequireDefault(_immutable);
 	
-	var _utils = __webpack_require__(218);
+	var _utils = __webpack_require__(219);
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var id = 0;
 	
 	var ScoreCalculation = function () {
 	  function ScoreCalculation(quiz, _props) {
@@ -29423,11 +29649,11 @@
 	      throw new Error('quiz is required');
 	    }
 	    this.quiz = quiz;
+	    this.id = ++id;
 	    Object.assign(this, {
 	      selectedAnswers: _immutable2.default.Map(),
-	      completedQuestions: _immutable2.default.List(),
 	      answerCallback: _utils2.default.NO_OP,
-	      questionCompletedCallback: _utils2.default.NO_OP
+	      questionCompletedCallbacks: _immutable2.default.Map()
 	    }, _props);
 	  }
 	
@@ -29436,52 +29662,56 @@
 	    value: function onAnswer(callback) {
 	      return new ScoreCalculation(this.quiz, {
 	        selectedAnswers: this.selectedAnswers,
-	        completedQuestions: this.completedQuestions,
 	        answerCallback: _utils2.default.combine(this.answerCallback, callback),
-	        questionCompletedCallback: this.questionCompletedCallback
+	        questionCompletedCallbacks: this.questionCompletedCallbacks
 	      });
 	    }
 	  }, {
 	    key: 'onQuestionCompleted',
-	    value: function onQuestionCompleted(callback) {
+	    value: function onQuestionCompleted(question, callback) {
 	      return new ScoreCalculation(this.quiz, {
 	        selectedAnswers: this.selectedAnswers,
-	        completedQuestions: this.completedQuestions,
 	        answerCallback: this.answerCallback,
-	        questionCompletedCallback: _utils2.default.combine(this.questionCompletedCallback, callback)
+	        questionCompletedCallbacks: this.questionCompletedCallbacks.set(question, _utils2.default.combine(callback, this.questionCompletedCallbacks.get(question, _utils2.default.NO_OP)))
 	      });
 	    }
 	  }, {
 	    key: 'recordAnswer',
 	    value: function recordAnswer(question, answer) {
-	      var newSelectedAnswers = this.selectedAnswers.set(question, answer);
-	      var newCompletedQuestions = this.quiz.questions.filter(function (q) {
-	        return q.isCompleted(newSelectedAnswers);
-	      });
+	      var _this = this;
+	
 	      var newCalculation = new ScoreCalculation(this.quiz, {
-	        selectedAnswers: newSelectedAnswers,
-	        completedQuestions: newCompletedQuestions,
+	        selectedAnswers: this.selectedAnswers.set(question, answer),
 	        answerCallback: this.answerCallback,
-	        questionCompletedCallback: this.questionCompletedCallback
+	        questionCompletedCallbacks: this.questionCompletedCallbacks
 	      });
 	
 	      this.answerCallback(newCalculation);
 	
-	      if (newCalculation.completedQuestions.size > this.completedQuestions.size) {
-	        this.questionCompletedCallback();
-	      }
+	      this.questionCompletedCallbacks.keySeq().forEach(function (q) {
+	        if (q.isCompleted(newCalculation.selectedAnswers) && !q.isCompleted(_this.selectedAnswers)) {
+	          _this.questionCompletedCallbacks.get(q)();
+	        }
+	      });
 	      return newCalculation;
 	    }
 	  }, {
 	    key: 'computeScore',
 	    value: function computeScore() {
-	      var _this = this;
+	      var _this2 = this;
 	
 	      return this.quiz.questions.map(function (q) {
-	        return q.computeScore(_this.selectedAnswers);
+	        return q.computeScore(_this2.selectedAnswers);
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
+	    }
+	  }, {
+	    key: 'clearCallbacks',
+	    value: function clearCallbacks() {
+	      return new ScoreCalculation(this.quiz, {
+	        selectedAnswers: this.selectedAnswers
+	      });
 	    }
 	  }]);
 	
@@ -29491,7 +29721,7 @@
 	exports.default = ScoreCalculation;
 
 /***/ }),
-/* 226 */
+/* 229 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29502,7 +29732,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _reactImmutableProptypes = __webpack_require__(227);
+	var _reactImmutableProptypes = __webpack_require__(230);
 	
 	var _reactImmutableProptypes2 = _interopRequireDefault(_reactImmutableProptypes);
 	
@@ -29514,7 +29744,7 @@
 	
 	var _Question2 = _interopRequireDefault(_Question);
 	
-	var _QuestionComponent = __webpack_require__(224);
+	var _QuestionComponent = __webpack_require__(225);
 	
 	var _QuestionComponent2 = _interopRequireDefault(_QuestionComponent);
 	
@@ -29522,11 +29752,21 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ScoreCalculation = __webpack_require__(225);
+	var _ScoreCalculation = __webpack_require__(228);
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _constants = __webpack_require__(228);
+	var _SubQuestionListComponent = __webpack_require__(231);
+	
+	var _SubQuestionListComponent2 = _interopRequireDefault(_SubQuestionListComponent);
+	
+	var _SubQuestionChoiceComponent = __webpack_require__(233);
+	
+	var _SubQuestionChoiceComponent2 = _interopRequireDefault(_SubQuestionChoiceComponent);
+	
+	var _SubQuestionModes = __webpack_require__(218);
+	
+	var _SubQuestionModes2 = _interopRequireDefault(_SubQuestionModes);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -29536,66 +29776,63 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var SubQuestionChoiceComponent = function (_React$Component) {
-	  _inherits(SubQuestionChoiceComponent, _React$Component);
+	var SubQuestionComponent = function (_React$Component) {
+	  _inherits(SubQuestionComponent, _React$Component);
 	
-	  function SubQuestionChoiceComponent() {
-	    _classCallCheck(this, SubQuestionChoiceComponent);
+	  function SubQuestionComponent() {
+	    _classCallCheck(this, SubQuestionComponent);
 	
-	    return _possibleConstructorReturn(this, (SubQuestionChoiceComponent.__proto__ || Object.getPrototypeOf(SubQuestionChoiceComponent)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (SubQuestionComponent.__proto__ || Object.getPrototypeOf(SubQuestionComponent)).apply(this, arguments));
 	  }
 	
-	  _createClass(SubQuestionChoiceComponent, [{
+	  _createClass(SubQuestionComponent, [{
 	    key: 'render',
 	    value: function render() {
 	      var _props = this.props,
 	          level = _props.level,
 	          subQuestions = _props.subQuestions,
-	          scoreCalculation = _props.scoreCalculation;
+	          scoreCalculation = _props.scoreCalculation,
+	          subQuestionMode = _props.subQuestionMode;
 	
-	
-	      if (!subQuestions.isEmpty()) {
-	        return _react2.default.createElement(
-	          'ul',
-	          { className: 'subQuestions' },
-	          subQuestions.map(function (q, i) {
-	            return _react2.default.createElement(
-	              'li',
-	              { key: q.getId(), className: 'subQuestion active one-of-many' },
-	              _react2.default.createElement(_QuestionComponent2.default, {
-	                question: q,
-	                label: _constants.ROMAN_NUMERALS[i],
-	                level: level,
-	                scoreCalculation: scoreCalculation
-	              })
-	            );
-	          })
-	        );
-	      } else {
-	        return '';
+	      switch (subQuestionMode) {
+	        case _SubQuestionModes2.default.ANSWER_ALL:
+	          return _react2.default.createElement(_SubQuestionListComponent2.default, {
+	            subQuestions: subQuestions,
+	            scoreCalculation: scoreCalculation,
+	            level: level + 1
+	          });
+	        case _SubQuestionModes2.default.ANSWER_ONE:
+	          return _react2.default.createElement(_SubQuestionChoiceComponent2.default, {
+	            subQuestions: subQuestions,
+	            scoreCalculation: scoreCalculation,
+	            level: level + 1
+	          });
+	        default:
+	          throw new Error('Unrecognized subquestion mode ' + subQuestionMode);
 	      }
 	    }
 	  }]);
 	
-	  return SubQuestionChoiceComponent;
+	  return SubQuestionComponent;
 	}(_react2.default.Component);
 	
 	;
 	
-	SubQuestionChoiceComponent.defaultProps = {
+	SubQuestionComponent.defaultProps = {
 	  level: 1
 	};
 	
-	SubQuestionChoiceComponent.propTypes = {
+	SubQuestionComponent.propTypes = {
 	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired,
 	  subQuestions: _reactImmutableProptypes2.default.listOf(_Question2.default).isRequired,
-	  level: _propTypes2.default.number
+	  level: _propTypes2.default.number,
+	  subQuestionMode: _propTypes2.default.oneOf(Object.values(_SubQuestionModes2.default))
 	};
 	
-	exports.default = SubQuestionChoiceComponent;
+	exports.default = SubQuestionComponent;
 
 /***/ }),
-/* 227 */
+/* 230 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -29850,20 +30087,7 @@
 	module.exports = ImmutablePropTypes;
 
 /***/ }),
-/* 228 */
-/***/ (function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var ROMAN_NUMERALS = exports.ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
-	
-	var LETTERS = exports.LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
-
-/***/ }),
-/* 229 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29874,7 +30098,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _reactImmutableProptypes = __webpack_require__(227);
+	var _reactImmutableProptypes = __webpack_require__(230);
 	
 	var _reactImmutableProptypes2 = _interopRequireDefault(_reactImmutableProptypes);
 	
@@ -29886,7 +30110,7 @@
 	
 	var _Question2 = _interopRequireDefault(_Question);
 	
-	var _QuestionComponent = __webpack_require__(224);
+	var _QuestionComponent = __webpack_require__(225);
 	
 	var _QuestionComponent2 = _interopRequireDefault(_QuestionComponent);
 	
@@ -29894,11 +30118,11 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ScoreCalculation = __webpack_require__(225);
+	var _ScoreCalculation = __webpack_require__(228);
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _constants = __webpack_require__(228);
+	var _constants = __webpack_require__(232);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -29929,11 +30153,9 @@
 	
 	      var _props = this.props,
 	          level = _props.level,
-	          subQuestions = _props.subQuestions;
+	          subQuestions = _props.subQuestions,
+	          scoreCalculation = _props.scoreCalculation;
 	
-	      var scoreCalculation = this.props.scoreCalculation.onAnswer(function () {
-	        _this2.incrementActiveSubQuestion();
-	      });
 	      return _react2.default.createElement(
 	        'ul',
 	        { className: 'subQuestions' },
@@ -29948,7 +30170,7 @@
 	              question: q,
 	              label: _constants.ROMAN_NUMERALS[i],
 	              level: level,
-	              scoreCalculation: scoreCalculation
+	              scoreCalculation: scoreCalculation.onQuestionCompleted(q, _this2.incrementActiveSubQuestion.bind(_this2))
 	            })
 	          );
 	        })
@@ -29986,7 +30208,124 @@
 	exports.default = SubQuestionListComponent;
 
 /***/ }),
-/* 230 */
+/* 232 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var ROMAN_NUMERALS = exports.ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+	
+	var LETTERS = exports.LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+/***/ }),
+/* 233 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _reactImmutableProptypes = __webpack_require__(230);
+	
+	var _reactImmutableProptypes2 = _interopRequireDefault(_reactImmutableProptypes);
+	
+	var _propTypes = __webpack_require__(185);
+	
+	var _propTypes2 = _interopRequireDefault(_propTypes);
+	
+	var _Question = __webpack_require__(216);
+	
+	var _Question2 = _interopRequireDefault(_Question);
+	
+	var _QuestionComponent = __webpack_require__(225);
+	
+	var _QuestionComponent2 = _interopRequireDefault(_QuestionComponent);
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ScoreCalculation = __webpack_require__(228);
+	
+	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
+	
+	var _constants = __webpack_require__(232);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var SubQuestionChoiceComponent = function (_React$Component) {
+	  _inherits(SubQuestionChoiceComponent, _React$Component);
+	
+	  function SubQuestionChoiceComponent() {
+	    _classCallCheck(this, SubQuestionChoiceComponent);
+	
+	    return _possibleConstructorReturn(this, (SubQuestionChoiceComponent.__proto__ || Object.getPrototypeOf(SubQuestionChoiceComponent)).apply(this, arguments));
+	  }
+	
+	  _createClass(SubQuestionChoiceComponent, [{
+	    key: 'render',
+	    value: function render() {
+	      var _props = this.props,
+	          level = _props.level,
+	          subQuestions = _props.subQuestions,
+	          scoreCalculation = _props.scoreCalculation;
+	
+	
+	      if (!subQuestions.isEmpty()) {
+	        return _react2.default.createElement(
+	          'ul',
+	          { className: 'subQuestions' },
+	          subQuestions.map(function (q, i) {
+	            return _react2.default.createElement(
+	              'li',
+	              { key: q.getId(), className: 'subQuestion active one-of-many' },
+	              _react2.default.createElement(_QuestionComponent2.default, {
+	                question: q,
+	                label: _constants.ROMAN_NUMERALS[i],
+	                level: level,
+	                scoreCalculation: scoreCalculation
+	              })
+	            );
+	          })
+	        );
+	      } else {
+	        return '';
+	      }
+	    }
+	  }]);
+	
+	  return SubQuestionChoiceComponent;
+	}(_react2.default.Component);
+	
+	;
+	
+	SubQuestionChoiceComponent.defaultProps = {
+	  level: 1
+	};
+	
+	SubQuestionChoiceComponent.propTypes = {
+	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired,
+	  subQuestions: _reactImmutableProptypes2.default.listOf(_Question2.default).isRequired,
+	  level: _propTypes2.default.number
+	};
+	
+	exports.default = SubQuestionChoiceComponent;
+
+/***/ }),
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30005,7 +30344,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _Result = __webpack_require__(220);
+	var _Result = __webpack_require__(221);
 	
 	var _Result2 = _interopRequireDefault(_Result);
 	
@@ -30055,7 +30394,7 @@
 	exports.default = ResultCard;
 
 /***/ }),
-/* 231 */
+/* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
