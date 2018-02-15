@@ -75,31 +75,31 @@
               "points":  105
             }
           ]
+        }
+      ]
+    },
+    {
+      "title": "... And Your Weekend Getaway?",
+      "answers": [
+        {
+          "text": "Couch surfing",
+          "points":  0
         },
         {
-          "title": "Your Weekend Getaway",
-          "answers": [
-            {
-              "text": "Couch surfing",
-              "points":  0
-            },
-            {
-              "text": "Airbnb",
-              "points":  10
-            },
-            {
-              "text": "A rustic barn ",
-              "points":  20
-            },
-            {
-              "text": "A cottage by the ocean or in the mountains ",
-              "points":  35
-            },
-            {
-              "text": "A mansion with guest house ",
-              "points":  150
-            }
-          ]
+          "text": "Airbnb",
+          "points":  10
+        },
+        {
+          "text": "A rustic barn ",
+          "points":  20
+        },
+        {
+          "text": "A cottage by the ocean or in the mountains ",
+          "points":  35
+        },
+        {
+          "text": "A mansion with guest house ",
+          "points":  150
         }
       ]
     },
@@ -309,7 +309,7 @@
           "text": "Fit as ever",
           "subQuestions": [
             {
-              "text": "How are you keeping in shape?",
+              "title": "How are you keeping in shape?",
               "inputType": "multipleChoice",
               "answers": [
                 {
@@ -337,7 +337,7 @@
           "text": "Falling apart",
           "subQuestions": [
             {
-              "text": "How are you keeping it together?",
+              "title": "How are you keeping it together?",
               "inputType": "multipleChoice",
               "answers": [
                 {
