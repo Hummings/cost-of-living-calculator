@@ -1,5 +1,6 @@
 import Immutable from 'immutable';
 import utils from '../utils';
+import SubQuestionModes from '../models/SubQuestionModes';
 
 let id = 0;
 
@@ -48,7 +49,7 @@ class ScoreCalculation {
     this.answerCallback(newCalculation);
 
     this.questionCompletedCallbacks.keySeq().forEach(q => {
-      if(q.isCompleted(newCalculation.selectedAnswers) && !q.isCompleted(this.selectedAnswers)) {
+      if(newCalculation._isCompleted(q) && !this._isCompleted(q)) {
         this.questionCompletedCallbacks.get(q)();
       }
     });
@@ -57,7 +58,7 @@ class ScoreCalculation {
 
   computeScore() {
     return this.quiz.questions
-      .map(q => q.computeScore(this.selectedAnswers))
+      .map(q => this._computeQuestionScore(q))
       .reduce((a, b) => a + b, 0);
 
   }
@@ -68,6 +69,53 @@ class ScoreCalculation {
     });
   }
 
+  _computeQuestionScore(question) {
+    if (!this._isCompleted(question)) {
+      return 0;
+    }
+
+    if (question.hasSubQuestions()) {
+      return question.subQuestions
+        .map(q => this._computeQuestionScore(q))
+        .reduce((a, b) => a + b, 0);
+    } else {
+      const answer = this.selectedAnswers.get(question);
+      return this._computeAnswerScore(answer);
+    }
+  }
+
+  _computeAnswerScore(answer) {
+    if (answer && answer.hasSubQuestions()) {
+      return answer.subQuestions
+        .map(q => this._computeQuestionScore(q))
+        .reduce((a, b) => a + b, 0);
+    } else {
+      return answer ? answer.points : 0;
+    }
+  }
+
+  _isCompleted(question) {
+    if (question.hasSubQuestions()) {
+      return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
+    } else {
+      const answer = this.selectedAnswers.get(question);
+      if (answer && answer.hasSubQuestions()) {
+        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
+      } else {
+        return !!answer;
+      }
+    }
+  }
+  _areAllSubQuestionsAnswered(subQuestions, subQuestionMode) {
+    switch(subQuestionMode) {
+      case SubQuestionModes.ANSWER_ALL:
+        return subQuestions.every(q => this._isCompleted(q));
+      case SubQuestionModes.ANSWER_ONE:
+        return subQuestions.some(q => this._isCompleted(q));
+      default:
+        throw new Error('unknown subquestion mode ' + subQuestionMode);
+    }
+  }
 }
 
 

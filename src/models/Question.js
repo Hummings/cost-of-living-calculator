@@ -29,47 +29,6 @@ Object.assign(Question.prototype, {
     return !!this.answers.size;
   },
 
-  isCompleted(selectedAnswers) {
-    selectedAnswers = selectedAnswers || Immutable.Map();
-
-    if (this.hasSubQuestions()) {
-      return this._areAllSubQuestionsAnswered(this.subQuestions, this.subQuestionMode, selectedAnswers);
-    } else {
-      const answer = selectedAnswers.get(this);
-      if (answer && answer.hasSubQuestions()) {
-        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode, selectedAnswers);
-      } else {
-        return !!answer;
-      }
-    }
-  },
-
-  computeScore(selectedAnswers) {
-    selectedAnswers = selectedAnswers || Immutable.Map();
-    if (!this.isCompleted(selectedAnswers)) {
-      return 0;
-    }
-
-    if (this.hasSubQuestions()) {
-      return this.subQuestions
-        .map(q => q.computeScore(selectedAnswers))
-        .reduce((a, b) => a + b, 0);
-    } else {
-      const answer = selectedAnswers.get(this);
-      return answer ? answer.points : 0;
-    }
-  },
-
-  _areAllSubQuestionsAnswered(subQuestions, subQuestionMode, selectedAnswers) {
-    switch(subQuestionMode) {
-      case SubQuestionModes.ANSWER_ALL:
-        return subQuestions.every(q => q.isCompleted(selectedAnswers));
-      case SubQuestionModes.ANSWER_ONE:
-        return subQuestions.some(q => q.isCompleted(selectedAnswers));
-      default:
-        throw new Error('unknown subquestion mode ' + this.subQuestionMode);
-    }
-  },
 });
 
 Question.deserialize = json => {
