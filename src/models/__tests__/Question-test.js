@@ -117,6 +117,21 @@ describe('Question', () => {
       });
       expect(q.subQuestionMode).toBe(SubQuestionModes.ANSWER_ONE);
     });
+
+    it('defaults isMultipleChoice', () => {
+      const q = Question.deserialize({
+        answers: [{ text: 'a', points: 2}],
+      });
+      expect(q.isMultipleChoice).toBe(false);
+    });
+
+    it('deserializes isMultipleChoice', () => {
+      const q = Question.deserialize({
+        isMultipleChoice: true,
+        answers: [{ text: 'a', points: 2}],
+      });
+      expect(q.isMultipleChoice).toBe(true);
+    });
   });
 
   describe('hasSubQuestions', () => {

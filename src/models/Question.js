@@ -10,6 +10,7 @@ const Question = Immutable.Record({
   answers: new Immutable.List(),
   subQuestions: new Immutable.List(),
   subQuestionMode: SubQuestionModes.ANSWER_ALL,
+  isMultipleChoice: false,
 });
 
 Object.assign(Question.prototype, {

@@ -137,7 +137,6 @@
             },
             {
               "title": "Where will they go to school?",
-              "inputType": "multipleChoice",
               "scoringStrategy": {
                 "multiplyBy": "num-kids"
               },
@@ -270,7 +269,7 @@
       "scoringStrategy": {
         "additive": true
       },
-      "inputType": "multipleChoice",
+      "isMultipleChoice": true,
       "answers": [
         {
           "text": "Nothing.  I rely on public transport and Uber",
@@ -310,7 +309,7 @@
           "subQuestions": [
             {
               "title": "How are you keeping in shape?",
-              "inputType": "multipleChoice",
+              "isMultipleChoice": true,
               "answers": [
                 {
                   "text": "Vitamins and daily run",
@@ -338,7 +337,7 @@
           "subQuestions": [
             {
               "title": "How are you keeping it together?",
-              "inputType": "multipleChoice",
+              "isMultipleChoice": true,
               "answers": [
                 {
                   "text": "Lipitor and Viagra",
