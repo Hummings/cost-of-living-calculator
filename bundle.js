@@ -21953,9 +21953,9 @@
 	
 	var _QuizComponent2 = _interopRequireDefault(_QuizComponent);
 	
-	var _LoadingIndicator = __webpack_require__(235);
+	var _LoadingCard = __webpack_require__(235);
 	
-	var _LoadingIndicator2 = _interopRequireDefault(_LoadingIndicator);
+	var _LoadingCard2 = _interopRequireDefault(_LoadingCard);
 	
 	var _ScoreCalculation = __webpack_require__(228);
 	
@@ -22000,7 +22000,7 @@
 	      if (quiz) {
 	        return _react2.default.createElement(_QuizComponent2.default, { quiz: quiz, initialScoreCalculation: new _ScoreCalculation2.default(quiz) });
 	      } else {
-	        return _react2.default.createElement(_LoadingIndicator2.default, null);
+	        return _react2.default.createElement(_LoadingCard2.default, null);
 	      }
 	    }
 	  }]);
@@ -29118,6 +29118,7 @@
 	    _this.state = {
 	      activeQuestionCardIndex: 0,
 	      onResults: false,
+	      isStarted: props.alreadyStarted,
 	      scoreCalculation: props.initialScoreCalculation
 	    };
 	    return _this;
@@ -29131,8 +29132,13 @@
 	      var quiz = this.props.quiz;
 	      var _state = this.state,
 	          activeQuestionCardIndex = _state.activeQuestionCardIndex,
-	          onResults = _state.onResults;
+	          onResults = _state.onResults,
+	          isStarted = _state.isStarted;
 	
+	
+	      if (!isStarted) {
+	        return this.renderGetStarted();
+	      }
 	
 	      var scoreCalculation = this.state.scoreCalculation.clearCallbacks().onAnswer(function (newCalculation) {
 	        _this2.setState({ scoreCalculation: newCalculation });
@@ -29158,6 +29164,31 @@
 	      }
 	    }
 	  }, {
+	    key: 'renderGetStarted',
+	    value: function renderGetStarted() {
+	      var _this3 = this;
+	
+	      return _react2.default.createElement(
+	        'section',
+	        { className: 'box special' },
+	        _react2.default.createElement(
+	          'h3',
+	          null,
+	          'Hummings Cost of Living Calculator'
+	        ),
+	        _react2.default.createElement(
+	          'button',
+	          {
+	            onClick: function onClick() {
+	              return _this3.setState({ isStarted: true });
+	            },
+	            className: 'button button-brand get-started'
+	          },
+	          'Get Started'
+	        )
+	      );
+	    }
+	  }, {
 	    key: 'incrementActiveQuestionCard',
 	    value: function incrementActiveQuestionCard() {
 	      var quiz = this.props.quiz;
@@ -29176,7 +29207,12 @@
 	  return QuizComponent;
 	}(_react2.default.Component);
 	
+	QuizComponent.defaultProps = {
+	  alreadyStarted: false
+	};
+	
 	QuizComponent.propTypes = {
+	  alreadyStarted: _propTypes2.default.bool,
 	  quiz: _propTypes2.default.instanceOf(_Quiz2.default).isRequired,
 	  initialScoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired
 	};
@@ -29236,8 +29272,8 @@
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'div',
-	        { className: this.props.isActive ? 'active' : 'not-active' },
+	        'section',
+	        { className: 'box special ' + (this.props.isActive ? 'active' : 'not-active') },
 	        _react2.default.createElement(_QuestionComponent2.default, {
 	          question: this.props.question,
 	          scoreCalculation: this.props.scoreCalculation
@@ -29333,7 +29369,7 @@
 	        'div',
 	        { className: 'level' + level },
 	        _react2.default.createElement(
-	          'h4',
+	          'h3',
 	          null,
 	          label && '(' + label + ') ',
 	          question.title
@@ -30371,8 +30407,8 @@
 	      var result = this.props.result;
 	
 	      return _react2.default.createElement(
-	        'div',
-	        null,
+	        'section',
+	        { className: 'box special' },
 	        _react2.default.createElement(
 	          'h4',
 	          null,
@@ -30397,7 +30433,7 @@
 /* 235 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -30417,30 +30453,34 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var LoadingIndicator = function (_React$Component) {
-	  _inherits(LoadingIndicator, _React$Component);
+	var LoadingCard = function (_React$Component) {
+	  _inherits(LoadingCard, _React$Component);
 	
-	  function LoadingIndicator() {
-	    _classCallCheck(this, LoadingIndicator);
+	  function LoadingCard() {
+	    _classCallCheck(this, LoadingCard);
 	
-	    return _possibleConstructorReturn(this, (LoadingIndicator.__proto__ || Object.getPrototypeOf(LoadingIndicator)).apply(this, arguments));
+	    return _possibleConstructorReturn(this, (LoadingCard.__proto__ || Object.getPrototypeOf(LoadingCard)).apply(this, arguments));
 	  }
 	
-	  _createClass(LoadingIndicator, [{
-	    key: 'render',
+	  _createClass(LoadingCard, [{
+	    key: "render",
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'div',
-	        null,
-	        'Loading...'
+	        "section",
+	        { className: "box special" },
+	        _react2.default.createElement(
+	          "p",
+	          null,
+	          "Loading..."
+	        )
 	      );
 	    }
 	  }]);
 	
-	  return LoadingIndicator;
+	  return LoadingCard;
 	}(_react2.default.Component);
 	
-	exports.default = LoadingIndicator;
+	exports.default = LoadingCard;
 
 /***/ })
 /******/ ]);
