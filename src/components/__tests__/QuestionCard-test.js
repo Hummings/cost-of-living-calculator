@@ -35,14 +35,14 @@ describe('QuestionCard', () => {
   });
 
   it('is active by default', () => {
-    expect(wrapper.find('div.active').length).toBe(1);
-    expect(wrapper.find('div.not-active').length).toBe(0);
+    expect(wrapper.find('.active').length).toBe(1);
+    expect(wrapper.find('.not-active').length).toBe(0);
   });
 
   it('indicates if it is not active', () => {
     wrapper = shallow(<QuestionCard question={question} isActive={false} scoreCalculation={scoreCalculation} />);
-    expect(wrapper.find('div.active').length).toBe(0);
-    expect(wrapper.find('div.not-active').length).toBe(1);
+    expect(wrapper.find('.active').length).toBe(0);
+    expect(wrapper.find('.not-active').length).toBe(1);
   });
 });
 

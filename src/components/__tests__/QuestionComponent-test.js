@@ -31,12 +31,12 @@ describe('QuestionComponent', () => {
 
 
   it('renders the question\'s title', () => {
-    expect(wrapper.find('h4').text()).toEqual('what\'s goin\' on?');
+    expect(wrapper.find('h3').text()).toEqual('what\'s goin\' on?');
   });
 
   it('renders the question\'s title with a label', () => {
     wrapper = shallow(<QuestionComponent question={question} label='I' scoreCalculation={scoreCalculation} />);
-    expect(wrapper.find('h4').text()).toEqual('(I) what\'s goin\' on?');
+    expect(wrapper.find('h3').text()).toEqual('(I) what\'s goin\' on?');
   });
 
   it('renders an answer list component', () => {
