@@ -7,9 +7,9 @@ class ResultCard extends React.Component {
   render() {
     const { result } = this.props;
     return (
-      <div>
+      <section className="box special">
         <h4>You need to earn ${ result.requiredIncome.toLocaleString('en') } to support your lifestyle</h4>
-      </div>
+      </section>
     );
   }
 }

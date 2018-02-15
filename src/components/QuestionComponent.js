@@ -13,7 +13,7 @@ class QuestionComponent extends React.Component {
     const { question, label, level, scoreCalculation } = this.props;
     return (
       <div className={'level' + level}>
-        <h4>{ label && `(${label}) ` }{ question.title }</h4>
+        <h3>{ label && `(${label}) ` }{ question.title }</h3>
         {
           question.hasSubQuestions() &&
           <SubQuestionComponent

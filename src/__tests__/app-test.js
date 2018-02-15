@@ -1,7 +1,7 @@
 import Answer from '../models/Answer';
 import App from '../app';
 import QuizComponent from '../components/QuizComponent';
-import LoadingIndicator from '../components/LoadingIndicator';
+import LoadingCard from '../components/LoadingCard';
 import Immutable from 'immutable';
 import Quiz from '../models/Quiz';
 import React from 'react';
@@ -25,7 +25,7 @@ describe('App', () => {
   });
 
   it('shows a loading indicator at first', () => {
-    expect(wrapper.find(LoadingIndicator).length).toBe(1);
+    expect(wrapper.find(LoadingCard).length).toBe(1);
     expect(wrapper.find(QuizComponent).length).toBe(0);
   });
 
@@ -36,7 +36,7 @@ describe('App', () => {
 
     afterAllPromises(() => {
       wrapper.update();
-      expect(wrapper.find(LoadingIndicator).length).toBe(0);
+      expect(wrapper.find(LoadingCard).length).toBe(0);
       expect(wrapper.find(QuizComponent).length).toBe(1);
       expect(wrapper.find(QuizComponent).get(0).props.quiz).toBe(quiz);
       expect(wrapper.find(QuizComponent).get(0).props.initialScoreCalculation).toBeInstanceOf(ScoreCalculation);

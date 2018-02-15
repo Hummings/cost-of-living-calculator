@@ -70,7 +70,32 @@ describe('QuizComponent', () => {
         ),
       }),
     });
-    wrapper = shallow(<QuizComponent quiz={ quiz } initialScoreCalculation={ scoreCalculation } />);
+    wrapper = shallow(
+      <QuizComponent
+        quiz={ quiz }
+        initialScoreCalculation={ scoreCalculation }
+        alreadyStarted={ true }
+      />
+    );
+  });
+
+  it('renders a Get Started button if it has not been started', () => {
+    wrapper = shallow(
+      <QuizComponent
+        quiz={ quiz }
+        initialScoreCalculation={ scoreCalculation }
+      />
+    );
+
+    expect(wrapper.find(QuestionCard).length).toBe(0);
+    expect(wrapper.find('button').length).toBe(1);
+    expect(wrapper.find('button').text()).toEqual('Get Started');
+
+    wrapper.find('button').simulate('click');
+    wrapper.update();
+
+    expect(wrapper.find(QuestionCard).length).toBe(2);
+    expect(wrapper.find('p.button.button-brand').length).toBe(0);
   });
 
   it('renders all the questions', () => {

@@ -8,12 +8,12 @@ class QuestionCard extends React.Component {
 
   render() {
     return (
-      <div className={ this.props.isActive ? 'active' : 'not-active' } >
+      <section className={'box special ' + (this.props.isActive ? 'active' : 'not-active') } >
         <QuestionComponent
           question={this.props.question}
           scoreCalculation={this.props.scoreCalculation}
           />
-      </div>
+      </section>
     );
   }
 }

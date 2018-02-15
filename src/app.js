@@ -3,7 +3,7 @@ import React from 'react'
 
 import { fetchQuestions } from './api';
 import QuizComponent from './components/QuizComponent';
-import LoadingIndicator from './components/LoadingIndicator';
+import LoadingCard from './components/LoadingCard';
 import ScoreCalculation from './core/ScoreCalculation';
 
 class App extends React.Component {
@@ -25,7 +25,7 @@ class App extends React.Component {
     if (quiz) {
       return <QuizComponent quiz={ quiz } initialScoreCalculation={ new ScoreCalculation(quiz) } />;
     } else {
-      return <LoadingIndicator />;
+      return <LoadingCard />;
     }
   }
 }

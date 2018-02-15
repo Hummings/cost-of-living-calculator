@@ -13,13 +13,18 @@ class QuizComponent extends React.Component {
     this.state = {
       activeQuestionCardIndex: 0,
       onResults: false,
+      isStarted: props.alreadyStarted,
       scoreCalculation: props.initialScoreCalculation,
     };
   }
 
   render() {
     const { quiz } = this.props;
-    const { activeQuestionCardIndex, onResults } = this.state;
+    const { activeQuestionCardIndex, onResults, isStarted } = this.state;
+
+    if (!isStarted) {
+      return this.renderGetStarted();
+    }
 
     const scoreCalculation = this.state.scoreCalculation
       .clearCallbacks()
@@ -52,6 +57,20 @@ class QuizComponent extends React.Component {
     }
   }
 
+  renderGetStarted() {
+    return (
+      <section className="box special">
+        <h3>Hummings Cost of Living Calculator</h3>
+        <button
+          onClick={ () => this.setState({ isStarted: true }) }
+          className="button button-brand get-started"
+        >
+          Get Started
+        </button>
+      </section>
+    );
+  }
+
   incrementActiveQuestionCard() {
     const { quiz } = this.props;
     const { activeQuestionCardIndex } = this.state;
@@ -65,9 +84,14 @@ class QuizComponent extends React.Component {
   }
 }
 
+QuizComponent.defaultProps = {
+  alreadyStarted: false,
+};
+
 QuizComponent.propTypes = {
+  alreadyStarted: PropTypes.bool,
   quiz: PropTypes.instanceOf(Quiz).isRequired,
   initialScoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
-}
+};
 
 export default QuizComponent;

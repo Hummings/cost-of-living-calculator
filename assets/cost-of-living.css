@@ -1,0 +1,23 @@
+.not-active {
+  display: none;
+}
+#main {
+  color: #4f4e4e;
+  margin-top: 0 !important;
+}
+
+#main h1, #main h2, #main h3, #main h4, #main h5, #main h6 {
+  color: #444 !important;
+}
+
+li.answer {
+  cursor: pointer;
+}
+
+.selectable:hover {
+  font-weight: bold;
+}
+
+button.get-started {
+  font-size: 110% !important;
+}
