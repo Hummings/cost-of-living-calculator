@@ -41,7 +41,9 @@ class ScoreCalculation {
 
   recordAnswer(question, answer) {
     const newCalculation = new ScoreCalculation(this.quiz, {
-      selectedAnswers: this.selectedAnswers.set(question, answer),
+      selectedAnswers: this.selectedAnswers.set(
+        question, this.selectedAnswers.get(question, Immutable.List()).push(answer)
+      ),
       answerCallback: this.answerCallback,
       questionCompletedCallbacks: this.questionCompletedCallbacks,
     });
@@ -79,18 +81,22 @@ class ScoreCalculation {
         .map(q => this._computeQuestionScore(q))
         .reduce((a, b) => a + b, 0);
     } else {
-      const answer = this.selectedAnswers.get(question);
-      return this._computeAnswerScore(answer);
+      const answers = this.selectedAnswers.get(
+        question, Immutable.List()
+      );
+      return answers
+        .map(a => this._computeAnswerScore(a))
+        .reduce((a, b) => a+ b, 0);
     }
   }
 
   _computeAnswerScore(answer) {
-    if (answer && answer.hasSubQuestions()) {
+    if (answer.hasSubQuestions()) {
       return answer.subQuestions
         .map(q => this._computeQuestionScore(q))
         .reduce((a, b) => a + b, 0);
     } else {
-      return answer ? answer.points : 0;
+      return answer.points;
     }
   }
 
@@ -98,14 +104,22 @@ class ScoreCalculation {
     if (question.hasSubQuestions()) {
       return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
     } else {
-      const answer = this.selectedAnswers.get(question);
-      if (answer && answer.hasSubQuestions()) {
-        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
+      const answers = this.selectedAnswers.get(question);
+      if (!answers) {
+        return false;
       } else {
-        return !!answer;
+        return answers.map(a => {
+          if (a.hasSubQuestions()) {
+            return this._areAllSubQuestionsAnswered(a.subQuestions, a.subQuestionMode);
+          } else {
+            return true;
+          }
+        }).reduce((a, b) => a && b, true);
+
       }
     }
   }
+
   _areAllSubQuestionsAnswered(subQuestions, subQuestionMode) {
     switch(subQuestionMode) {
       case SubQuestionModes.ANSWER_ALL:

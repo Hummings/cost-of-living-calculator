@@ -286,6 +286,20 @@ describe('ScoreCalculation', () => {
   });
 
   describe('computeScore', () => {
+    it('is 0 if no questions have been answered', () => {
+      const basicQuestion = new Question({
+        title: 'basicQuestion',
+        answers: Immutable.List.of(
+          new Answer({ text: 'a', points: 1 }),
+          new Answer({ text: 'b', points: 2 }),
+        ),
+      });
+
+      expect(
+        makeCalculation(basicQuestion).computeScore()
+      ).toBe(0);
+    });
+
     it('returns the points for a basic question', () => {
       const basicQuestion = new Question({
         title: 'basicQuestion',
@@ -307,6 +321,25 @@ describe('ScoreCalculation', () => {
           .recordAnswer(basicQuestion, basicQuestion.answers.get(1))
           .computeScore()
       ).toBe(2);
+    });
+
+    it('sums the points for all selected answers', () => {
+      const multipleChoice = new Question({
+        title: 'basicQuestion',
+        isMultipleChoice: true,
+        answers: Immutable.List.of(
+          new Answer({ text: 'a', points: 1 }),
+          new Answer({ text: 'b', points: 2 }),
+        ),
+      });
+
+      let calculation = makeCalculation(multipleChoice);
+      expect(
+        calculation
+          .recordAnswer(multipleChoice, multipleChoice.answers.get(0))
+          .recordAnswer(multipleChoice, multipleChoice.answers.get(1))
+          .computeScore()
+      ).toBe(1 + 2);
     });
 
     it('sums the points for subquestions', () => {
