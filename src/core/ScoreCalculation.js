@@ -6,11 +6,12 @@ import { List } from 'immutable';
 
 let id = 0;
 
+//class Record extends Immutable.Record({ }) {
+  //constructor() {
 
-class Record extends Immutable.Record({ selectedAnswers: List() }) {
-  construct
+  //}
+//}
 
-}
 
 class ScoreCalculation {
   constructor(quiz, _props) {
@@ -20,24 +21,32 @@ class ScoreCalculation {
     this.quiz = quiz;
     this.id = (++id);
     Object.assign(this, {
-      selectedAnswers: Immutable.Map(),
+      entrySet: new EntrySet(),
       answerCallback: utils.NO_OP,
       questionCompletedCallbacks: Immutable.Map(),
     }, _props);
   }
 
+  _copyWith(partial) {
+    return new ScoreCalculation(
+      quiz,
+      Object.assign({
+        entrySet: this.entrySet,
+        answerCallback: this.answerCallback,
+        questionCompletedCallbacks: this.questionCompletedCallbacks,
+      }, partial),
+    );
+  }
+
+
   onAnswer(callback) {
-    return new ScoreCalculation(this.quiz, {
-      selectedAnswers: this.selectedAnswers,
+    return this._copyWith({
       answerCallback: utils.combine(this.answerCallback, callback),
-      questionCompletedCallbacks: this.questionCompletedCallbacks,
     });
   }
 
   onQuestionCompleted(question, callback) {
-    return new ScoreCalculation(this.quiz, {
-      selectedAnswers: this.selectedAnswers,
-      answerCallback: this.answerCallback,
+    return this._copyWith({
       questionCompletedCallbacks: this.questionCompletedCallbacks.set(
         question, utils.combine(
           callback,
@@ -48,22 +57,17 @@ class ScoreCalculation {
   }
 
   recordAnswer(question, answer) {
-    const newCalculation = new ScoreCalculation(this.quiz, {
-      selectedAnswers: this.selectedAnswers.set(
-        question, this.selectedAnswers.get(question, Immutable.List()).push(answer)
-      ),
-      answerCallback: this.answerCallback,
-      questionCompletedCallbacks: this.questionCompletedCallbacks,
+    const newCalculation = this_copyWith({
+      entrySet: this.entrySet.recordAnswer(question, answer),
     });
 
     this.answerCallback(newCalculation);
-
-    this.notifyCompletionListeners()1
+    this.notifyCompletionListeners();
   }
 
    notifyCompletionListeners() {
       this.questionCompletedCallbacks.keySeq().forEach(q => {
-        if(newCalculation._isCompleted(q) && !this._isCompleted(q)) {
+        if (newCalculation._isCompleted(q) && !this._isCompleted(q)) {
           this.questionCompletedCallbacks.get(q)();
         }
       });
@@ -71,14 +75,14 @@ class ScoreCalculation {
   }
 
   completeQuestion(question) {
-    this.f
+    return this._copyWith({
+      entrySet: this.entrySet.recordCompletedQuestion(question),
+    });
   }
-
   computeScore() {
     return this.quiz.questions
       .map(q => this._computeQuestionScore(q))
       .reduce((a, b) => a + b, 0);
-
   }
 
   clearCallbacks() {
