@@ -169,6 +169,31 @@ describe('ScoreCalculation', () => {
       expect(callback).toHaveBeenCalled();
     });
 
+    it.only('does not call callback on answer for multiple choice questions until #completeQuestion', () => {
+      const callback = jest.fn();
+      const question = new Question({
+        isMultipleChoice: true,
+        title: 'What kind of candy do you like?',
+        answers: Immutable.List.of(
+          new Answer({ title: 'Snickers' }),
+          new Answer({ title: 'Starburst' }),
+          new Answer({ title: 'Twizzler' }),
+          new Answer({ title: 'Three Musketeers' }),
+        ),
+      });
+
+      let calculation = makeCalculation(question)
+        .onQuestionCompleted(question, callback)
+        .recordAnswer(question, question.answers.get(1))
+        .recordAnswer(question, question.answers.get(3));
+
+      expect(callback).not.toHaveBeenCalled();
+
+      callback.completeQuestion(question);
+
+      expect(callback).toHaveBeenCalled();
+    });
+
     it('calls the callback when all subquestions of answers have been completed', () => {
       const sub1 = new Question({
         title: 'sub1',
@@ -530,6 +555,39 @@ describe('ScoreCalculation', () => {
           .recordAnswer(answerSub2, answerSub2.answers.get(1))
           .computeScore()
       ).toBe( 1 + 2 + 56 + 87 + 56 );
+    });
+  });
+
+  describe('completeMultipleChoiceQuestion', () => {
+    it('completes the multiple choice question', () => {
+      const callback = jest.fn();
+      const question = new Question({
+        isMultipleChoice: true,
+        title: 'What kind of candy do you like?',
+        answers: Immutable.List.of(
+          new Answer({ title: 'Snickers' }),
+          new Answer({ title: 'Starburst' }),
+          new Answer({ title: 'Twizzler' }),
+          new Answer({ title: 'Three Musketeers' }),
+        ),
+      });
+
+      let calculation = makeCalculation(question)
+        .onQuestionCompleted(question, callback)
+        .recordAnswer(question, question.answers.get(1))
+        .recordAnswer(question, question.answers.get(3));
+
+      expect(callback).not.toHaveBeenCalled();
+
+      calculation.completeMultipleChoiceQuestion(question);
+
+      expect(callback).toHaveBeenCalled();
+    });
+  });
+
+  describe('isSelected', () => {
+    it('indicates if the answer is selected', () => {
+      fail();
     });
   });
 

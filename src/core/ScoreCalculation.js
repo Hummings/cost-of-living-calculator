@@ -2,7 +2,15 @@ import Immutable from 'immutable';
 import utils from '../utils';
 import SubQuestionModes from '../models/SubQuestionModes';
 
+import { List } from 'immutable';
+
 let id = 0;
+
+
+class Record extends Immutable.Record({ selectedAnswers: List() }) {
+  construct
+
+}
 
 class ScoreCalculation {
   constructor(quiz, _props) {
@@ -50,12 +58,20 @@ class ScoreCalculation {
 
     this.answerCallback(newCalculation);
 
-    this.questionCompletedCallbacks.keySeq().forEach(q => {
-      if(newCalculation._isCompleted(q) && !this._isCompleted(q)) {
-        this.questionCompletedCallbacks.get(q)();
-      }
-    });
-    return newCalculation;
+    this.notifyCompletionListeners()1
+  }
+
+   notifyCompletionListeners() {
+      this.questionCompletedCallbacks.keySeq().forEach(q => {
+        if(newCalculation._isCompleted(q) && !this._isCompleted(q)) {
+          this.questionCompletedCallbacks.get(q)();
+        }
+      });
+      return newCalculation;
+  }
+
+  completeQuestion(question) {
+    this.f
   }
 
   computeScore() {
@@ -105,18 +121,23 @@ class ScoreCalculation {
       return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
     } else {
       const answers = this.selectedAnswers.get(question);
+      const isMultipleChoice = question.isMultipleChoice;
       if (!answers) {
         return false;
       } else {
-        return answers.map(a => {
-          if (a.hasSubQuestions()) {
-            return this._areAllSubQuestionsAnswered(a.subQuestions, a.subQuestionMode);
-          } else {
-            return true;
-          }
-        }).reduce((a, b) => a && b, true);
-
+        return answers.map(a => this._isAnswerCompleted(a))
+        .reduce((a, b) => a && b, true);
       }
+    }
+  }
+
+
+
+  _isAnswerCompleted(answer) {
+    if (answer.hasSubQuestions()) {
+      return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
+    } else {
+      return true;
     }
   }
 
