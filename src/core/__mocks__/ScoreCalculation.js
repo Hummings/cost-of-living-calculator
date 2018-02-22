@@ -5,6 +5,7 @@ class MockScoreCalculation {
     this.recordAnswer = jest.fn().mockReturnValue(this);
     this.clearCallbacks = jest.fn().mockReturnValue(this);
     this.computeScore = jest.fn().mockReturnValue(0);
+    this.completeMultipleChoiceQuestion = jest.fn();
   }
 
 }
