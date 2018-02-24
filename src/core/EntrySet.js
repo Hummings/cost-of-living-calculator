@@ -7,7 +7,7 @@ class SelectedAnswers extends Record({entries: Map()}) {
   recordAnswer(question, answer) {
     return new SelectedAnswers({
       entries: this.entries.set(
-        question, this.entries.get(question, List()).push(answer),
+        question, this._getAnswers(question).push(answer),
       )
     });
   }
@@ -16,7 +16,7 @@ class SelectedAnswers extends Record({entries: Map()}) {
     if (question.hasSubQuestions()) {
       return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
     } else {
-      const selectedAnswers = this.entries.get(question, List());
+      const selectedAnswers = this._getAnswers(question);
       return !!selectedAnswers.size && selectedAnswers
         .map(a => this._isAnswerCompleted(a))
         .reduce((a, b) => a && b, true);
@@ -24,10 +24,13 @@ class SelectedAnswers extends Record({entries: Map()}) {
   }
 
   computeQuestionScore(question) {
-    const answers = this.entries.get(question, List());
-    return answers
+    return this._getAnswers(question)
       .map(a => this._computeAnswerScore(a))
       .reduce((a, b) => a+ b, 0);
+  }
+
+  isSelected(question, answer) {
+    return this._getAnswers(question).contains(answer);
   }
 
   _isAnswerCompleted(answer) {
@@ -58,6 +61,10 @@ class SelectedAnswers extends Record({entries: Map()}) {
       return answer.points;
     }
   }
+
+  _getAnswers(question) {
+    return this.entries.get(question, List());
+  }
 }
 
 class EntrySet extends Record({ selectedAnswers: new SelectedAnswers(), completedQuestions: Set() }) {
@@ -74,6 +81,10 @@ class EntrySet extends Record({ selectedAnswers: new SelectedAnswers(), complete
       completedQuestions: this.completedQuestions.add(question),
       selectedAnswers: this.selectedAnswers,
     });
+  }
+
+  isSelected(question, answer) {
+    return this.selectedAnswers.isSelected(question, answer);
   }
 
   isCompleted(question) {

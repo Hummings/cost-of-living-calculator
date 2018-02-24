@@ -205,6 +205,29 @@ describe('ScoreCalculation', () => {
     });
   });
 
+  describe('isSelected', () => {
+    it('delegates to the entry set', () => {
+      entrySet.isSelected.mockReturnValue(true);
+      const question = new Question({
+        isMultipleChoice: true,
+        title: 'What kind of candy do you like?',
+        answers: List.of(
+          new Answer({ title: 'Snickers' }),
+          new Answer({ title: 'Starburst' }),
+          new Answer({ title: 'Twizzler' }),
+          new Answer({ title: 'Three Musketeers' }),
+        ),
+      });
+
+      expect(
+        makeCalculation(question)
+          .recordAnswer(question, question.answers.get(0))
+          .isSelected(question, question.answers.get(0))
+      ).toBe(true);
+
+      expect(entrySet.isSelected).toHaveBeenCalledWith(question, question.answers.get(0));
+    });
+  });
 
   describe('clearCallbacks', () => {
     it('clears the callbacks', () => {

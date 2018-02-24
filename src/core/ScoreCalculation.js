@@ -69,6 +69,10 @@ class ScoreCalculation {
       .reduce((a, b) => a + b, 0);
   }
 
+  isSelected(question, answer) {
+    return this.entrySet.isSelected(question, answer);
+  }
+
   clearCallbacks() {
     return new ScoreCalculation(this.quiz, {
       entrySet: this.entrySet,
