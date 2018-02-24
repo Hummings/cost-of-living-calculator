@@ -47,7 +47,6 @@ class ScoreCalculation {
     this.answerCallback(newCalculation);
 
     this.questionCompletedCallbacks.keySeq().forEach(q => {
-      debugger;
       if (newEntrySet.isCompleted(q) && !this.entrySet.isCompleted(q)) {
         this.questionCompletedCallbacks.get(q)();
       }
