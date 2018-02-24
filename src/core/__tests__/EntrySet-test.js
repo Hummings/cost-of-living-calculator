@@ -477,4 +477,32 @@ describe('EntrySet', () => {
       ).toBe(true);
     });
   });
+
+
+  describe('hasAnswer', () => {
+    it('indicates if the question has an answer selected', () => {
+      const question = new Question({
+        isMultipleChoice: true,
+        title: 'What kind of candy do you like?',
+        answers: List.of(
+          new Answer({ title: 'Snickers' }),
+          new Answer({ title: 'Starburst' }),
+          new Answer({ title: 'Twizzler' }),
+          new Answer({ title: 'Three Musketeers' }),
+        ),
+      });
+
+      expect(entrySet.hasAnswer(question)).toBe(false);
+      expect(
+        entrySet
+          .recordAnswer(question, question.answers.get(0))
+          .hasAnswer(question)
+      ).toBe(true);
+     expect(
+        entrySet
+          .recordAnswer(question, question.answers.get(0))
+          .hasAnswer(new Question())
+      ).toBe(false);
+    });
+  });
 });

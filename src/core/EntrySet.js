@@ -41,6 +41,10 @@ class SelectedAnswers extends Record({entries: Map()}) {
     return this._getAnswers(question).contains(answer);
   }
 
+  hasAnswer(question) {
+    return !!this._getAnswers(question).size;
+  }
+
   _isAnswerCompleted(answer) {
     if (answer.hasSubQuestions()) {
       return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
@@ -100,6 +104,10 @@ class EntrySet extends Record({ selectedAnswers: new SelectedAnswers(), complete
 
   isSelected(question, answer) {
     return this.selectedAnswers.isSelected(question, answer);
+  }
+
+  hasAnswer(question) {
+    return this.selectedAnswers.hasAnswer(question);
   }
 
   isCompleted(question) {

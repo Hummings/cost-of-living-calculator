@@ -61,6 +61,10 @@ class ScoreCalculation {
     }));
   }
 
+  hasAnswer(question) {
+    return this.entrySet.hasAnswer(question);
+  }
+
   completeMultipleChoiceQuestion(question) {
     this.questionCompletedCallbacks.get(question, utils.NO_OP)();
     return new ScoreCalculation(this.quiz, Object.assign({}, this, {

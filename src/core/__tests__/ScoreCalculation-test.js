@@ -269,4 +269,19 @@ describe('ScoreCalculation', () => {
       expect(entrySet.deleteAnswer).toHaveBeenCalledWith(q, q.answers.get(0));
     });
   });
+
+  describe('hasAnswer', () => {
+    it('delegates to the entry set', () => {
+       const q = new Question({
+        title: 'I got no subquestions',
+        answers: List.of(
+          new Answer({ text: 'a', points: 1 }),
+          new Answer({ text: 'b', points: 2 }),
+        ),
+      });
+      entrySet.hasAnswer.mockReturnValue(true);
+      expect(makeCalculation(q).hasAnswer(q)).toBe(true);
+      expect(entrySet.hasAnswer).toHaveBeenCalledWith(q);
+    });
+  });
 });
