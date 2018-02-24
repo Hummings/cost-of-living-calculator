@@ -251,4 +251,22 @@ describe('ScoreCalculation', () => {
       expect(questionCallback).not.toHaveBeenCalled();
     });
   });
+
+  describe('deleteAnswer', () => {
+    it('deletes the answer from the entry set', () => {
+       const q = new Question({
+        title: 'I got no subquestions',
+        answers: List.of(
+          new Answer({ text: 'a', points: 1 }),
+          new Answer({ text: 'b', points: 2 }),
+        ),
+      });
+      const newEntrySet = new EntrySet();
+      entrySet.deleteAnswer.mockReturnValue(newEntrySet);
+
+      const calculation = makeCalculation().deleteAnswer(q, q.answers.get(0));
+      expect(calculation.entrySet).toBe(newEntrySet);
+      expect(entrySet.deleteAnswer).toHaveBeenCalledWith(q, q.answers.get(0));
+    });
+  });
 });

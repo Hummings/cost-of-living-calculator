@@ -12,6 +12,14 @@ class SelectedAnswers extends Record({entries: Map()}) {
     });
   }
 
+  deleteAnswer(question, answer) {
+    return new SelectedAnswers({
+      entries: this.entries.set(
+        question, this._getAnswers(question).filter(a => a !== answer)
+      ),
+    });
+  }
+
   isAnswered(question) {
     if (question.hasSubQuestions()) {
       return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
@@ -73,6 +81,13 @@ class EntrySet extends Record({ selectedAnswers: new SelectedAnswers(), complete
     return new EntrySet({
       completedQuestions: this.completedQuestions,
       selectedAnswers: this.selectedAnswers.recordAnswer(question, answer),
+    });
+  }
+
+  deleteAnswer(question, answer) {
+    return new EntrySet({
+      completedQuestions: this.completedQuestions,
+      selectedAnswers: this.selectedAnswers.deleteAnswer(question, answer),
     });
   }
 

@@ -56,6 +56,12 @@ class ScoreCalculation {
     return newCalculation;
   }
 
+  deleteAnswer(question, answer) {
+    return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+      entrySet: this.entrySet.deleteAnswer(question, answer),
+    }));
+  }
+
   completeMultipleChoiceQuestion(question) {
     this.questionCompletedCallbacks.get(question, utils.NO_OP)();
     return new ScoreCalculation(this.quiz, Object.assign({}, this, {
