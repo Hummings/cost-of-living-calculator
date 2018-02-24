@@ -12,52 +12,55 @@ jest.mock('../../core/ScoreCalculation');
 
 describe('AnswerComponent', () => {
   let answer;
-  let question;
   let wrapper;
+  let selectAnswer;
   let scoreCalculation;
 
   beforeEach(() => {
+    selectAnswer = jest.fn();
     scoreCalculation = new ScoreCalculation();
     answer = new Answer({ text: 'True', points: 1 });
-    question = new Question({
-      title: 'True or False?',
-      answers: Immutable.List.of(
-        answer,
-        new Answer({ text: 'False', points: 0 }),
-      ),
-    });
     wrapper = shallow(
       <AnswerComponent
-        question={question}
         answer={answer}
         scoreCalculation={scoreCalculation}
+        selectAnswer={selectAnswer}
       />
     );
   });
 
-  it('renders the answer text with a label', () => {
+  it('renders the answer text', () => {
+    expect(wrapper.text().trim()).toEqual('True');
+  });
+
+  it('renders the label before answer text', () => {
+    wrapper = shallow(
+      <AnswerComponent
+        label="(a)"
+        answer={answer}
+        scoreCalculation={scoreCalculation}
+      />
+    );
     expect(wrapper.text()).toEqual('(a) True');
-    expect(wrapper.find(SubQuestionComponent).length).toBe(0);
   });
 
-  it('records the answer on click', () => {
+  it('calls the selectAnswer prop on click', () => {
     expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
+    expect(selectAnswer).not.toHaveBeenCalled();
     wrapper.find('.selectable').simulate('click');
-    expect(scoreCalculation.recordAnswer).toHaveBeenCalledWith(question, answer);
+    expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
+    expect(selectAnswer).toHaveBeenCalled();
   });
 
-  it('does not record the answer if already selected', () => {
+  it('does not render subquestions if there are none', () => {
     wrapper = shallow(
       <AnswerComponent
-        question={question}
         answer={answer}
         scoreCalculation={scoreCalculation}
-        isSelected={ true }
+        isSelected={true}
       />
     );
-    expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
-    wrapper.find('.selectable').simulate('click');
-    expect(scoreCalculation.recordAnswer).not.toHaveBeenCalled();
+    expect(wrapper.find(SubQuestionComponent).length).toBe(0);
   });
 
   it('renders the answer subquestions when selected', () => {
@@ -70,7 +73,6 @@ describe('AnswerComponent', () => {
 
     wrapper = shallow(
       <AnswerComponent
-        question={question}
         answer={answer}
         scoreCalculation={scoreCalculation}
         level={ 3 }
@@ -81,7 +83,6 @@ describe('AnswerComponent', () => {
 
     wrapper = shallow(
       <AnswerComponent
-        question={question}
         answer={answer}
         scoreCalculation={scoreCalculation}
         level={ 3 }

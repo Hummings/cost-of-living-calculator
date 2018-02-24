@@ -9,30 +9,22 @@ import SubQuestionComponent from './SubQuestionComponent';
 import { LETTERS } from '../constants';
 
 class AnswerListComponent extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      selectedAnswer: null,
-    };
-  }
-
   render() {
     const { question, scoreCalculation, level } = this.props;
-    const { selectedAnswer } = this.state;
     return (
       <ul className="answers">
-      {question.answers.map(a => (
+      {question.answers.map((a, i) => (
         <li
           key={a.getId()}
           className={'answer ' + (this.isInactive(a) ? 'not-active' : 'active')}
-          onClick={this.selectAnswer.bind(this, a)}
         >
           <AnswerComponent
             answer={ a }
-            question={ question }
-            scoreCalculation={ scoreCalculation }
+            label={ `(${LETTERS[i]})`}
             level={ level }
-            isSelected={ a === selectedAnswer }
+            isSelected={ scoreCalculation.isSelected(question, a) }
+            selectAnswer={ () => scoreCalculation.recordAnswer(question, a) }
+            scoreCalculation={ scoreCalculation }
           />
         </li>
       ))}
@@ -40,13 +32,9 @@ class AnswerListComponent extends React.Component {
     );
   }
 
-  selectAnswer(answer) {
-    this.setState({ selectedAnswer: answer });
-  }
-
   isInactive(answer) {
-    const { selectedAnswer } = this.state;
-    return !!(selectedAnswer && (selectedAnswer !== answer));
+    const { scoreCalculation, question } = this.props;
+    return scoreCalculation.hasAnswer(question) && !scoreCalculation.isSelected(question, answer);
   }
 }
 

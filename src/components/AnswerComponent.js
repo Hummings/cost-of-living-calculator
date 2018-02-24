@@ -4,18 +4,15 @@ import Question from '../models/Question';
 import React from 'react';
 import ScoreCalculation from '../core/ScoreCalculation';
 import SubQuestionComponent from './SubQuestionComponent';
-import utils from '../utils';
 
-import { LETTERS } from '../constants';
 
 class AnswerComponent extends React.Component {
   render() {
-    const { question, answer, scoreCalculation, level, isSelected } = this.props;
-    const label = LETTERS[question.answers.indexOf(answer)];
+    const {  answer, label, level, isSelected } = this.props;
     return (
       <div className="answer">
-        <p className="selectable"  onClick={ () => this.recordAnswer() } >
-          ({ label }) { answer.text }
+        <p className="selectable"  onClick={ this.props.selectAnswer } >
+          { label } { answer.text }
         </p>
         {
           isSelected && answer.hasSubQuestions() &&
@@ -23,34 +20,27 @@ class AnswerComponent extends React.Component {
               subQuestions={ answer.subQuestions }
               subQuestionMode={ answer.subQuestionMode }
               level={ level }
-              scoreCalculation={ scoreCalculation }
+              scoreCalculation={ this.props.scoreCalculation }
             />
         }
       </div>
     )
   }
-
-  recordAnswer() {
-    if (!this.props.isSelected) {
-      this.props.scoreCalculation.recordAnswer(
-        this.props.question,
-        this.props.answer
-      );
-    }
-  }
 }
 
 AnswerComponent.defaultProps = {
+  label: '',
   level: 0,
   isSelected: false,
+  selectAnswer: () => {},
 };
 
 AnswerComponent.propTypes = {
-  answer: PropTypes.instanceOf(Answer).isRequired,
-  question: PropTypes.instanceOf(Question).isRequired,
-  scoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
-  level: PropTypes.number,
   isSelected: PropTypes.bool,
+  answer: PropTypes.instanceOf(Answer).isRequired,
+  level: PropTypes.number,
+  selectAnswer: PropTypes.func,
+  scoreCalculation: PropTypes.instanceOf(ScoreCalculation).isRequired,
 };
 
 export default AnswerComponent;
