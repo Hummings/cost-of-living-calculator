@@ -112,7 +112,7 @@ describe('QuizComponent', () => {
     expect(wrapper.find(ResultCard).length).toBe(0);
 
     expect(scoreCalculation.clearCallbacks).toHaveBeenCalled();
-    expect(scoreCalculation.onAnswer).toHaveBeenCalledWith(expect.any(Function));
+    expect(scoreCalculation.onChange).toHaveBeenCalledWith(expect.any(Function));
     quiz.questions.forEach(question => {
       expect(scoreCalculation.onQuestionCompleted).toHaveBeenCalledWith(question, expect.any(Function));
     });
@@ -150,12 +150,12 @@ describe('QuizComponent', () => {
     expect(getQuestionCard(0).props.scoreCalculation).toBe(scoreCalculation);
     expect(getQuestionCard(1).props.scoreCalculation).toBe(scoreCalculation);
 
-    const onAnswer = scoreCalculation.onAnswer.mock.calls[0][0];
-    expect(onAnswer).toBeInstanceOf(Function);
+    const onChange = scoreCalculation.onChange.mock.calls[0][0];
+    expect(onChange).toBeInstanceOf(Function);
 
     const newCalculation = new ScoreCalculation();
 
-    onAnswer(newCalculation);
+    onChange(newCalculation);
     wrapper.update();
 
     expect(getQuestionCard(0).props.scoreCalculation).toBe(newCalculation);

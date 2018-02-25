@@ -54,6 +54,6 @@ describe('SubQuestionChoiceComponent', () => {
     expect(wrapper.find(QuestionComponent).get(1).props.scoreCalculation).toBe(scoreCalculation);
 
     expect(wrapper.find('li.subQuestion.active').length).toBe(2);
-    expect(scoreCalculation.onAnswer).not.toHaveBeenCalled();
+    expect(scoreCalculation.onChange).not.toHaveBeenCalled();
   });
 });

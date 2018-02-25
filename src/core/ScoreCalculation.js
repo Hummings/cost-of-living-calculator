@@ -16,14 +16,14 @@ class ScoreCalculation {
     this.id = (++id);
     Object.assign(this, {
       entrySet: new EntrySet(),
-      answerCallback: utils.NO_OP,
+      changeCallback: utils.NO_OP,
       questionCompletedCallbacks: Map(),
     }, _props);
   }
 
-  onAnswer(callback) {
+  onChange(callback) {
     return new ScoreCalculation(this.quiz, Object.assign({}, this, {
-      answerCallback: utils.combine(this.answerCallback, callback),
+      changeCallback: utils.combine(this.changeCallback, callback),
     }));
   }
 
@@ -44,7 +44,7 @@ class ScoreCalculation {
       entrySet: newEntrySet,
     }));
 
-    this.answerCallback(newCalculation);
+    this.changeCallback(newCalculation);
 
     this.questionCompletedCallbacks.keySeq().forEach(q => {
       if (newEntrySet.isCompleted(q) && !this.entrySet.isCompleted(q)) {
@@ -56,9 +56,11 @@ class ScoreCalculation {
   }
 
   deleteAnswer(question, answer) {
-    return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    const newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
       entrySet: this.entrySet.deleteAnswer(question, answer),
     }));
+    this.changeCallback(newCalculation);
+    return newCalculation;
   }
 
   hasAnswer(question) {
@@ -66,10 +68,12 @@ class ScoreCalculation {
   }
 
   completeMultipleChoiceQuestion(question) {
-    this.questionCompletedCallbacks.get(question, utils.NO_OP)();
-    return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    const newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
       entrySet: this.entrySet.recordCompletedQuestion(question),
     }));
+    this.changeCallback(newCalculation);
+    this.questionCompletedCallbacks.get(question, utils.NO_OP)();
+    return newCalculation;
   }
 
   computeScore() {

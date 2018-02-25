@@ -22,7 +22,7 @@ describe('ScoreCalculation', () => {
     entrySet = new EntrySet();
   });
 
-  describe('onAnswer', () => {
+  describe('onChange', () => {
     it('calls the callback when a question is answered', () => {
       const q = new Question({
         title: 'I got no subquestions',
@@ -33,7 +33,7 @@ describe('ScoreCalculation', () => {
       });
       const callback = jest.fn();
       let calculation = makeCalculation(q)
-        .onAnswer(callback);
+        .onChange(callback);
 
       expect(callback).not.toHaveBeenCalled();
 
@@ -52,8 +52,8 @@ describe('ScoreCalculation', () => {
       const callback1 = jest.fn();
       const callback2 = jest.fn();
       makeCalculation(q)
-        .onAnswer(callback1)
-        .onAnswer(callback2)
+        .onChange(callback1)
+        .onChange(callback2)
         .recordAnswer(q, q.answers.get(0));
 
       expect(callback1).toHaveBeenCalledWith(expect.any(ScoreCalculation));
@@ -183,8 +183,12 @@ describe('ScoreCalculation', () => {
   });
 
   describe('completeMultipleChoiceQuestion', () => {
-    it('calls the question completed callback and records completion', () => {
-      const callback = jest.fn();
+    it('calls the question completed and change callbacks and records completion', () => {
+      const newEntrySet = new EntrySet();
+      entrySet.recordCompletedQuestion.mockReturnValue(newEntrySet);
+
+      const changeCallback = jest.fn();
+      const completedCallback = jest.fn();
       const question = new Question({
         isMultipleChoice: true,
         title: 'What kind of candy do you like?',
@@ -197,10 +201,13 @@ describe('ScoreCalculation', () => {
       });
 
       makeCalculation(question)
-        .onQuestionCompleted(question, callback)
+        .onChange(changeCallback)
+        .onQuestionCompleted(question, completedCallback)
         .completeMultipleChoiceQuestion(question);
 
-      expect(callback).toHaveBeenCalled();
+      expect(completedCallback).toHaveBeenCalled();
+      expect(changeCallback).toHaveBeenCalledWith(expect.any(ScoreCalculation));
+      expect(changeCallback.mock.calls[0][0].entrySet).toBe(newEntrySet);
       expect(entrySet.recordCompletedQuestion).toHaveBeenCalledWith(question);
     });
   });
@@ -242,7 +249,7 @@ describe('ScoreCalculation', () => {
       const questionCallback = jest.fn();
 
       makeCalculation(q)
-        .onAnswer(answerCallback)
+        .onChange(answerCallback)
         .onQuestionCompleted(q, questionCallback)
         .clearCallbacks()
         .recordAnswer(q, q.answers.get(0));
@@ -254,7 +261,7 @@ describe('ScoreCalculation', () => {
 
   describe('deleteAnswer', () => {
     it('deletes the answer from the entry set', () => {
-       const q = new Question({
+     const q = new Question({
         title: 'I got no subquestions',
         answers: List.of(
           new Answer({ text: 'a', points: 1 }),
@@ -267,6 +274,25 @@ describe('ScoreCalculation', () => {
       const calculation = makeCalculation().deleteAnswer(q, q.answers.get(0));
       expect(calculation.entrySet).toBe(newEntrySet);
       expect(entrySet.deleteAnswer).toHaveBeenCalledWith(q, q.answers.get(0));
+    });
+
+    it('calls the change callback', () => {
+      const callback = jest.fn();
+      const q = new Question({
+        title: 'I got no subquestions',
+        answers: List.of(
+          new Answer({ text: 'a', points: 1 }),
+          new Answer({ text: 'b', points: 2 }),
+        ),
+      });
+      const newEntrySet = new EntrySet();
+      entrySet.deleteAnswer.mockReturnValue(newEntrySet);
+
+      makeCalculation()
+        .onChange(callback)
+        .deleteAnswer(q, q.answers.get(0));
+      expect(callback).toHaveBeenCalledWith(expect.any(ScoreCalculation));
+      expect(callback.mock.calls[0][0].entrySet).toBe(newEntrySet);
     });
   });
 

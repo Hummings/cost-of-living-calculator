@@ -1,6 +1,6 @@
 class MockScoreCalculation {
   constructor() {
-    this.onAnswer = jest.fn().mockReturnValue(this),
+    this.onChange = jest.fn().mockReturnValue(this),
     this.onQuestionCompleted = jest.fn().mockReturnValue(this);
     this.recordAnswer = jest.fn().mockReturnValue(this);
     this.deleteAnswer = jest.fn().mockReturnValue(this);

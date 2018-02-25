@@ -28,7 +28,7 @@ class QuizComponent extends React.Component {
 
     const scoreCalculation = this.state.scoreCalculation
       .clearCallbacks()
-      .onAnswer(newCalculation => {
+      .onChange(newCalculation => {
         this.setState({ scoreCalculation: newCalculation });
       });
 

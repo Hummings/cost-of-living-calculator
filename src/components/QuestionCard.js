@@ -20,7 +20,6 @@ class QuestionCard extends React.Component {
 
 QuestionCard.defaultProps = {
   isActive: true,
-  onAnswer: (question, answer) => {},
   onComplete: () => {},
 };
 
