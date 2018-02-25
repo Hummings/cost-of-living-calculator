@@ -21953,7 +21953,7 @@
 	
 	var _QuizComponent2 = _interopRequireDefault(_QuizComponent);
 	
-	var _LoadingCard = __webpack_require__(235);
+	var _LoadingCard = __webpack_require__(238);
 	
 	var _LoadingCard2 = _interopRequireDefault(_LoadingCard);
 	
@@ -28742,7 +28742,8 @@
 	  title: '',
 	  answers: new _immutable2.default.List(),
 	  subQuestions: new _immutable2.default.List(),
-	  subQuestionMode: _SubQuestionModes2.default.ANSWER_ALL
+	  subQuestionMode: _SubQuestionModes2.default.ANSWER_ALL,
+	  isMultipleChoice: false
 	});
 	
 	Object.assign(Question.prototype, {
@@ -28758,51 +28759,6 @@
 	  },
 	  hasAnswers: function hasAnswers() {
 	    return !!this.answers.size;
-	  },
-	  isCompleted: function isCompleted(selectedAnswers) {
-	    selectedAnswers = selectedAnswers || _immutable2.default.Map();
-	
-	    if (this.hasSubQuestions()) {
-	      return this._areAllSubQuestionsAnswered(this.subQuestions, this.subQuestionMode, selectedAnswers);
-	    } else {
-	      var answer = selectedAnswers.get(this);
-	      if (answer && answer.hasSubQuestions()) {
-	        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode, selectedAnswers);
-	      } else {
-	        return !!answer;
-	      }
-	    }
-	  },
-	  computeScore: function computeScore(selectedAnswers) {
-	    selectedAnswers = selectedAnswers || _immutable2.default.Map();
-	    if (!this.isCompleted(selectedAnswers)) {
-	      return 0;
-	    }
-	
-	    if (this.hasSubQuestions()) {
-	      return this.subQuestions.map(function (q) {
-	        return q.computeScore(selectedAnswers);
-	      }).reduce(function (a, b) {
-	        return a + b;
-	      }, 0);
-	    } else {
-	      var answer = selectedAnswers.get(this);
-	      return answer ? answer.points : 0;
-	    }
-	  },
-	  _areAllSubQuestionsAnswered: function _areAllSubQuestionsAnswered(subQuestions, subQuestionMode, selectedAnswers) {
-	    switch (subQuestionMode) {
-	      case _SubQuestionModes2.default.ANSWER_ALL:
-	        return subQuestions.every(function (q) {
-	          return q.isCompleted(selectedAnswers);
-	        });
-	      case _SubQuestionModes2.default.ANSWER_ONE:
-	        return subQuestions.some(function (q) {
-	          return q.isCompleted(selectedAnswers);
-	        });
-	      default:
-	        throw new Error('unknown subquestion mode ' + this.subQuestionMode);
-	    }
 	  }
 	});
 	
@@ -29091,7 +29047,7 @@
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _ResultCard = __webpack_require__(234);
+	var _ResultCard = __webpack_require__(237);
 	
 	var _ResultCard2 = _interopRequireDefault(_ResultCard);
 	
@@ -29140,7 +29096,7 @@
 	        return this.renderGetStarted();
 	      }
 	
-	      var scoreCalculation = this.state.scoreCalculation.clearCallbacks().onAnswer(function (newCalculation) {
+	      var scoreCalculation = this.state.scoreCalculation.clearCallbacks().onChange(function (newCalculation) {
 	        _this2.setState({ scoreCalculation: newCalculation });
 	      });
 	
@@ -29287,7 +29243,6 @@
 	
 	QuestionCard.defaultProps = {
 	  isActive: true,
-	  onAnswer: function onAnswer(question, answer) {},
 	  onComplete: function onComplete() {}
 	};
 	
@@ -29331,7 +29286,7 @@
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _SubQuestionComponent = __webpack_require__(229);
+	var _SubQuestionComponent = __webpack_require__(230);
 	
 	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
 	
@@ -29442,11 +29397,15 @@
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _SubQuestionComponent = __webpack_require__(229);
+	var _SingleChoiceAnswerListComponent = __webpack_require__(235);
 	
-	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
+	var _SingleChoiceAnswerListComponent2 = _interopRequireDefault(_SingleChoiceAnswerListComponent);
 	
-	var _constants = __webpack_require__(232);
+	var _MultipleChoiceAnswerListComponent = __webpack_require__(236);
+	
+	var _MultipleChoiceAnswerListComponent2 = _interopRequireDefault(_MultipleChoiceAnswerListComponent);
+	
+	var _constants = __webpack_require__(233);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -29462,58 +29421,30 @@
 	  function AnswerListComponent() {
 	    _classCallCheck(this, AnswerListComponent);
 	
-	    var _this = _possibleConstructorReturn(this, (AnswerListComponent.__proto__ || Object.getPrototypeOf(AnswerListComponent)).call(this));
-	
-	    _this.state = {
-	      selectedAnswer: null
-	    };
-	    return _this;
+	    return _possibleConstructorReturn(this, (AnswerListComponent.__proto__ || Object.getPrototypeOf(AnswerListComponent)).apply(this, arguments));
 	  }
 	
 	  _createClass(AnswerListComponent, [{
 	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
-	
 	      var _props = this.props,
 	          question = _props.question,
 	          scoreCalculation = _props.scoreCalculation,
 	          level = _props.level;
-	      var selectedAnswer = this.state.selectedAnswer;
 	
-	      return _react2.default.createElement(
-	        'ul',
-	        { className: 'answers' },
-	        question.answers.map(function (a) {
-	          return _react2.default.createElement(
-	            'li',
-	            {
-	              key: a.getId(),
-	              className: 'answer ' + (_this2.isInactive(a) ? 'not-active' : 'active'),
-	              onClick: _this2.selectAnswer.bind(_this2, a)
-	            },
-	            _react2.default.createElement(_AnswerComponent2.default, {
-	              answer: a,
-	              question: question,
-	              scoreCalculation: scoreCalculation,
-	              level: level,
-	              isSelected: a === selectedAnswer
-	            })
-	          );
-	        })
-	      );
-	    }
-	  }, {
-	    key: 'selectAnswer',
-	    value: function selectAnswer(answer) {
-	      this.setState({ selectedAnswer: answer });
-	    }
-	  }, {
-	    key: 'isInactive',
-	    value: function isInactive(answer) {
-	      var selectedAnswer = this.state.selectedAnswer;
-	
-	      return !!(selectedAnswer && selectedAnswer !== answer);
+	      if (question.isMultipleChoice) {
+	        return _react2.default.createElement(_MultipleChoiceAnswerListComponent2.default, {
+	          question: question,
+	          scoreCalculation: scoreCalculation,
+	          level: level
+	        });
+	      } else {
+	        return _react2.default.createElement(_SingleChoiceAnswerListComponent2.default, {
+	          question: question,
+	          scoreCalculation: scoreCalculation,
+	          level: level
+	        });
+	      }
 	    }
 	  }]);
 	
@@ -29526,7 +29457,8 @@
 	
 	AnswerListComponent.propTypes = {
 	  level: _propTypes2.default.number,
-	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired
+	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired,
+	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired
 	};
 	
 	exports.default = AnswerListComponent;
@@ -29563,15 +29495,9 @@
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _SubQuestionComponent = __webpack_require__(229);
+	var _SubQuestionComponent = __webpack_require__(230);
 	
 	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
-	
-	var _utils = __webpack_require__(219);
-	
-	var _utils2 = _interopRequireDefault(_utils);
-	
-	var _constants = __webpack_require__(232);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -29593,43 +29519,29 @@
 	  _createClass(AnswerComponent, [{
 	    key: 'render',
 	    value: function render() {
-	      var _this2 = this;
-	
 	      var _props = this.props,
-	          question = _props.question,
 	          answer = _props.answer,
-	          scoreCalculation = _props.scoreCalculation,
+	          label = _props.label,
 	          level = _props.level,
 	          isSelected = _props.isSelected;
 	
-	      var label = _constants.LETTERS[question.answers.indexOf(answer)];
 	      return _react2.default.createElement(
 	        'div',
 	        { className: 'answer' },
 	        _react2.default.createElement(
 	          'p',
-	          { className: 'selectable', onClick: function onClick() {
-	              return _this2.recordAnswer();
-	            } },
-	          '(',
+	          { className: 'selectable', onClick: this.props.selectAnswer },
 	          label,
-	          ') ',
+	          ' ',
 	          answer.text
 	        ),
 	        isSelected && answer.hasSubQuestions() && _react2.default.createElement(_SubQuestionComponent2.default, {
 	          subQuestions: answer.subQuestions,
 	          subQuestionMode: answer.subQuestionMode,
 	          level: level,
-	          scoreCalculation: scoreCalculation
+	          scoreCalculation: this.props.scoreCalculation
 	        })
 	      );
-	    }
-	  }, {
-	    key: 'recordAnswer',
-	    value: function recordAnswer() {
-	      if (!this.props.isSelected) {
-	        this.props.scoreCalculation.recordAnswer(this.props.question, this.props.answer);
-	      }
 	    }
 	  }]);
 	
@@ -29637,16 +29549,18 @@
 	}(_react2.default.Component);
 	
 	AnswerComponent.defaultProps = {
+	  label: '',
 	  level: 0,
-	  isSelected: false
+	  isSelected: false,
+	  selectAnswer: function selectAnswer() {}
 	};
 	
 	AnswerComponent.propTypes = {
+	  isSelected: _propTypes2.default.bool,
 	  answer: _propTypes2.default.instanceOf(_Answer2.default).isRequired,
-	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired,
-	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired,
 	  level: _propTypes2.default.number,
-	  isSelected: _propTypes2.default.bool
+	  selectAnswer: _propTypes2.default.func,
+	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired
 	};
 	
 	exports.default = AnswerComponent;
@@ -29671,6 +29585,14 @@
 	
 	var _utils2 = _interopRequireDefault(_utils);
 	
+	var _SubQuestionModes = __webpack_require__(218);
+	
+	var _SubQuestionModes2 = _interopRequireDefault(_SubQuestionModes);
+	
+	var _EntrySet = __webpack_require__(229);
+	
+	var _EntrySet2 = _interopRequireDefault(_EntrySet);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -29687,48 +29609,68 @@
 	    this.quiz = quiz;
 	    this.id = ++id;
 	    Object.assign(this, {
-	      selectedAnswers: _immutable2.default.Map(),
-	      answerCallback: _utils2.default.NO_OP,
-	      questionCompletedCallbacks: _immutable2.default.Map()
+	      entrySet: new _EntrySet2.default(),
+	      changeCallback: _utils2.default.NO_OP,
+	      questionCompletedCallbacks: (0, _immutable.Map)()
 	    }, _props);
 	  }
 	
 	  _createClass(ScoreCalculation, [{
-	    key: 'onAnswer',
-	    value: function onAnswer(callback) {
-	      return new ScoreCalculation(this.quiz, {
-	        selectedAnswers: this.selectedAnswers,
-	        answerCallback: _utils2.default.combine(this.answerCallback, callback),
-	        questionCompletedCallbacks: this.questionCompletedCallbacks
-	      });
+	    key: 'onChange',
+	    value: function onChange(callback) {
+	      return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+	        changeCallback: _utils2.default.combine(this.changeCallback, callback)
+	      }));
 	    }
 	  }, {
 	    key: 'onQuestionCompleted',
 	    value: function onQuestionCompleted(question, callback) {
-	      return new ScoreCalculation(this.quiz, {
-	        selectedAnswers: this.selectedAnswers,
-	        answerCallback: this.answerCallback,
+	      return new ScoreCalculation(this.quiz, Object.assign({}, this, {
 	        questionCompletedCallbacks: this.questionCompletedCallbacks.set(question, _utils2.default.combine(callback, this.questionCompletedCallbacks.get(question, _utils2.default.NO_OP)))
-	      });
+	      }));
 	    }
 	  }, {
 	    key: 'recordAnswer',
 	    value: function recordAnswer(question, answer) {
 	      var _this = this;
 	
-	      var newCalculation = new ScoreCalculation(this.quiz, {
-	        selectedAnswers: this.selectedAnswers.set(question, answer),
-	        answerCallback: this.answerCallback,
-	        questionCompletedCallbacks: this.questionCompletedCallbacks
-	      });
+	      var newEntrySet = this.entrySet.recordAnswer(question, answer);
+	      var newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
+	        entrySet: newEntrySet
+	      }));
 	
-	      this.answerCallback(newCalculation);
+	      this.changeCallback(newCalculation);
 	
 	      this.questionCompletedCallbacks.keySeq().forEach(function (q) {
-	        if (q.isCompleted(newCalculation.selectedAnswers) && !q.isCompleted(_this.selectedAnswers)) {
+	        if (newEntrySet.isCompleted(q) && !_this.entrySet.isCompleted(q)) {
 	          _this.questionCompletedCallbacks.get(q)();
 	        }
 	      });
+	
+	      return newCalculation;
+	    }
+	  }, {
+	    key: 'deleteAnswer',
+	    value: function deleteAnswer(question, answer) {
+	      var newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
+	        entrySet: this.entrySet.deleteAnswer(question, answer)
+	      }));
+	      this.changeCallback(newCalculation);
+	      return newCalculation;
+	    }
+	  }, {
+	    key: 'hasAnswer',
+	    value: function hasAnswer(question) {
+	      return this.entrySet.hasAnswer(question);
+	    }
+	  }, {
+	    key: 'completeMultipleChoiceQuestion',
+	    value: function completeMultipleChoiceQuestion(question) {
+	      var newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
+	        entrySet: this.entrySet.recordCompletedQuestion(question)
+	      }));
+	      this.changeCallback(newCalculation);
+	      this.questionCompletedCallbacks.get(question, _utils2.default.NO_OP)();
 	      return newCalculation;
 	    }
 	  }, {
@@ -29737,16 +29679,21 @@
 	      var _this2 = this;
 	
 	      return this.quiz.questions.map(function (q) {
-	        return q.computeScore(_this2.selectedAnswers);
+	        return _this2.entrySet.computeQuestionScore(q);
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
 	    }
 	  }, {
+	    key: 'isSelected',
+	    value: function isSelected(question, answer) {
+	      return this.entrySet.isSelected(question, answer);
+	    }
+	  }, {
 	    key: 'clearCallbacks',
 	    value: function clearCallbacks() {
 	      return new ScoreCalculation(this.quiz, {
-	        selectedAnswers: this.selectedAnswers
+	        entrySet: this.entrySet
 	      });
 	    }
 	  }]);
@@ -29768,7 +29715,229 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _reactImmutableProptypes = __webpack_require__(230);
+	var _SubQuestionModes = __webpack_require__(218);
+	
+	var _SubQuestionModes2 = _interopRequireDefault(_SubQuestionModes);
+	
+	var _Quiz = __webpack_require__(214);
+	
+	var _Quiz2 = _interopRequireDefault(_Quiz);
+	
+	var _immutable = __webpack_require__(215);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var SelectedAnswers = function (_Record) {
+	  _inherits(SelectedAnswers, _Record);
+	
+	  function SelectedAnswers() {
+	    _classCallCheck(this, SelectedAnswers);
+	
+	    return _possibleConstructorReturn(this, (SelectedAnswers.__proto__ || Object.getPrototypeOf(SelectedAnswers)).apply(this, arguments));
+	  }
+	
+	  _createClass(SelectedAnswers, [{
+	    key: 'recordAnswer',
+	    value: function recordAnswer(question, answer) {
+	      return new SelectedAnswers({
+	        entries: this.entries.set(question, this._getAnswers(question).add(answer))
+	      });
+	    }
+	  }, {
+	    key: 'deleteAnswer',
+	    value: function deleteAnswer(question, answer) {
+	      return new SelectedAnswers({
+	        entries: this.entries.set(question, this._getAnswers(question).filter(function (a) {
+	          return a !== answer;
+	        }))
+	      });
+	    }
+	  }, {
+	    key: 'isAnswered',
+	    value: function isAnswered(question) {
+	      var _this2 = this;
+	
+	      if (question.hasSubQuestions()) {
+	        return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
+	      } else {
+	        var selectedAnswers = this._getAnswers(question);
+	        return !!selectedAnswers.size && selectedAnswers.map(function (a) {
+	          return _this2._isAnswerCompleted(a);
+	        }).reduce(function (a, b) {
+	          return a && b;
+	        }, true);
+	      }
+	    }
+	  }, {
+	    key: 'computeQuestionScore',
+	    value: function computeQuestionScore(question) {
+	      var _this3 = this;
+	
+	      return this._getAnswers(question).map(function (a) {
+	        return _this3._computeAnswerScore(a);
+	      }).reduce(function (a, b) {
+	        return a + b;
+	      }, 0);
+	    }
+	  }, {
+	    key: 'isSelected',
+	    value: function isSelected(question, answer) {
+	      return this._getAnswers(question).contains(answer);
+	    }
+	  }, {
+	    key: 'hasAnswer',
+	    value: function hasAnswer(question) {
+	      return !!this._getAnswers(question).size;
+	    }
+	  }, {
+	    key: '_isAnswerCompleted',
+	    value: function _isAnswerCompleted(answer) {
+	      if (answer.hasSubQuestions()) {
+	        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
+	      } else {
+	        return true;
+	      }
+	    }
+	  }, {
+	    key: '_areAllSubQuestionsAnswered',
+	    value: function _areAllSubQuestionsAnswered(subQuestions, subQuestionMode) {
+	      var _this4 = this;
+	
+	      switch (subQuestionMode) {
+	        case _SubQuestionModes2.default.ANSWER_ALL:
+	          return subQuestions.every(function (q) {
+	            return _this4.isAnswered(q);
+	          });
+	        case _SubQuestionModes2.default.ANSWER_ONE:
+	          return subQuestions.some(function (q) {
+	            return _this4.isAnswered(q);
+	          });
+	        default:
+	          throw new Error('unknown subquestion mode ' + subQuestionMode);
+	      }
+	    }
+	  }, {
+	    key: '_computeAnswerScore',
+	    value: function _computeAnswerScore(answer) {
+	      var _this5 = this;
+	
+	      if (answer.hasSubQuestions()) {
+	        return answer.subQuestions.map(function (q) {
+	          return _this5.computeQuestionScore(q);
+	        }).reduce(function (a, b) {
+	          return a + b;
+	        }, 0);
+	      } else {
+	        return answer.points;
+	      }
+	    }
+	  }, {
+	    key: '_getAnswers',
+	    value: function _getAnswers(question) {
+	      return this.entries.get(question, (0, _immutable.Set)());
+	    }
+	  }]);
+	
+	  return SelectedAnswers;
+	}((0, _immutable.Record)({ entries: (0, _immutable.Map)() }));
+	
+	var EntrySet = function (_Record2) {
+	  _inherits(EntrySet, _Record2);
+	
+	  function EntrySet() {
+	    _classCallCheck(this, EntrySet);
+	
+	    return _possibleConstructorReturn(this, (EntrySet.__proto__ || Object.getPrototypeOf(EntrySet)).apply(this, arguments));
+	  }
+	
+	  _createClass(EntrySet, [{
+	    key: 'recordAnswer',
+	    value: function recordAnswer(question, answer) {
+	      return new EntrySet({
+	        completedQuestions: this.completedQuestions,
+	        selectedAnswers: this.selectedAnswers.recordAnswer(question, answer)
+	      });
+	    }
+	  }, {
+	    key: 'deleteAnswer',
+	    value: function deleteAnswer(question, answer) {
+	      return new EntrySet({
+	        completedQuestions: this.completedQuestions,
+	        selectedAnswers: this.selectedAnswers.deleteAnswer(question, answer)
+	      });
+	    }
+	  }, {
+	    key: 'recordCompletedQuestion',
+	    value: function recordCompletedQuestion(question) {
+	      return new EntrySet({
+	        completedQuestions: this.completedQuestions.add(question),
+	        selectedAnswers: this.selectedAnswers
+	      });
+	    }
+	  }, {
+	    key: 'isSelected',
+	    value: function isSelected(question, answer) {
+	      return this.selectedAnswers.isSelected(question, answer);
+	    }
+	  }, {
+	    key: 'hasAnswer',
+	    value: function hasAnswer(question) {
+	      return this.selectedAnswers.hasAnswer(question);
+	    }
+	  }, {
+	    key: 'isCompleted',
+	    value: function isCompleted(question) {
+	      if (question.isMultipleChoice) {
+	        return this.completedQuestions.has(question);
+	      } else {
+	        return this.selectedAnswers.isAnswered(question);
+	      }
+	    }
+	  }, {
+	    key: 'computeQuestionScore',
+	    value: function computeQuestionScore(question) {
+	      var _this7 = this;
+	
+	      if (!this.isCompleted(question)) {
+	        return 0;
+	      }
+	
+	      if (question.hasSubQuestions()) {
+	        return question.subQuestions.map(function (q) {
+	          return _this7.computeQuestionScore(q);
+	        }).reduce(function (a, b) {
+	          return a + b;
+	        }, 0);
+	      } else {
+	        return this.selectedAnswers.computeQuestionScore(question);
+	      }
+	    }
+	  }]);
+	
+	  return EntrySet;
+	}((0, _immutable.Record)({ selectedAnswers: new SelectedAnswers(), completedQuestions: (0, _immutable.Set)() }));
+	
+	exports.default = EntrySet;
+
+/***/ }),
+/* 230 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _reactImmutableProptypes = __webpack_require__(231);
 	
 	var _reactImmutableProptypes2 = _interopRequireDefault(_reactImmutableProptypes);
 	
@@ -29792,11 +29961,11 @@
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _SubQuestionListComponent = __webpack_require__(231);
+	var _SubQuestionListComponent = __webpack_require__(232);
 	
 	var _SubQuestionListComponent2 = _interopRequireDefault(_SubQuestionListComponent);
 	
-	var _SubQuestionChoiceComponent = __webpack_require__(233);
+	var _SubQuestionChoiceComponent = __webpack_require__(234);
 	
 	var _SubQuestionChoiceComponent2 = _interopRequireDefault(_SubQuestionChoiceComponent);
 	
@@ -29868,7 +30037,7 @@
 	exports.default = SubQuestionComponent;
 
 /***/ }),
-/* 230 */
+/* 231 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -30123,7 +30292,7 @@
 	module.exports = ImmutablePropTypes;
 
 /***/ }),
-/* 231 */
+/* 232 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30134,7 +30303,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _reactImmutableProptypes = __webpack_require__(230);
+	var _reactImmutableProptypes = __webpack_require__(231);
 	
 	var _reactImmutableProptypes2 = _interopRequireDefault(_reactImmutableProptypes);
 	
@@ -30158,7 +30327,7 @@
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _constants = __webpack_require__(232);
+	var _constants = __webpack_require__(233);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -30244,7 +30413,7 @@
 	exports.default = SubQuestionListComponent;
 
 /***/ }),
-/* 232 */
+/* 233 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -30257,7 +30426,7 @@
 	var LETTERS = exports.LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
 
 /***/ }),
-/* 233 */
+/* 234 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30268,7 +30437,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _reactImmutableProptypes = __webpack_require__(230);
+	var _reactImmutableProptypes = __webpack_require__(231);
 	
 	var _reactImmutableProptypes2 = _interopRequireDefault(_reactImmutableProptypes);
 	
@@ -30292,7 +30461,7 @@
 	
 	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
 	
-	var _constants = __webpack_require__(232);
+	var _constants = __webpack_require__(233);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -30361,7 +30530,270 @@
 	exports.default = SubQuestionChoiceComponent;
 
 /***/ }),
-/* 234 */
+/* 235 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Answer = __webpack_require__(217);
+	
+	var _Answer2 = _interopRequireDefault(_Answer);
+	
+	var _AnswerComponent = __webpack_require__(227);
+	
+	var _AnswerComponent2 = _interopRequireDefault(_AnswerComponent);
+	
+	var _propTypes = __webpack_require__(185);
+	
+	var _propTypes2 = _interopRequireDefault(_propTypes);
+	
+	var _Question = __webpack_require__(216);
+	
+	var _Question2 = _interopRequireDefault(_Question);
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ScoreCalculation = __webpack_require__(228);
+	
+	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
+	
+	var _SubQuestionComponent = __webpack_require__(230);
+	
+	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
+	
+	var _constants = __webpack_require__(233);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var SingleChoiceAnswerListComponent = function (_React$Component) {
+	  _inherits(SingleChoiceAnswerListComponent, _React$Component);
+	
+	  function SingleChoiceAnswerListComponent() {
+	    _classCallCheck(this, SingleChoiceAnswerListComponent);
+	
+	    return _possibleConstructorReturn(this, (SingleChoiceAnswerListComponent.__proto__ || Object.getPrototypeOf(SingleChoiceAnswerListComponent)).apply(this, arguments));
+	  }
+	
+	  _createClass(SingleChoiceAnswerListComponent, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+	
+	      var _props = this.props,
+	          question = _props.question,
+	          scoreCalculation = _props.scoreCalculation,
+	          level = _props.level;
+	
+	      return _react2.default.createElement(
+	        'ul',
+	        { className: 'answers' },
+	        question.answers.map(function (a, i) {
+	          return _react2.default.createElement(
+	            'li',
+	            {
+	              key: a.getId(),
+	              className: 'answer ' + (_this2.isInactive(a) ? 'not-active' : 'active')
+	            },
+	            _react2.default.createElement(_AnswerComponent2.default, {
+	              answer: a,
+	              label: '(' + _constants.LETTERS[i] + ')',
+	              level: level,
+	              isSelected: scoreCalculation.isSelected(question, a),
+	              selectAnswer: function selectAnswer() {
+	                return scoreCalculation.recordAnswer(question, a);
+	              },
+	              scoreCalculation: scoreCalculation
+	            })
+	          );
+	        })
+	      );
+	    }
+	  }, {
+	    key: 'isInactive',
+	    value: function isInactive(answer) {
+	      var _props2 = this.props,
+	          scoreCalculation = _props2.scoreCalculation,
+	          question = _props2.question;
+	
+	      return scoreCalculation.hasAnswer(question) && !scoreCalculation.isSelected(question, answer);
+	    }
+	  }]);
+	
+	  return SingleChoiceAnswerListComponent;
+	}(_react2.default.Component);
+	
+	SingleChoiceAnswerListComponent.defaultProps = {
+	  level: 0
+	};
+	
+	SingleChoiceAnswerListComponent.propTypes = {
+	  level: _propTypes2.default.number,
+	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired
+	};
+	
+	exports.default = SingleChoiceAnswerListComponent;
+
+/***/ }),
+/* 236 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Answer = __webpack_require__(217);
+	
+	var _Answer2 = _interopRequireDefault(_Answer);
+	
+	var _AnswerComponent = __webpack_require__(227);
+	
+	var _AnswerComponent2 = _interopRequireDefault(_AnswerComponent);
+	
+	var _propTypes = __webpack_require__(185);
+	
+	var _propTypes2 = _interopRequireDefault(_propTypes);
+	
+	var _Question = __webpack_require__(216);
+	
+	var _Question2 = _interopRequireDefault(_Question);
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _ScoreCalculation = __webpack_require__(228);
+	
+	var _ScoreCalculation2 = _interopRequireDefault(_ScoreCalculation);
+	
+	var _SubQuestionComponent = __webpack_require__(230);
+	
+	var _SubQuestionComponent2 = _interopRequireDefault(_SubQuestionComponent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var MultipleChoiceAnswerListComponent = function (_React$Component) {
+	  _inherits(MultipleChoiceAnswerListComponent, _React$Component);
+	
+	  function MultipleChoiceAnswerListComponent() {
+	    _classCallCheck(this, MultipleChoiceAnswerListComponent);
+	
+	    return _possibleConstructorReturn(this, (MultipleChoiceAnswerListComponent.__proto__ || Object.getPrototypeOf(MultipleChoiceAnswerListComponent)).apply(this, arguments));
+	  }
+	
+	  _createClass(MultipleChoiceAnswerListComponent, [{
+	    key: 'render',
+	    value: function render() {
+	      var _this2 = this;
+	
+	      var _props = this.props,
+	          question = _props.question,
+	          scoreCalculation = _props.scoreCalculation,
+	          level = _props.level;
+	
+	      return _react2.default.createElement(
+	        'div',
+	        null,
+	        _react2.default.createElement(
+	          'p',
+	          null,
+	          '(Select all that apply)'
+	        ),
+	        _react2.default.createElement(
+	          'ul',
+	          { className: 'answers' },
+	          question.answers.map(function (a) {
+	            return _react2.default.createElement(
+	              'li',
+	              { key: a.getId(), className: 'answer active' },
+	              _react2.default.createElement(_AnswerComponent2.default, {
+	                answer: a,
+	                label: _react2.default.createElement('input', {
+	                  type: 'checkbox',
+	                  checked: scoreCalculation.isSelected(question, a)
+	                }),
+	                level: level,
+	                selectAnswer: _this2.selectAnswer.bind(_this2, a),
+	                scoreCalculation: scoreCalculation
+	              })
+	            );
+	          }),
+	          _react2.default.createElement(
+	            'li',
+	            { className: 'answer active complete-question', onClick: this.completeQuestion.bind(this) },
+	            _react2.default.createElement(
+	              'button',
+	              { className: 'button button-brand button-small' },
+	              'Next'
+	            )
+	          )
+	        )
+	      );
+	    }
+	  }, {
+	    key: 'selectAnswer',
+	    value: function selectAnswer(answer) {
+	      var _props2 = this.props,
+	          question = _props2.question,
+	          scoreCalculation = _props2.scoreCalculation;
+	
+	      if (scoreCalculation.isSelected(question, answer)) {
+	        scoreCalculation.deleteAnswer(question, answer);
+	      } else {
+	        scoreCalculation.recordAnswer(question, answer);
+	      }
+	    }
+	  }, {
+	    key: 'completeQuestion',
+	    value: function completeQuestion() {
+	      var _props3 = this.props,
+	          scoreCalculation = _props3.scoreCalculation,
+	          question = _props3.question;
+	
+	      scoreCalculation.completeMultipleChoiceQuestion(question);
+	    }
+	  }]);
+	
+	  return MultipleChoiceAnswerListComponent;
+	}(_react2.default.Component);
+	
+	MultipleChoiceAnswerListComponent.defaultProps = {
+	  level: 0
+	};
+	
+	MultipleChoiceAnswerListComponent.propTypes = {
+	  level: _propTypes2.default.number,
+	  question: _propTypes2.default.instanceOf(_Question2.default).isRequired,
+	  scoreCalculation: _propTypes2.default.instanceOf(_ScoreCalculation2.default).isRequired
+	};
+	
+	exports.default = MultipleChoiceAnswerListComponent;
+
+/***/ }),
+/* 237 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30430,7 +30862,7 @@
 	exports.default = ResultCard;
 
 /***/ }),
-/* 235 */
+/* 238 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
