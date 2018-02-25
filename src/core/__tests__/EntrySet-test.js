@@ -273,6 +273,24 @@ describe('EntrySet', () => {
       ).toBe(2);
     });
 
+    it('does not double the points if an answer is recorded twice', () => {
+      const basicQuestion = new Question({
+        title: 'basicQuestion',
+        answers: List.of(
+          new Answer({ text: 'a', points: 1 }),
+          new Answer({ text: 'b', points: 2 }),
+        ),
+      });
+
+      expect(
+        entrySet
+          .recordAnswer(basicQuestion, basicQuestion.answers.get(0))
+          .recordAnswer(basicQuestion, basicQuestion.answers.get(0))
+          .computeQuestionScore(basicQuestion)
+      ).toBe(1);
+    });
+
+
     it('sums the points for all selected answers', () => {
       const multipleChoice = new Question({
         title: 'basicQuestion',

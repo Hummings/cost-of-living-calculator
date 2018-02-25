@@ -1,13 +1,13 @@
 import SubQuestionModes from '../models/SubQuestionModes';
 import Quiz from '../models/Quiz';
-import { Record, List, Map, Set } from 'immutable';
+import { Record, Map, Set } from 'immutable';
 
 class SelectedAnswers extends Record({entries: Map()}) {
 
   recordAnswer(question, answer) {
     return new SelectedAnswers({
       entries: this.entries.set(
-        question, this._getAnswers(question).push(answer),
+        question, this._getAnswers(question).add(answer),
       )
     });
   }
@@ -75,7 +75,7 @@ class SelectedAnswers extends Record({entries: Map()}) {
   }
 
   _getAnswers(question) {
-    return this.entries.get(question, List());
+    return this.entries.get(question, Set());
   }
 }
 
