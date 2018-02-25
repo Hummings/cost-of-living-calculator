@@ -66,8 +66,12 @@ class SelectedAnswers extends Record({entries: Map()}) {
 
   _computeAnswerScore(answer) {
     if (answer.hasSubQuestions()) {
+      const multiplier = answer.getMultiplyingSubQuestion() ?
+                         this.computeQuestionScore(answer.getMultiplyingSubQuestion()) :
+                         1;
       return answer.subQuestions
-        .map(q => this.computeQuestionScore(q))
+        .filter(q => q !== answer.getMultiplyingSubQuestion())
+        .map(q => multiplier * this.computeQuestionScore(q))
         .reduce((a, b) => a + b, 0);
     } else {
       return answer.points;

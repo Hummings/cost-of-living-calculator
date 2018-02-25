@@ -290,7 +290,6 @@ describe('EntrySet', () => {
       ).toBe(1);
     });
 
-
     it('sums the points for all selected answers', () => {
       const multipleChoice = new Question({
         title: 'basicQuestion',
@@ -420,6 +419,60 @@ describe('EntrySet', () => {
           .recordAnswer(answerSub2, answerSub2.answers.get(1))
           .computeQuestionScore(questionWithAnswerSubs)
       ).toBe(91 + 56);
+    });
+
+    it('multiplies other subquestion answers by the answer\'s multiplying subquestion', () => {
+      const answerSub1 = new Question({
+        title: 'sub1',
+        answers: List.of(
+          new Answer({ text: 'asdf', points: 91 }),
+          new Answer({ text: 'hijk', points: 87 }),
+        ),
+      });
+      const answerSub2 = new Question({
+        title: 'sub2',
+        answers: List.of(
+          new Answer({ text: '123j', points: 34 }),
+          new Answer({ text: '345', points: 56 }),
+        ),
+      });
+      const multiplier = new Question({
+        title: 'sub2',
+        id: 'mult',
+        answers: List.of(
+          new Answer({ text: '2', points: 2 }),
+          new Answer({ text: '3', points: 3 }),
+        ),
+      });
+      const doubling = multiplier.answers.get(0);
+      const tripling = multiplier.answers.get(1);
+      const answer = new Answer({
+        text: 'wer',
+        multiplyingSubQuestionId: 'mult',
+        subQuestionMode: SubQuestionModes.ANSWER_ALL,
+        subQuestions: List.of(answerSub1, answerSub2, multiplier),
+      });
+      const questionWithAnswerSubs = new Question({
+        title: 'questionWithAnswerSubs',
+        answers: List.of(answer),
+      });
+
+      expect(
+        entrySet
+          .recordAnswer(questionWithAnswerSubs, answer)
+          .recordAnswer(multiplier, doubling)
+          .recordAnswer(answerSub1, answerSub1.answers.get(0))
+          .recordAnswer(answerSub2, answerSub2.answers.get(1))
+          .computeQuestionScore(questionWithAnswerSubs)
+      ).toBe(2*(91 + 56));
+      expect(
+        entrySet
+          .recordAnswer(questionWithAnswerSubs, answer)
+          .recordAnswer(multiplier, tripling)
+          .recordAnswer(answerSub1, answerSub1.answers.get(0))
+          .recordAnswer(answerSub2, answerSub2.answers.get(1))
+          .computeQuestionScore(questionWithAnswerSubs)
+      ).toBe(3*(91 + 56));
     });
   });
 
