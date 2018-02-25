@@ -108,6 +108,7 @@
       "answers": [
         {
           "text": "Yes",
+          "multiplyingSubQuestionId": "num-kids",
           "subQuestions": [
             {
               "id": "num-kids",
@@ -137,9 +138,6 @@
             },
             {
               "title": "Where will they go to school?",
-              "scoringStrategy": {
-                "multiplyBy": "num-kids"
-              },
               "subQuestions": [
                 {
                   "title": "Preschool",
@@ -266,9 +264,6 @@
     },
     {
       "title": "What do you drive?",
-      "scoringStrategy": {
-        "additive": true
-      },
       "isMultipleChoice": true,
       "answers": [
         {

@@ -7,6 +7,7 @@ import { dasherize } from '../utils';
 const Answer = Immutable.Record({
   id: "",
   text: "",
+  multiplyingSubQuestionId: '',
   points: 0,
   subQuestions: new Immutable.List(),
   subQuestionMode: SubQuestionModes.ANSWER_ALL,
@@ -24,6 +25,14 @@ Object.assign(Answer.prototype, {
   hasSubQuestions() {
     return !!this.subQuestions.size;
   },
+
+  getMultiplyingSubQuestion() {
+    if (this.multiplyingSubQuestionId) {
+      return this.subQuestions.find(q => q.getId() === this.multiplyingSubQuestionId);
+    } else {
+      return null;
+    }
+  }
 });
 
 Answer.deserialize = json => {
