@@ -21,3 +21,18 @@ li.answer {
 button.get-started {
   font-size: 110% !important;
 }
+
+li.answer input[type="checkbox"] {
+  -moz-appearance: checkbox;
+  -webkit-appearance: checkbox;
+  -o-appearance: checkbox;
+  -ms-appearance: checkbox;
+  appearance: checkbox;
+  cursor: pointer;
+  display: inline-block;
+  float: none;
+  margin: 0;
+  opacity: 1;
+  width: 1em;
+  z-index: -1;
+}
