@@ -10,12 +10,16 @@
   color: #444 !important;
 }
 
+#main .level1 h1, #main .level1 h2, #main .level1 h3, #main .level1 h4, #main .level1 h5, #main .level1 h6 {
+  font-size: 1.5em;
+}
+
 li.answer {
   cursor: pointer;
 }
 
 .selectable:hover {
-  font-weight: bold;
+  color: #14cc14 !important;
 }
 
 button.get-started {
