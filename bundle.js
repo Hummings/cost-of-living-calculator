@@ -28813,6 +28813,7 @@
 	var Answer = _immutable2.default.Record({
 	  id: "",
 	  text: "",
+	  multiplyingSubQuestionId: '',
 	  points: 0,
 	  subQuestions: new _immutable2.default.List(),
 	  subQuestionMode: _SubQuestionModes2.default.ANSWER_ALL
@@ -28828,6 +28829,17 @@
 	  },
 	  hasSubQuestions: function hasSubQuestions() {
 	    return !!this.subQuestions.size;
+	  },
+	  getMultiplyingSubQuestion: function getMultiplyingSubQuestion() {
+	    var _this = this;
+	
+	    if (this.multiplyingSubQuestionId) {
+	      return this.subQuestions.find(function (q) {
+	        return q.getId() === _this.multiplyingSubQuestionId;
+	      });
+	    } else {
+	      return null;
+	    }
 	  }
 	});
 	
@@ -29589,9 +29601,9 @@
 	
 	var _SubQuestionModes2 = _interopRequireDefault(_SubQuestionModes);
 	
-	var _EntrySet = __webpack_require__(229);
+	var _SelectedAnswers = __webpack_require__(229);
 	
-	var _EntrySet2 = _interopRequireDefault(_EntrySet);
+	var _SelectedAnswers2 = _interopRequireDefault(_SelectedAnswers);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -29609,7 +29621,7 @@
 	    this.quiz = quiz;
 	    this.id = ++id;
 	    Object.assign(this, {
-	      entrySet: new _EntrySet2.default(),
+	      selectedAnswers: new _SelectedAnswers2.default(),
 	      changeCallback: _utils2.default.NO_OP,
 	      questionCompletedCallbacks: (0, _immutable.Map)()
 	    }, _props);
@@ -29618,31 +29630,31 @@
 	  _createClass(ScoreCalculation, [{
 	    key: 'onChange',
 	    value: function onChange(callback) {
-	      return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+	      return this._copyWith({
 	        changeCallback: _utils2.default.combine(this.changeCallback, callback)
-	      }));
+	      });
 	    }
 	  }, {
 	    key: 'onQuestionCompleted',
 	    value: function onQuestionCompleted(question, callback) {
-	      return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+	      return this._copyWith({
 	        questionCompletedCallbacks: this.questionCompletedCallbacks.set(question, _utils2.default.combine(callback, this.questionCompletedCallbacks.get(question, _utils2.default.NO_OP)))
-	      }));
+	      });
 	    }
 	  }, {
 	    key: 'recordAnswer',
 	    value: function recordAnswer(question, answer) {
 	      var _this = this;
 	
-	      var newEntrySet = this.entrySet.recordAnswer(question, answer);
-	      var newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
-	        entrySet: newEntrySet
-	      }));
+	      var newSelectedAnswers = this.selectedAnswers.recordAnswer(question, answer);
+	      var newCalculation = this._copyWith({
+	        selectedAnswers: newSelectedAnswers
+	      });
 	
 	      this.changeCallback(newCalculation);
 	
 	      this.questionCompletedCallbacks.keySeq().forEach(function (q) {
-	        if (newEntrySet.isCompleted(q) && !_this.entrySet.isCompleted(q)) {
+	        if (newSelectedAnswers.isCompleted(q) && !_this.selectedAnswers.isCompleted(q)) {
 	          _this.questionCompletedCallbacks.get(q)();
 	        }
 	      });
@@ -29652,23 +29664,23 @@
 	  }, {
 	    key: 'deleteAnswer',
 	    value: function deleteAnswer(question, answer) {
-	      var newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
-	        entrySet: this.entrySet.deleteAnswer(question, answer)
-	      }));
+	      var newCalculation = this._copyWith({
+	        selectedAnswers: this.selectedAnswers.deleteAnswer(question, answer)
+	      });
 	      this.changeCallback(newCalculation);
 	      return newCalculation;
 	    }
 	  }, {
 	    key: 'hasAnswer',
 	    value: function hasAnswer(question) {
-	      return this.entrySet.hasAnswer(question);
+	      return this.selectedAnswers.hasAnswer(question);
 	    }
 	  }, {
 	    key: 'completeMultipleChoiceQuestion',
 	    value: function completeMultipleChoiceQuestion(question) {
-	      var newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
-	        entrySet: this.entrySet.recordCompletedQuestion(question)
-	      }));
+	      var newCalculation = this._copyWith({
+	        selectedAnswers: this.selectedAnswers.recordCompletedQuestion(question)
+	      });
 	      this.changeCallback(newCalculation);
 	      this.questionCompletedCallbacks.get(question, _utils2.default.NO_OP)();
 	      return newCalculation;
@@ -29679,7 +29691,7 @@
 	      var _this2 = this;
 	
 	      return this.quiz.questions.map(function (q) {
-	        return _this2.entrySet.computeQuestionScore(q);
+	        return _this2.selectedAnswers.computeQuestionScore(q);
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
@@ -29687,14 +29699,24 @@
 	  }, {
 	    key: 'isSelected',
 	    value: function isSelected(question, answer) {
-	      return this.entrySet.isSelected(question, answer);
+	      return this.selectedAnswers.isSelected(question, answer);
 	    }
 	  }, {
 	    key: 'clearCallbacks',
 	    value: function clearCallbacks() {
-	      return new ScoreCalculation(this.quiz, {
-	        entrySet: this.entrySet
+	      return this._copyWith({
+	        changeCallback: _utils2.default.NO_OP,
+	        questionCompletedCallbacks: (0, _immutable.Map)()
 	      });
+	    }
+	  }, {
+	    key: '_copyWith',
+	    value: function _copyWith(partial) {
+	      return new ScoreCalculation(this.quiz, Object.assign({
+	        selectedAnswers: this.selectedAnswers,
+	        changeCallback: this.changeCallback,
+	        questionCompletedCallbacks: this.questionCompletedCallbacks
+	      }, partial));
 	    }
 	  }]);
 	
@@ -29746,6 +29768,7 @@
 	    key: 'recordAnswer',
 	    value: function recordAnswer(question, answer) {
 	      return new SelectedAnswers({
+	        completedQuestions: this.completedQuestions,
 	        entries: this.entries.set(question, this._getAnswers(question).add(answer))
 	      });
 	    }
@@ -29753,37 +29776,19 @@
 	    key: 'deleteAnswer',
 	    value: function deleteAnswer(question, answer) {
 	      return new SelectedAnswers({
+	        completedQuestions: this.completedQuestions,
 	        entries: this.entries.set(question, this._getAnswers(question).filter(function (a) {
 	          return a !== answer;
 	        }))
 	      });
 	    }
 	  }, {
-	    key: 'isAnswered',
-	    value: function isAnswered(question) {
-	      var _this2 = this;
-	
-	      if (question.hasSubQuestions()) {
-	        return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
-	      } else {
-	        var selectedAnswers = this._getAnswers(question);
-	        return !!selectedAnswers.size && selectedAnswers.map(function (a) {
-	          return _this2._isAnswerCompleted(a);
-	        }).reduce(function (a, b) {
-	          return a && b;
-	        }, true);
-	      }
-	    }
-	  }, {
-	    key: 'computeQuestionScore',
-	    value: function computeQuestionScore(question) {
-	      var _this3 = this;
-	
-	      return this._getAnswers(question).map(function (a) {
-	        return _this3._computeAnswerScore(a);
-	      }).reduce(function (a, b) {
-	        return a + b;
-	      }, 0);
+	    key: 'recordCompletedQuestion',
+	    value: function recordCompletedQuestion(question) {
+	      return new SelectedAnswers({
+	        completedQuestions: this.completedQuestions.add(question),
+	        entries: this.entries
+	      });
 	    }
 	  }, {
 	    key: 'isSelected',
@@ -29794,6 +29799,54 @@
 	    key: 'hasAnswer',
 	    value: function hasAnswer(question) {
 	      return !!this._getAnswers(question).size;
+	    }
+	  }, {
+	    key: 'isCompleted',
+	    value: function isCompleted(question) {
+	      if (question.isMultipleChoice) {
+	        return this.completedQuestions.has(question);
+	      } else {
+	        return this._isAnswered(question);
+	      }
+	    }
+	  }, {
+	    key: 'computeQuestionScore',
+	    value: function computeQuestionScore(question) {
+	      var _this2 = this;
+	
+	      if (!this.isCompleted(question)) {
+	        return 0;
+	      }
+	
+	      if (question.hasSubQuestions()) {
+	        return question.subQuestions.map(function (q) {
+	          return _this2.computeQuestionScore(q);
+	        }).reduce(function (a, b) {
+	          return a + b;
+	        }, 0);
+	      } else {
+	        return this._getAnswers(question).map(function (a) {
+	          return _this2._computeAnswerScore(a);
+	        }).reduce(function (a, b) {
+	          return a + b;
+	        }, 0);
+	      }
+	    }
+	  }, {
+	    key: '_isAnswered',
+	    value: function _isAnswered(question) {
+	      var _this3 = this;
+	
+	      if (question.hasSubQuestions()) {
+	        return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
+	      } else {
+	        var selectedAnswers = this._getAnswers(question);
+	        return !!selectedAnswers.size && selectedAnswers.map(function (a) {
+	          return _this3._isAnswerCompleted(a);
+	        }).reduce(function (a, b) {
+	          return a && b;
+	        }, true);
+	      }
 	    }
 	  }, {
 	    key: '_isAnswerCompleted',
@@ -29812,11 +29865,11 @@
 	      switch (subQuestionMode) {
 	        case _SubQuestionModes2.default.ANSWER_ALL:
 	          return subQuestions.every(function (q) {
-	            return _this4.isAnswered(q);
+	            return _this4._isAnswered(q);
 	          });
 	        case _SubQuestionModes2.default.ANSWER_ONE:
 	          return subQuestions.some(function (q) {
-	            return _this4.isAnswered(q);
+	            return _this4._isAnswered(q);
 	          });
 	        default:
 	          throw new Error('unknown subquestion mode ' + subQuestionMode);
@@ -29828,8 +29881,11 @@
 	      var _this5 = this;
 	
 	      if (answer.hasSubQuestions()) {
-	        return answer.subQuestions.map(function (q) {
-	          return _this5.computeQuestionScore(q);
+	        var multiplier = answer.getMultiplyingSubQuestion() ? this.computeQuestionScore(answer.getMultiplyingSubQuestion()) : 1;
+	        return answer.subQuestions.filter(function (q) {
+	          return q !== answer.getMultiplyingSubQuestion();
+	        }).map(function (q) {
+	          return multiplier * _this5.computeQuestionScore(q);
 	        }).reduce(function (a, b) {
 	          return a + b;
 	        }, 0);
@@ -29845,85 +29901,9 @@
 	  }]);
 	
 	  return SelectedAnswers;
-	}((0, _immutable.Record)({ entries: (0, _immutable.Map)() }));
+	}((0, _immutable.Record)({ entries: (0, _immutable.Map)(), completedQuestions: (0, _immutable.Set)() }));
 	
-	var EntrySet = function (_Record2) {
-	  _inherits(EntrySet, _Record2);
-	
-	  function EntrySet() {
-	    _classCallCheck(this, EntrySet);
-	
-	    return _possibleConstructorReturn(this, (EntrySet.__proto__ || Object.getPrototypeOf(EntrySet)).apply(this, arguments));
-	  }
-	
-	  _createClass(EntrySet, [{
-	    key: 'recordAnswer',
-	    value: function recordAnswer(question, answer) {
-	      return new EntrySet({
-	        completedQuestions: this.completedQuestions,
-	        selectedAnswers: this.selectedAnswers.recordAnswer(question, answer)
-	      });
-	    }
-	  }, {
-	    key: 'deleteAnswer',
-	    value: function deleteAnswer(question, answer) {
-	      return new EntrySet({
-	        completedQuestions: this.completedQuestions,
-	        selectedAnswers: this.selectedAnswers.deleteAnswer(question, answer)
-	      });
-	    }
-	  }, {
-	    key: 'recordCompletedQuestion',
-	    value: function recordCompletedQuestion(question) {
-	      return new EntrySet({
-	        completedQuestions: this.completedQuestions.add(question),
-	        selectedAnswers: this.selectedAnswers
-	      });
-	    }
-	  }, {
-	    key: 'isSelected',
-	    value: function isSelected(question, answer) {
-	      return this.selectedAnswers.isSelected(question, answer);
-	    }
-	  }, {
-	    key: 'hasAnswer',
-	    value: function hasAnswer(question) {
-	      return this.selectedAnswers.hasAnswer(question);
-	    }
-	  }, {
-	    key: 'isCompleted',
-	    value: function isCompleted(question) {
-	      if (question.isMultipleChoice) {
-	        return this.completedQuestions.has(question);
-	      } else {
-	        return this.selectedAnswers.isAnswered(question);
-	      }
-	    }
-	  }, {
-	    key: 'computeQuestionScore',
-	    value: function computeQuestionScore(question) {
-	      var _this7 = this;
-	
-	      if (!this.isCompleted(question)) {
-	        return 0;
-	      }
-	
-	      if (question.hasSubQuestions()) {
-	        return question.subQuestions.map(function (q) {
-	          return _this7.computeQuestionScore(q);
-	        }).reduce(function (a, b) {
-	          return a + b;
-	        }, 0);
-	      } else {
-	        return this.selectedAnswers.computeQuestionScore(question);
-	      }
-	    }
-	  }]);
-	
-	  return EntrySet;
-	}((0, _immutable.Record)({ selectedAnswers: new SelectedAnswers(), completedQuestions: (0, _immutable.Set)() }));
-	
-	exports.default = EntrySet;
+	exports.default = SelectedAnswers;
 
 /***/ }),
 /* 230 */
