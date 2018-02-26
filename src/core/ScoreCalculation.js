@@ -3,7 +3,7 @@ import utils from '../utils';
 import SubQuestionModes from '../models/SubQuestionModes';
 
 import { Map } from 'immutable';
-import EntrySet from './EntrySet';
+import SelectedAnswers from './SelectedAnswers';
 
 let id = 0;
 
@@ -15,7 +15,7 @@ class ScoreCalculation {
     this.quiz = quiz;
     this.id = (++id);
     Object.assign(this, {
-      entrySet: new EntrySet(),
+      selectedAnswers: new SelectedAnswers(),
       changeCallback: utils.NO_OP,
       questionCompletedCallbacks: Map(),
     }, _props);
@@ -39,15 +39,15 @@ class ScoreCalculation {
   }
 
   recordAnswer(question, answer) {
-    const newEntrySet = this.entrySet.recordAnswer(question, answer);
+    const newSelectedAnswers = this.selectedAnswers.recordAnswer(question, answer);
     const newCalculation = this._copyWith({
-      entrySet: newEntrySet,
+      selectedAnswers: newSelectedAnswers,
     });
 
     this.changeCallback(newCalculation);
 
     this.questionCompletedCallbacks.keySeq().forEach(q => {
-      if (newEntrySet.isCompleted(q) && !this.entrySet.isCompleted(q)) {
+      if (newSelectedAnswers.isCompleted(q) && !this.selectedAnswers.isCompleted(q)) {
         this.questionCompletedCallbacks.get(q)();
       }
     });
@@ -57,19 +57,19 @@ class ScoreCalculation {
 
   deleteAnswer(question, answer) {
     const newCalculation = this._copyWith({
-      entrySet: this.entrySet.deleteAnswer(question, answer),
+      selectedAnswers: this.selectedAnswers.deleteAnswer(question, answer),
     });
     this.changeCallback(newCalculation);
     return newCalculation;
   }
 
   hasAnswer(question) {
-    return this.entrySet.hasAnswer(question);
+    return this.selectedAnswers.hasAnswer(question);
   }
 
   completeMultipleChoiceQuestion(question) {
     const newCalculation = this._copyWith({
-      entrySet: this.entrySet.recordCompletedQuestion(question),
+      selectedAnswers: this.selectedAnswers.recordCompletedQuestion(question),
     });
     this.changeCallback(newCalculation);
     this.questionCompletedCallbacks.get(question, utils.NO_OP)();
@@ -78,12 +78,12 @@ class ScoreCalculation {
 
   computeScore() {
     return this.quiz.questions
-      .map(q => this.entrySet.computeQuestionScore(q))
+      .map(q => this.selectedAnswers.computeQuestionScore(q))
       .reduce((a, b) => a + b, 0);
   }
 
   isSelected(question, answer) {
-    return this.entrySet.isSelected(question, answer);
+    return this.selectedAnswers.isSelected(question, answer);
   }
 
   clearCallbacks() {
@@ -95,7 +95,7 @@ class ScoreCalculation {
 
   _copyWith(partial) {
     return new ScoreCalculation(this.quiz, Object.assign({
-      entrySet: this.entrySet,
+      selectedAnswers: this.selectedAnswers,
       changeCallback: this.changeCallback,
       questionCompletedCallbacks: this.questionCompletedCallbacks,
     }, partial));

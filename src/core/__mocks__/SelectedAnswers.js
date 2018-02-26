@@ -1,4 +1,4 @@
-class MockEntrySet {
+class MockSelectedAnswers {
   constructor() {
     this.recordAnswer = jest.fn().mockReturnValue(this);
     this.recordCompletedQuestion = jest.fn().mockReturnValue(this);
@@ -11,4 +11,4 @@ class MockEntrySet {
 
 }
 
-export default MockEntrySet;
+export default MockSelectedAnswers;

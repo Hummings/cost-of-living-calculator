@@ -1,5 +1,5 @@
 import Answer from '../../models/Answer';
-import EntrySet from '../EntrySet';
+import SelectedAnswers from '../SelectedAnswers';
 import Question from '../../models/Question';
 import Quiz from '../../models/Quiz';
 import ScoreCalculation from '../ScoreCalculation';
@@ -7,19 +7,19 @@ import SubQuestionModes from '../../models/SubQuestionModes';
 
 import { List } from 'immutable';
 
-jest.mock('../EntrySet');
+jest.mock('../SelectedAnswers');
 
 describe('ScoreCalculation', () => {
-  let entrySet;
+  let selectedAnswers;
 
   const makeCalculation = (...questions) => new ScoreCalculation(new Quiz({
     questions: List(questions),
   }), {
-    entrySet: entrySet,
+    selectedAnswers: selectedAnswers,
   });
 
   beforeEach(() => {
-    entrySet = new EntrySet();
+    selectedAnswers = new SelectedAnswers();
   });
 
   describe('onChange', () => {
@@ -72,22 +72,22 @@ describe('ScoreCalculation', () => {
         )
       });
 
-      entrySet.isCompleted.mockReturnValue(false);
+      selectedAnswers.isCompleted.mockReturnValue(false);
       makeCalculation(q)
         .onQuestionCompleted(q, callback)
         .recordAnswer(q, q.answers.get(0));
       expect(callback).not.toHaveBeenCalled();
 
-      entrySet.isCompleted.mockReturnValue(true);
+      selectedAnswers.isCompleted.mockReturnValue(true);
       makeCalculation(q)
         .onQuestionCompleted(q, callback)
         .recordAnswer(q, q.answers.get(0));
       expect(callback).not.toHaveBeenCalled();
 
-      const newEntrySet = new EntrySet();
-      newEntrySet.isCompleted.mockReturnValue(true);
-      entrySet.recordAnswer.mockReturnValue(newEntrySet);
-      entrySet.isCompleted.mockReturnValue(false);
+      const newSelectedAnswers = new SelectedAnswers();
+      newSelectedAnswers.isCompleted.mockReturnValue(true);
+      selectedAnswers.recordAnswer.mockReturnValue(newSelectedAnswers);
+      selectedAnswers.isCompleted.mockReturnValue(false);
 
       makeCalculation(q)
         .onQuestionCompleted(q, callback)
@@ -113,10 +113,10 @@ describe('ScoreCalculation', () => {
         )
       });
 
-      const newEntrySet = new EntrySet();
-      newEntrySet.isCompleted.mockReturnValue(true);
-      entrySet.recordAnswer.mockReturnValue(newEntrySet);
-      entrySet.isCompleted.mockImplementation(q => q === q1);
+      const newSelectedAnswers = new SelectedAnswers();
+      newSelectedAnswers.isCompleted.mockReturnValue(true);
+      selectedAnswers.recordAnswer.mockReturnValue(newSelectedAnswers);
+      selectedAnswers.isCompleted.mockImplementation(q => q === q1);
 
       makeCalculation(q1, q2)
         .onQuestionCompleted(q1, callback1)
@@ -138,10 +138,10 @@ describe('ScoreCalculation', () => {
         ),
       });
 
-      const newEntrySet = new EntrySet();
-      newEntrySet.isCompleted.mockReturnValue(true);
-      entrySet.recordAnswer.mockReturnValue(newEntrySet);
-      entrySet.isCompleted.mockReturnValue(false);
+      const newSelectedAnswers = new SelectedAnswers();
+      newSelectedAnswers.isCompleted.mockReturnValue(true);
+      selectedAnswers.recordAnswer.mockReturnValue(newSelectedAnswers);
+      selectedAnswers.isCompleted.mockReturnValue(false);
 
       makeCalculation(q)
         .onQuestionCompleted(q, callback1)
@@ -172,20 +172,20 @@ describe('ScoreCalculation', () => {
         )
       });
 
-      entrySet.computeQuestionScore
+      selectedAnswers.computeQuestionScore
         .mockReturnValueOnce(34)
         .mockReturnValueOnce(105);
 
       expect(makeCalculation(q1, q2).computeScore()).toBe(34 + 105);
-      expect(entrySet.computeQuestionScore).toHaveBeenCalledWith(q1);
-      expect(entrySet.computeQuestionScore).toHaveBeenCalledWith(q2);
+      expect(selectedAnswers.computeQuestionScore).toHaveBeenCalledWith(q1);
+      expect(selectedAnswers.computeQuestionScore).toHaveBeenCalledWith(q2);
     });
   });
 
   describe('completeMultipleChoiceQuestion', () => {
     it('calls the question completed and change callbacks and records completion', () => {
-      const newEntrySet = new EntrySet();
-      entrySet.recordCompletedQuestion.mockReturnValue(newEntrySet);
+      const newSelectedAnswers = new SelectedAnswers();
+      selectedAnswers.recordCompletedQuestion.mockReturnValue(newSelectedAnswers);
 
       const changeCallback = jest.fn();
       const completedCallback = jest.fn();
@@ -207,14 +207,14 @@ describe('ScoreCalculation', () => {
 
       expect(completedCallback).toHaveBeenCalled();
       expect(changeCallback).toHaveBeenCalledWith(expect.any(ScoreCalculation));
-      expect(changeCallback.mock.calls[0][0].entrySet).toBe(newEntrySet);
-      expect(entrySet.recordCompletedQuestion).toHaveBeenCalledWith(question);
+      expect(changeCallback.mock.calls[0][0].selectedAnswers).toBe(newSelectedAnswers);
+      expect(selectedAnswers.recordCompletedQuestion).toHaveBeenCalledWith(question);
     });
   });
 
   describe('isSelected', () => {
     it('delegates to the entry set', () => {
-      entrySet.isSelected.mockReturnValue(true);
+      selectedAnswers.isSelected.mockReturnValue(true);
       const question = new Question({
         isMultipleChoice: true,
         title: 'What kind of candy do you like?',
@@ -232,7 +232,7 @@ describe('ScoreCalculation', () => {
           .isSelected(question, question.answers.get(0))
       ).toBe(true);
 
-      expect(entrySet.isSelected).toHaveBeenCalledWith(question, question.answers.get(0));
+      expect(selectedAnswers.isSelected).toHaveBeenCalledWith(question, question.answers.get(0));
     });
   });
 
@@ -268,12 +268,12 @@ describe('ScoreCalculation', () => {
           new Answer({ text: 'b', points: 2 }),
         ),
       });
-      const newEntrySet = new EntrySet();
-      entrySet.deleteAnswer.mockReturnValue(newEntrySet);
+      const newSelectedAnswers = new SelectedAnswers();
+      selectedAnswers.deleteAnswer.mockReturnValue(newSelectedAnswers);
 
       const calculation = makeCalculation().deleteAnswer(q, q.answers.get(0));
-      expect(calculation.entrySet).toBe(newEntrySet);
-      expect(entrySet.deleteAnswer).toHaveBeenCalledWith(q, q.answers.get(0));
+      expect(calculation.selectedAnswers).toBe(newSelectedAnswers);
+      expect(selectedAnswers.deleteAnswer).toHaveBeenCalledWith(q, q.answers.get(0));
     });
 
     it('calls the change callback', () => {
@@ -285,14 +285,14 @@ describe('ScoreCalculation', () => {
           new Answer({ text: 'b', points: 2 }),
         ),
       });
-      const newEntrySet = new EntrySet();
-      entrySet.deleteAnswer.mockReturnValue(newEntrySet);
+      const newSelectedAnswers = new SelectedAnswers();
+      selectedAnswers.deleteAnswer.mockReturnValue(newSelectedAnswers);
 
       makeCalculation()
         .onChange(callback)
         .deleteAnswer(q, q.answers.get(0));
       expect(callback).toHaveBeenCalledWith(expect.any(ScoreCalculation));
-      expect(callback.mock.calls[0][0].entrySet).toBe(newEntrySet);
+      expect(callback.mock.calls[0][0].selectedAnswers).toBe(newSelectedAnswers);
     });
   });
 
@@ -305,9 +305,9 @@ describe('ScoreCalculation', () => {
           new Answer({ text: 'b', points: 2 }),
         ),
       });
-      entrySet.hasAnswer.mockReturnValue(true);
+      selectedAnswers.hasAnswer.mockReturnValue(true);
       expect(makeCalculation(q).hasAnswer(q)).toBe(true);
-      expect(entrySet.hasAnswer).toHaveBeenCalledWith(q);
+      expect(selectedAnswers.hasAnswer).toHaveBeenCalledWith(q);
     });
   });
 });

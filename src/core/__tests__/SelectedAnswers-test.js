@@ -1,15 +1,15 @@
 import Answer from '../../models/Answer';
-import EntrySet from '../EntrySet';
+import SelectedAnswers from '../SelectedAnswers';
 import Question from '../../models/Question';
 import SubQuestionModes from '../../models/SubQuestionModes';
 
 import { List } from 'immutable';
 
-describe('EntrySet', () => {
-  let entrySet;
+describe('SelectedAnswers', () => {
+  let selectedAnswers;
 
   beforeEach(() => {
-    entrySet = new EntrySet();
+    selectedAnswers = new SelectedAnswers();
   });
 
   describe('isCompleted', () => {
@@ -21,7 +21,7 @@ describe('EntrySet', () => {
           new Answer({ text: 'lk12j3', points: 3 }),
         )
       });
-      expect(entrySet.isCompleted(q)).toBe(false);
+      expect(selectedAnswers.isCompleted(q)).toBe(false);
     });
 
 
@@ -34,7 +34,7 @@ describe('EntrySet', () => {
         )
       });
       expect(
-        entrySet
+        selectedAnswers
         .recordAnswer(q, q.answers.get(1))
         .isCompleted(q)
       ).toBe(true);
@@ -64,11 +64,11 @@ describe('EntrySet', () => {
         ),
       });
 
-      entrySet = entrySet.recordAnswer(sub1, sub1.answers.get(1));
-      expect(entrySet.isCompleted(q)).toBe(false);
+      selectedAnswers = selectedAnswers.recordAnswer(sub1, sub1.answers.get(1));
+      expect(selectedAnswers.isCompleted(q)).toBe(false);
 
-      entrySet = entrySet.recordAnswer(sub2, sub2.answers.get(1));
-      expect(entrySet.isCompleted(q)).toBe(true);
+      selectedAnswers = selectedAnswers.recordAnswer(sub2, sub2.answers.get(1));
+      expect(selectedAnswers.isCompleted(q)).toBe(true);
 
     });
 
@@ -97,7 +97,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(sub1, sub1.answers.get(1))
           .isCompleted(q)
       ).toBe(true);
@@ -115,15 +115,15 @@ describe('EntrySet', () => {
         ),
       });
 
-      entrySet = entrySet
+      selectedAnswers = selectedAnswers
         .recordAnswer(question, question.answers.get(1))
         .recordAnswer(question, question.answers.get(3));
 
-      expect(entrySet.isCompleted(question)).toBe(false);
+      expect(selectedAnswers.isCompleted(question)).toBe(false);
 
-      entrySet = entrySet.recordCompletedQuestion(question);
+      selectedAnswers = selectedAnswers.recordCompletedQuestion(question);
 
-      expect(entrySet.isCompleted(question)).toBe(true);
+      expect(selectedAnswers.isCompleted(question)).toBe(true);
     });
 
     it('is true when all subquestions of answers have been completed', () => {
@@ -158,26 +158,26 @@ describe('EntrySet', () => {
         ),
       });
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, answerWithoutSubs)
           .isCompleted(q)
       ).toBe(true);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, answerWithSubs)
           .isCompleted(q)
       ).toBe(false);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, answerWithSubs)
           .recordAnswer(sub1, sub1.answers.get(0))
           .isCompleted(q)
       ).toBe(false);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, answerWithSubs)
           .recordAnswer(sub1, sub1.answers.get(0))
           .recordAnswer(sub2, sub2.answers.get(1))
@@ -218,19 +218,19 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
         .recordAnswer(q, answerWithoutSubs)
         .isCompleted(q)
       ).toBe(true);
 
       expect(
-        entrySet
+        selectedAnswers
         .recordAnswer(q, answerWithSubs)
         .isCompleted(q)
       ).toBe(false);
 
       expect(
-        entrySet
+        selectedAnswers
         .recordAnswer(q, answerWithSubs)
         .recordAnswer(sub1, sub1.answers.get(1))
         .isCompleted(q)
@@ -248,7 +248,7 @@ describe('EntrySet', () => {
         ),
       });
 
-      expect(entrySet.computeQuestionScore(basicQuestion)).toBe(0);
+      expect(selectedAnswers.computeQuestionScore(basicQuestion)).toBe(0);
     });
 
     it('returns the points for a basic question', () => {
@@ -261,13 +261,13 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(basicQuestion, basicQuestion.answers.get(0))
           .computeQuestionScore(basicQuestion)
       ).toBe(1);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(basicQuestion, basicQuestion.answers.get(1))
           .computeQuestionScore(basicQuestion)
       ).toBe(2);
@@ -283,7 +283,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(basicQuestion, basicQuestion.answers.get(0))
           .recordAnswer(basicQuestion, basicQuestion.answers.get(0))
           .computeQuestionScore(basicQuestion)
@@ -301,7 +301,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(multipleChoice, multipleChoice.answers.get(0))
           .recordAnswer(multipleChoice, multipleChoice.answers.get(1))
           .recordCompletedQuestion(multipleChoice)
@@ -334,7 +334,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(sub1, sub1.answers.get(0))
           .recordAnswer(sub2, sub2.answers.get(1))
           .computeQuestionScore(questionWithSubs)
@@ -383,7 +383,7 @@ describe('EntrySet', () => {
       const sub2 = mainSub.subQuestions.get(1);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(sub1, sub1.answers.get(1))
           .recordAnswer(sub2, sub2.answers.get(1))
           .computeQuestionScore(question)
@@ -423,7 +423,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(questionWithAnswerSubs, answerWithoutSubs)
           .computeQuestionScore(questionWithAnswerSubs)
       ).toBe(2);
@@ -462,7 +462,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(questionWithAnswerSubs, answerWithSubs)
           .recordAnswer(answerSub1, answerSub1.answers.get(0))
           .recordAnswer(answerSub2, answerSub2.answers.get(1))
@@ -517,7 +517,7 @@ describe('EntrySet', () => {
       const sub2 = answerSub.subQuestions.get(1);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(question, mainAnswer)
           .recordAnswer(sub1, sub1.answers.get(1))
           .recordAnswer(sub2, sub2.answers.get(1))
@@ -562,7 +562,7 @@ describe('EntrySet', () => {
       });
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(questionWithAnswerSubs, answer)
           .recordAnswer(multiplier, doubling)
           .recordAnswer(answerSub1, answerSub1.answers.get(0))
@@ -570,7 +570,7 @@ describe('EntrySet', () => {
           .computeQuestionScore(questionWithAnswerSubs)
       ).toBe(2*(91 + 56));
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(questionWithAnswerSubs, answer)
           .recordAnswer(multiplier, tripling)
           .recordAnswer(answerSub1, answerSub1.answers.get(0))
@@ -592,16 +592,16 @@ describe('EntrySet', () => {
       const a1 = q.answers.get(0);
       const a2 = q.answers.get(1);
 
-      expect(entrySet.isSelected(q, a1)).toBe(false);
+      expect(selectedAnswers.isSelected(q, a1)).toBe(false);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, a1)
           .isSelected(q, a2)
       ).toBe(false);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, a1)
           .isSelected(q, a1)
       ).toBe(true);
@@ -620,15 +620,15 @@ describe('EntrySet', () => {
       const a1 = q.answers.get(0);
       const a2 = q.answers.get(1);
 
-      entrySet = entrySet.recordAnswer(q, a2);
+      selectedAnswers = selectedAnswers.recordAnswer(q, a2);
 
-      expect(entrySet.isSelected(q, a2)).toBe(true);
-      expect(entrySet.isCompleted(q)).toBe(true);
+      expect(selectedAnswers.isSelected(q, a2)).toBe(true);
+      expect(selectedAnswers.isCompleted(q)).toBe(true);
 
-      entrySet = entrySet.deleteAnswer(q, a2);
+      selectedAnswers = selectedAnswers.deleteAnswer(q, a2);
 
-      expect(entrySet.isSelected(q, a2)).toBe(false);
-      expect(entrySet.isCompleted(q)).toBe(false);
+      expect(selectedAnswers.isSelected(q, a2)).toBe(false);
+      expect(selectedAnswers.isCompleted(q)).toBe(false);
     });
 
     it('preserves completed multiple choice questions', () => {
@@ -644,7 +644,7 @@ describe('EntrySet', () => {
       const a2 = q.answers.get(1);
 
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(q, a1)
           .recordCompletedQuestion(q)
           .deleteAnswer(q, a1)
@@ -667,14 +667,14 @@ describe('EntrySet', () => {
         ),
       });
 
-      expect(entrySet.hasAnswer(question)).toBe(false);
+      expect(selectedAnswers.hasAnswer(question)).toBe(false);
       expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(question, question.answers.get(0))
           .hasAnswer(question)
       ).toBe(true);
      expect(
-        entrySet
+        selectedAnswers
           .recordAnswer(question, question.answers.get(0))
           .hasAnswer(new Question())
       ).toBe(false);
