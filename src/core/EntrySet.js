@@ -32,9 +32,15 @@ class SelectedAnswers extends Record({entries: Map()}) {
   }
 
   computeQuestionScore(question) {
-    return this._getAnswers(question)
-      .map(a => this._computeAnswerScore(a))
-      .reduce((a, b) => a+ b, 0);
+    if (question.hasSubQuestions()) {
+      return question.subQuestions
+        .map(q => this.computeQuestionScore(q))
+        .reduce((a, b) => a + b, 0);
+    } else {
+      return this._getAnswers(question)
+        .map(a => this._computeAnswerScore(a))
+        .reduce((a, b) => a+ b, 0);
+    }
   }
 
   isSelected(question, answer) {
@@ -123,16 +129,10 @@ class EntrySet extends Record({ selectedAnswers: new SelectedAnswers(), complete
   }
 
   computeQuestionScore(question) {
-    if (!this.isCompleted(question)) {
-      return 0;
-    }
-
-    if (question.hasSubQuestions()) {
-      return question.subQuestions
-        .map(q => this.computeQuestionScore(q))
-        .reduce((a, b) => a + b, 0);
-    } else {
+    if (this.isCompleted(question)) {
       return this.selectedAnswers.computeQuestionScore(question);
+    } else {
+      return 0;
     }
   }
 }

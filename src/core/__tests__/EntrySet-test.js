@@ -341,6 +341,55 @@ describe('EntrySet', () => {
       ).toBe(2 + 56);
     });
 
+    it('sums the points from subquestions of subquestions', () => {
+      const question = new Question({
+        title: 'hello',
+        subQuestions: List.of(
+          new Question({
+            title: 'hasSubs',
+            subQuestions: List.of(
+              new Question({
+                title: 'sub1',
+                answers: List.of(
+                  new Answer({
+                    text: 'sub1answer1',
+                    points: 1,
+                  }),
+                  new Answer({
+                    text: 'sub1answer2',
+                    points: 2,
+                  }),
+                )
+              }),
+              new Question({
+                title: 'sub2',
+                answers: List.of(
+                  new Answer({
+                    text: 'sub2answer1',
+                    points: 3,
+                  }),
+                  new Answer({
+                    text: 'sub2answer2',
+                    points: 4,
+                  }),
+                )
+              }),
+            ),
+          }),
+        ),
+      });
+      const mainSub = question.subQuestions.get(0);
+      const sub1 = mainSub.subQuestions.get(0);
+      const sub2 = mainSub.subQuestions.get(1);
+
+      expect(
+        entrySet
+          .recordAnswer(sub1, sub1.answers.get(1))
+          .recordAnswer(sub2, sub2.answers.get(1))
+          .computeQuestionScore(question)
+      ).toBe(2 + 4);
+    });
+
     it('returns the points for an answer without subs even if other answers have subs', () => {
       const answerSub1 = new Question({
         title: 'sub1',
@@ -419,6 +468,61 @@ describe('EntrySet', () => {
           .recordAnswer(answerSub2, answerSub2.answers.get(1))
           .computeQuestionScore(questionWithAnswerSubs)
       ).toBe(91 + 56);
+    });
+
+    it('sums the points from subquestions of answer subquestions', () => {
+      const question = new Question({
+        title: 'questionWithAnswerSubs',
+        answers: List.of(
+          new Answer({
+            subQuestions: List.of(
+              new Question({
+                title: 'hasSubs',
+                subQuestions: List.of(
+                  new Question({
+                    title: 'sub1',
+                    answers: List.of(
+                      new Answer({
+                        text: 'sub1answer1',
+                        points: 1,
+                      }),
+                      new Answer({
+                        text: 'sub1answer2',
+                        points: 2,
+                      }),
+                    )
+                  }),
+                  new Question({
+                    title: 'sub2',
+                    answers: List.of(
+                      new Answer({
+                        text: 'sub2answer1',
+                        points: 3,
+                      }),
+                      new Answer({
+                        text: 'sub2answer2',
+                        points: 4,
+                      }),
+                    )
+                  }),
+                ),
+              }),
+            ),
+          })
+        ),
+      });
+      const mainAnswer = question.answers.get(0);
+      const answerSub = mainAnswer.subQuestions.get(0);
+      const sub1 = answerSub.subQuestions.get(0);
+      const sub2 = answerSub.subQuestions.get(1);
+
+      expect(
+        entrySet
+          .recordAnswer(question, mainAnswer)
+          .recordAnswer(sub1, sub1.answers.get(1))
+          .recordAnswer(sub2, sub2.answers.get(1))
+          .computeQuestionScore(question)
+      ).toBe(2 + 4);
     });
 
     it('multiplies other subquestion answers by the answer\'s multiplying subquestion', () => {

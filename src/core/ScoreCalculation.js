@@ -22,27 +22,27 @@ class ScoreCalculation {
   }
 
   onChange(callback) {
-    return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    return this._copyWith({
       changeCallback: utils.combine(this.changeCallback, callback),
-    }));
+    });
   }
 
   onQuestionCompleted(question, callback) {
-    return new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    return this._copyWith({
       questionCompletedCallbacks: this.questionCompletedCallbacks.set(
         question, utils.combine(
           callback,
           this.questionCompletedCallbacks.get(question, utils.NO_OP)
         )
       ),
-    }));
+    });
   }
 
   recordAnswer(question, answer) {
     const newEntrySet = this.entrySet.recordAnswer(question, answer);
-    const newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    const newCalculation = this._copyWith({
       entrySet: newEntrySet,
-    }));
+    });
 
     this.changeCallback(newCalculation);
 
@@ -56,9 +56,9 @@ class ScoreCalculation {
   }
 
   deleteAnswer(question, answer) {
-    const newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    const newCalculation = this._copyWith({
       entrySet: this.entrySet.deleteAnswer(question, answer),
-    }));
+    });
     this.changeCallback(newCalculation);
     return newCalculation;
   }
@@ -68,9 +68,9 @@ class ScoreCalculation {
   }
 
   completeMultipleChoiceQuestion(question) {
-    const newCalculation = new ScoreCalculation(this.quiz, Object.assign({}, this, {
+    const newCalculation = this._copyWith({
       entrySet: this.entrySet.recordCompletedQuestion(question),
-    }));
+    });
     this.changeCallback(newCalculation);
     this.questionCompletedCallbacks.get(question, utils.NO_OP)();
     return newCalculation;
@@ -87,9 +87,18 @@ class ScoreCalculation {
   }
 
   clearCallbacks() {
-    return new ScoreCalculation(this.quiz, {
-      entrySet: this.entrySet,
+    return this._copyWith({
+      changeCallback: utils.NO_OP,
+      questionCompletedCallbacks: Map(),
     });
+  }
+
+  _copyWith(partial) {
+    return new ScoreCalculation(this.quiz, Object.assign({
+      entrySet: this.entrySet,
+      changeCallback: this.changeCallback,
+      questionCompletedCallbacks: this.questionCompletedCallbacks,
+    }, partial));
   }
 }
 
