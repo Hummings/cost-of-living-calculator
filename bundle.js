@@ -29644,8 +29644,6 @@
 	  }, {
 	    key: 'recordAnswer',
 	    value: function recordAnswer(question, answer) {
-	      var _this = this;
-	
 	      var newSelectedAnswers = this.selectedAnswers.recordAnswer(question, answer);
 	      var newCalculation = this._copyWith({
 	        selectedAnswers: newSelectedAnswers
@@ -29653,11 +29651,7 @@
 	
 	      this.changeCallback(newCalculation);
 	
-	      this.questionCompletedCallbacks.keySeq().forEach(function (q) {
-	        if (newSelectedAnswers.isCompleted(q) && !_this.selectedAnswers.isCompleted(q)) {
-	          _this.questionCompletedCallbacks.get(q)();
-	        }
-	      });
+	      this._notifyQuestionCompletedCallbacks(newSelectedAnswers);
 	
 	      return newCalculation;
 	    }
@@ -29678,20 +29672,20 @@
 	  }, {
 	    key: 'completeMultipleChoiceQuestion',
 	    value: function completeMultipleChoiceQuestion(question) {
-	      var newCalculation = this._copyWith({
-	        selectedAnswers: this.selectedAnswers.recordCompletedQuestion(question)
-	      });
+	      var newSelectedAnswers = this.selectedAnswers.recordCompletedQuestion(question);
+	      var newCalculation = this._copyWith({ selectedAnswers: newSelectedAnswers });
 	      this.changeCallback(newCalculation);
-	      this.questionCompletedCallbacks.get(question, _utils2.default.NO_OP)();
+	      debugger;
+	      this._notifyQuestionCompletedCallbacks(newSelectedAnswers);
 	      return newCalculation;
 	    }
 	  }, {
 	    key: 'computeScore',
 	    value: function computeScore() {
-	      var _this2 = this;
+	      var _this = this;
 	
 	      return this.quiz.questions.map(function (q) {
-	        return _this2.selectedAnswers.computeQuestionScore(q);
+	        return _this.selectedAnswers.computeQuestionScore(q);
 	      }).reduce(function (a, b) {
 	        return a + b;
 	      }, 0);
@@ -29707,6 +29701,17 @@
 	      return this._copyWith({
 	        changeCallback: _utils2.default.NO_OP,
 	        questionCompletedCallbacks: (0, _immutable.Map)()
+	      });
+	    }
+	  }, {
+	    key: '_notifyQuestionCompletedCallbacks',
+	    value: function _notifyQuestionCompletedCallbacks(newSelectedAnswers) {
+	      var _this2 = this;
+	
+	      this.questionCompletedCallbacks.keySeq().forEach(function (q) {
+	        if (newSelectedAnswers.isCompleted(q) && !_this2.selectedAnswers.isCompleted(q)) {
+	          _this2.questionCompletedCallbacks.get(q)();
+	        }
 	      });
 	    }
 	  }, {
@@ -29803,16 +29808,25 @@
 	  }, {
 	    key: 'isCompleted',
 	    value: function isCompleted(question) {
+	      var _this2 = this;
+	
 	      if (question.isMultipleChoice) {
 	        return this.completedQuestions.has(question);
+	      } else if (question.hasSubQuestions()) {
+	        return this._areAllSubQuestionsCompleted(question.subQuestions, question.subQuestionMode);
 	      } else {
-	        return this._isAnswered(question);
+	        var selectedAnswers = this._getAnswers(question);
+	        return !!selectedAnswers.size && selectedAnswers.map(function (a) {
+	          return _this2._isAnswerCompleted(a);
+	        }).reduce(function (a, b) {
+	          return a && b;
+	        }, true);
 	      }
 	    }
 	  }, {
 	    key: 'computeQuestionScore',
 	    value: function computeQuestionScore(question) {
-	      var _this2 = this;
+	      var _this3 = this;
 	
 	      if (!this.isCompleted(question)) {
 	        return 0;
@@ -29820,56 +29834,40 @@
 	
 	      if (question.hasSubQuestions()) {
 	        return question.subQuestions.map(function (q) {
-	          return _this2.computeQuestionScore(q);
+	          return _this3.computeQuestionScore(q);
 	        }).reduce(function (a, b) {
 	          return a + b;
 	        }, 0);
 	      } else {
 	        return this._getAnswers(question).map(function (a) {
-	          return _this2._computeAnswerScore(a);
+	          return _this3._computeAnswerScore(a);
 	        }).reduce(function (a, b) {
 	          return a + b;
 	        }, 0);
-	      }
-	    }
-	  }, {
-	    key: '_isAnswered',
-	    value: function _isAnswered(question) {
-	      var _this3 = this;
-	
-	      if (question.hasSubQuestions()) {
-	        return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
-	      } else {
-	        var selectedAnswers = this._getAnswers(question);
-	        return !!selectedAnswers.size && selectedAnswers.map(function (a) {
-	          return _this3._isAnswerCompleted(a);
-	        }).reduce(function (a, b) {
-	          return a && b;
-	        }, true);
 	      }
 	    }
 	  }, {
 	    key: '_isAnswerCompleted',
 	    value: function _isAnswerCompleted(answer) {
 	      if (answer.hasSubQuestions()) {
-	        return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
+	        return this._areAllSubQuestionsCompleted(answer.subQuestions, answer.subQuestionMode);
 	      } else {
 	        return true;
 	      }
 	    }
 	  }, {
-	    key: '_areAllSubQuestionsAnswered',
-	    value: function _areAllSubQuestionsAnswered(subQuestions, subQuestionMode) {
+	    key: '_areAllSubQuestionsCompleted',
+	    value: function _areAllSubQuestionsCompleted(subQuestions, subQuestionMode) {
 	      var _this4 = this;
 	
 	      switch (subQuestionMode) {
 	        case _SubQuestionModes2.default.ANSWER_ALL:
 	          return subQuestions.every(function (q) {
-	            return _this4._isAnswered(q);
+	            return _this4.isCompleted(q);
 	          });
 	        case _SubQuestionModes2.default.ANSWER_ONE:
 	          return subQuestions.some(function (q) {
-	            return _this4._isAnswered(q);
+	            return _this4.isCompleted(q);
 	          });
 	        default:
 	          throw new Error('unknown subquestion mode ' + subQuestionMode);
