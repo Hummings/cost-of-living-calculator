@@ -186,6 +186,8 @@ describe('ScoreCalculation', () => {
     it('calls the question completed and change callbacks and records completion', () => {
       const newSelectedAnswers = new SelectedAnswers();
       selectedAnswers.recordCompletedQuestion.mockReturnValue(newSelectedAnswers);
+      newSelectedAnswers.isCompleted.mockReturnValue(true);
+      selectedAnswers.isCompleted.mockReturnValue(false);
 
       const changeCallback = jest.fn();
       const completedCallback = jest.fn();
@@ -209,6 +211,39 @@ describe('ScoreCalculation', () => {
       expect(changeCallback).toHaveBeenCalledWith(expect.any(ScoreCalculation));
       expect(changeCallback.mock.calls[0][0].selectedAnswers).toBe(newSelectedAnswers);
       expect(selectedAnswers.recordCompletedQuestion).toHaveBeenCalledWith(question);
+    });
+
+    it('calls question completed callbacks for newly completed questions', () => {
+      const newSelectedAnswers = new SelectedAnswers();
+      selectedAnswers.recordCompletedQuestion.mockReturnValue(newSelectedAnswers);
+
+      const completedCallback = jest.fn();
+      const mainQuestion = new Question({
+        title: 'main',
+        subQuestions: List.of(
+          new Question({
+            isMultipleChoice: true,
+            title: 'What kind of candy do you like?',
+            answers: List.of(
+              new Answer({ title: 'Snickers' }),
+              new Answer({ title: 'Starburst' }),
+              new Answer({ title: 'Twizzler' }),
+              new Answer({ title: 'Three Musketeers' }),
+            ),
+          })
+        ),
+      });
+      const subQuestion = mainQuestion.subQuestions.get(0);
+
+      selectedAnswers.isCompleted.mockReturnValue(false);
+      newSelectedAnswers.isCompleted.mockReturnValue(true);
+
+
+      makeCalculation(mainQuestion)
+        .onQuestionCompleted(mainQuestion, completedCallback)
+        .completeMultipleChoiceQuestion(subQuestion);
+
+      expect(completedCallback).toHaveBeenCalled();
     });
   });
 

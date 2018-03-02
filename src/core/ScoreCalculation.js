@@ -46,11 +46,7 @@ class ScoreCalculation {
 
     this.changeCallback(newCalculation);
 
-    this.questionCompletedCallbacks.keySeq().forEach(q => {
-      if (newSelectedAnswers.isCompleted(q) && !this.selectedAnswers.isCompleted(q)) {
-        this.questionCompletedCallbacks.get(q)();
-      }
-    });
+    this._notifyQuestionCompletedCallbacks(newSelectedAnswers);
 
     return newCalculation;
   }
@@ -68,11 +64,11 @@ class ScoreCalculation {
   }
 
   completeMultipleChoiceQuestion(question) {
-    const newCalculation = this._copyWith({
-      selectedAnswers: this.selectedAnswers.recordCompletedQuestion(question),
-    });
+    const newSelectedAnswers = this.selectedAnswers.recordCompletedQuestion(question);
+    const newCalculation = this._copyWith({ selectedAnswers: newSelectedAnswers });
     this.changeCallback(newCalculation);
-    this.questionCompletedCallbacks.get(question, utils.NO_OP)();
+    debugger;
+    this._notifyQuestionCompletedCallbacks(newSelectedAnswers);
     return newCalculation;
   }
 
@@ -90,6 +86,14 @@ class ScoreCalculation {
     return this._copyWith({
       changeCallback: utils.NO_OP,
       questionCompletedCallbacks: Map(),
+    });
+  }
+
+  _notifyQuestionCompletedCallbacks(newSelectedAnswers) {
+    this.questionCompletedCallbacks.keySeq().forEach(q => {
+      if (newSelectedAnswers.isCompleted(q) && !this.selectedAnswers.isCompleted(q)) {
+        this.questionCompletedCallbacks.get(q)();
+      }
     });
   }
 

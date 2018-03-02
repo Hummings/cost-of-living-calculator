@@ -41,8 +41,13 @@ class SelectedAnswers extends Record({ entries: Map(), completedQuestions: Set()
   isCompleted(question) {
     if (question.isMultipleChoice) {
       return this.completedQuestions.has(question);
+    } else if (question.hasSubQuestions()) {
+      return this._areAllSubQuestionsCompleted(question.subQuestions, question.subQuestionMode);
     } else {
-      return this._isAnswered(question);
+      const selectedAnswers = this._getAnswers(question);
+      return !!selectedAnswers.size && selectedAnswers
+        .map(a => this._isAnswerCompleted(a))
+        .reduce((a, b) => a && b, true);
     }
   }
 
@@ -63,31 +68,20 @@ class SelectedAnswers extends Record({ entries: Map(), completedQuestions: Set()
     }
   }
 
-  _isAnswered(question) {
-    if (question.hasSubQuestions()) {
-      return this._areAllSubQuestionsAnswered(question.subQuestions, question.subQuestionMode);
-    } else {
-      const selectedAnswers = this._getAnswers(question);
-      return !!selectedAnswers.size && selectedAnswers
-        .map(a => this._isAnswerCompleted(a))
-        .reduce((a, b) => a && b, true);
-    }
-  }
-
   _isAnswerCompleted(answer) {
     if (answer.hasSubQuestions()) {
-      return this._areAllSubQuestionsAnswered(answer.subQuestions, answer.subQuestionMode);
+      return this._areAllSubQuestionsCompleted(answer.subQuestions, answer.subQuestionMode);
     } else {
       return true;
     }
   }
 
-  _areAllSubQuestionsAnswered(subQuestions, subQuestionMode) {
+  _areAllSubQuestionsCompleted(subQuestions, subQuestionMode) {
     switch(subQuestionMode) {
       case SubQuestionModes.ANSWER_ALL:
-        return subQuestions.every(q => this._isAnswered(q));
+        return subQuestions.every(q => this.isCompleted(q));
       case SubQuestionModes.ANSWER_ONE:
-        return subQuestions.some(q => this._isAnswered(q));
+        return subQuestions.some(q => this.isCompleted(q));
       default:
         throw new Error('unknown subquestion mode ' + subQuestionMode);
     }

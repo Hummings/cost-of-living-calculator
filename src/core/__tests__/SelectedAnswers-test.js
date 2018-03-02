@@ -236,6 +236,46 @@ describe('SelectedAnswers', () => {
         .isCompleted(q)
       ).toBe(true);
     });
+
+    it('waits for multiple choice subquestions of answers to be completed', () => {
+      const question = new Question({
+        title: 'main',
+        answers: List.of(
+          new Answer({
+            text: 'hasSubs',
+            subQuestions: List.of(
+              new Question({
+                title: 'multiple-choice',
+                isMultipleChoice: true,
+                answers: List.of(
+                  new Answer({ text: 'a', }),
+                  new Answer({ text: 'b', }),
+                  new Answer({ text: 'c', }),
+                  new Answer({ text: 'd', }),
+                ),
+              }),
+            ),
+          }),
+        ),
+      });
+      const mainAnswer = question.answers.get(0);
+      const subQuestion = mainAnswer.subQuestions.get(0);
+
+      expect(
+        selectedAnswers
+        .recordAnswer(question, mainAnswer)
+        .recordAnswer(subQuestion, subQuestion.answers.get(0))
+        .isCompleted(question)
+      ).toBe(false);
+
+      expect(
+        selectedAnswers
+        .recordAnswer(question, mainAnswer)
+        .recordAnswer(subQuestion, subQuestion.answers.get(0))
+        .recordCompletedQuestion(subQuestion)
+        .isCompleted(question)
+      ).toBe(true);
+    });
   });
 
   describe('computeQuestionScore', () => {
