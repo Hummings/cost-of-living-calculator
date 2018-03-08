@@ -359,6 +359,139 @@
           ]
         }
       ]
+    },
+    {
+      "title": "Where do you shop for your wardrobe?",
+      "answers": [
+        {
+          "text": "H&M",
+          "points": 1
+        },
+        {
+          "text": "The Gap",
+          "points": 2
+        },
+        {
+          "text": "Banana Republic & Nordstrom",
+          "points": 4
+        },
+        {
+          "text": "Saks",
+          "points": 10
+        },
+        {
+          "text": "Barney's",
+          "points": 15
+        },
+        {
+          "text": "Custom tailor",
+          "points": 18
+        }
+      ]
+    },
+    {
+      "title": "What are the things you don't want to live without?",
+      "subQuestions": [
+        {
+          "title": "Daily Addictions",
+          "isMultipleChoice": true,
+          "answers": [
+            {
+              "text": "A Venti Soy Chai Latte",
+              "points": 1
+            },
+            {
+              "text": "Avocado Toast",
+              "points": 2
+            },
+            {
+              "text": "Cannabis and Other Goodies",
+              "points": 5
+            },
+            {
+              "text": "Single Malts and Cigar",
+              "points": 7
+            }
+          ]
+        },
+        {
+          "title": "Weekend Fun Activities",
+          "isMultipleChoice": true,
+          "answers": [
+            {
+              "text": "Pizza, Beer, and Netflix",
+              "points": 1
+            },
+            {
+              "text": "Groupon and Restaraunt Week",
+              "points": 2
+            },
+            {
+              "text": "A nice meal with a solid bottle of wine",
+              "points": 5
+            },
+            {
+              "text": "Tasting menu",
+              "points": 10
+            },
+            {
+              "text": "Dinner party catered by your private chef",
+              "points": 15
+            }
+          ]
+        },
+        {
+          "title": "Vacations",
+          "isMultipleChoice": true,
+          "answers": [
+            {
+              "text": "A weekend ski trip",
+              "points": 1
+            },
+            {
+              "text": "One week Grand Canyon camping trip",
+              "points": 3
+            },
+            {
+              "text": "A week at the Club Med Cancun",
+              "points": 4
+            },
+            {
+              "text": "10 Day National Geographic Cruise of the Galapagos Islands",
+              "points": 6
+            },
+            {
+              "text": "Summer stay at the private villa in Tuscany",
+              "points": 10
+            },
+            {
+              "text": "A trip to space with Virgin Galactic",
+              "points": 100
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "And finally, what do you do for charity?",
+      "answers": [
+        {
+          "text": "Spare change to the homeless",
+          "points": 0
+        },
+        {
+          "text": "Membership level at your favorite charities",
+          "points": 1
+        },
+        {
+          "text": "Special Donor Circle at the Opera",
+          "points": 4
+        },
+        {
+          "text": "Your own table at the Annual Benefit's Dinner",
+          "points": 10
+        }
+      ]
     }
   ],
   "summary": {
